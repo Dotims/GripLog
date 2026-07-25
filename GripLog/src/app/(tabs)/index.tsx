@@ -1,18 +1,23 @@
 import { StyleSheet, Text, View } from "react-native";
 
+import { Colors } from "@/constants/theme";
+
 export default function HomeScreen() {
-    return (
-        <View style={styles.container}>
-            <Text>Home Screen</Text>
-        </View>
-    );
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>Home Screen</Text>
+    </View>
+  );
 }
 
-
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    }
-})
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.background,
+  },
+  text: {
+    color: Colors.text,
+  },
+});
