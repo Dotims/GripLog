@@ -1,11 +1,17 @@
-import { StyleSheet, Text, View } from "react-native";
-
 import { Colors } from "@/constants/theme";
+import { ExerciseCard } from "@/features/exercises/ExerciseCard";
+import { mockExercises } from "@/features/exercises/mock";
+import { FlatList, StyleSheet, View } from "react-native";
 
 export default function ExercisesScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Exercises Screen</Text>
+      <FlatList
+        data={mockExercises}
+        keyExtractor={(item) => item.exerciseId}
+        renderItem={({ item }) => <ExerciseCard exercise={item} />}
+        contentContainerStyle={styles.listContent}
+      />
     </View>
   );
 }
@@ -13,11 +19,10 @@ export default function ExercisesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     backgroundColor: Colors.background,
   },
-  text: {
-    color: Colors.text,
+  listContent: {
+    padding: 16,
+    gap: 12,
   },
 });
