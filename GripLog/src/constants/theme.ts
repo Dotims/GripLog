@@ -8,4 +8,5 @@ export const Colors = {
   border: "#2A272B",
   text: "#F5F3F4",
   muted: "#928C90",
+  error: "#F04438",
 } as const;
