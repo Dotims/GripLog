@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
 import { ClipboardList, Dumbbell, House, User } from "lucide-react-native";
 
-import { Colors } from "@/constants/theme";
+import { Colors, Fonts } from "@/constants/theme";
 
 export default function TabsLayout() {
   return (
@@ -13,11 +13,17 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: Colors.surface,
           borderTopColor: Colors.border,
+          borderTopWidth: 2,
           height: 68,
           paddingTop: 8,
           paddingBottom: 8,
         },
-        tabBarLabelStyle: { fontSize: 12 },
+        tabBarLabelStyle: {
+          fontFamily: Fonts.mono,
+          fontSize: 10,
+          letterSpacing: 0.5,
+          textTransform: "uppercase",
+        },
       }}
     >
       <Tabs.Screen

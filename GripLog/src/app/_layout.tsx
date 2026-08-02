@@ -1,12 +1,12 @@
-import { DarkTheme, Stack, ThemeProvider } from "expo-router";
+import { DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 
 import { Colors } from "@/constants/theme";
 
 const GripLogTheme = {
-  ...DarkTheme,
+  ...DefaultTheme,
   colors: {
-    ...DarkTheme.colors,
+    ...DefaultTheme.colors,
     primary: Colors.accent,
     background: Colors.background,
     card: Colors.surface,
@@ -19,7 +19,7 @@ const GripLogTheme = {
 export default function RootLayout() {
   return (
     <ThemeProvider value={GripLogTheme}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <Stack screenOptions={{ headerShown: false }} />
     </ThemeProvider>
   );
