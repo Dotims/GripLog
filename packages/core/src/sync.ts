@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { SET_TYPES, TRACKING_TYPES } from "./sets";
+import { SET_LIMITS, SET_TYPES, TRACKING_TYPES } from "./sets";
 
 /**
  * The contract between the phone and the API. Sync works on whole aggregates
@@ -17,8 +17,8 @@ export const syncSetSchema = z.object({
   id,
   position,
   type: z.enum(SET_TYPES),
-  weightKg: z.number().min(0).max(2000).nullable(),
-  reps: z.int().min(0).max(1000).nullable(),
+  weightKg: z.number().min(0).max(SET_LIMITS.maxWeightKg).nullable(),
+  reps: z.int().min(0).max(SET_LIMITS.maxReps).nullable(),
   rpe: z.number().min(1).max(10).nullable(),
   durationSeconds: z.int().min(0).nullable(),
   distanceMeters: z.int().min(0).nullable(),
@@ -68,8 +68,8 @@ export const syncRoutineSchema = z.object({
               id,
               position,
               type: z.enum(SET_TYPES),
-              weightKg: z.number().min(0).max(2000).nullable(),
-              reps: z.int().min(0).max(1000).nullable(),
+              weightKg: z.number().min(0).max(SET_LIMITS.maxWeightKg).nullable(),
+              reps: z.int().min(0).max(SET_LIMITS.maxReps).nullable(),
             }),
           )
           .max(50),

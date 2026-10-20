@@ -5,6 +5,16 @@ export type SetType = (typeof SET_TYPES)[number];
 export const TRACKING_TYPES = ["weight_reps", "reps", "duration", "distance_duration"] as const;
 export type TrackingType = (typeof TRACKING_TYPES)[number];
 
+/** Hard limits shared by the importer and the sync contract; anything above is a typo. */
+export const SET_LIMITS = {
+  maxWeightKg: 2000,
+  maxReps: 1000,
+} as const;
+
+export function isWithinLimits(set: { weightKg: number | null; reps: number | null }): boolean {
+  return (set.weightKg ?? 0) <= SET_LIMITS.maxWeightKg && (set.reps ?? 0) <= SET_LIMITS.maxReps;
+}
+
 export type SetLike = {
   type: SetType;
   weightKg: number | null;
