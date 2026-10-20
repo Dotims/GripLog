@@ -8,3 +8,4 @@ package-lock.json
 *.json
 !package.json
 !.prettierrc.json
+**/expo-env.d.ts
