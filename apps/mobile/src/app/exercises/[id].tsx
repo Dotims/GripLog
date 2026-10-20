@@ -1,268 +1,284 @@
-import { Stack, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  formatDuration,
+  formatNumber,
+  RECORD_KINDS,
+  setLabel,
+  setNumbers,
+  suggestNextSession,
+  toDisplayWeight,
+  type RecordKind,
+} from "@griplog/core";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { Sparkles, Trophy } from "lucide-react-native";
+import { useState } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 
-import { BorderWidth, Colors, Fonts, Radii, Shadow } from "@/constants/theme";
-import { fetchExerciseById } from "@/features/exercises/api";
-import { Exercise } from "@/features/exercises/types";
+import { LineChart } from "@/components/charts/LineChart";
+import { AppText, Card, Chip, Screen, SectionLabel, SegmentedControl } from "@/components/ui";
+import { BorderWidth, Colors, Radii, Spacing } from "@/constants/theme";
+import { ExerciseImage } from "@/features/exercises/ExerciseImage";
+import { useExercise, useExerciseHistory, useExerciseRecords } from "@/features/exercises/hooks";
+import { groupSessions, sessionScore, toProgressionSessions } from "@/features/exercises/sessions";
+import { usePreferences } from "@/features/profile/PreferencesProvider";
+import { formatSetValue } from "@/features/workouts/format-set";
+import { formatRecordValue, recordLabel } from "@/features/workouts/records";
+import { formatRelativeDay, formatShortDate } from "@/lib/dates";
+
+type Tab = "summary" | "history" | "howto";
+
+const TABS = [
+  { value: "summary", label: "Summary" },
+  { value: "history", label: "History" },
+  { value: "howto", label: "How to" },
+] as const;
+
+const CHART_SESSIONS = 20;
 
 export default function ExerciseDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const [exercise, setExercise] = useState<Exercise | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function loadExercise() {
-      try {
-        const fetchedExercise = await fetchExerciseById(id);
-        setExercise(fetchedExercise);
-      } catch (error) {
-        console.error("Error fetching exercise:", error);
-        setError(error instanceof Error ? error.message : "Nie udało się pobrać ćwiczenia");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadExercise();
-  }, [id]);
-
-  if (isLoading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={Colors.accent} />
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.center}>
-        <View style={styles.errorBox}>
-          <Text style={styles.errorLabel}>ERROR</Text>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      </View>
-    );
-  }
+  const router = useRouter();
+  const { id: rawId } = useLocalSearchParams<{ id: string }>();
+  const id = decodeURIComponent(rawId);
+  const { unit } = usePreferences();
+  const exercise = useExercise(id);
+  const history = useExerciseHistory(id);
+  const records = useExerciseRecords(id);
+  const [tab, setTab] = useState<Tab>("summary");
 
   if (!exercise) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>No exercise found.</Text>
-      </View>
+      <Screen edges={[]}>
+        <AppText color={Colors.muted} style={styles.missing}>
+          Exercise not found.
+        </AppText>
+      </Screen>
     );
   }
 
-  const specs = [
-    { label: "Body Part", value: exercise.bodyParts.join(", ") },
-    { label: "Equipment", value: exercise.equipments.join(", ") },
-    { label: "Secondary", value: exercise.secondaryMuscles.join(", ") || "—" },
-  ];
+  const sessions = groupSessions(history);
+  const bestByKind = new Map<RecordKind, number>();
+  for (const record of records) {
+    bestByKind.set(record.kind, Math.max(bestByKind.get(record.kind) ?? 0, record.value));
+  }
+  const chartPoints = sessions
+    .slice(0, CHART_SESSIONS)
+    .reverse()
+    .flatMap((session) => {
+      const score = sessionScore(session, exercise.trackingType);
+      return score === null
+        ? []
+        : [
+            {
+              key: session.workoutId,
+              value: score,
+              label: formatShortDate(new Date(session.startedAt)),
+            },
+          ];
+    });
+  const timed =
+    exercise.trackingType === "duration" || exercise.trackingType === "distance_duration";
+  const formatScore = (value: number) =>
+    exercise.trackingType === "weight_reps"
+      ? `${formatNumber(toDisplayWeight(value, unit))} ${unit}`
+      : timed
+        ? formatDuration(value)
+        : `${value} reps`;
+  const suggestion =
+    exercise.trackingType === "weight_reps"
+      ? suggestNextSession(toProgressionSessions(sessions))
+      : null;
 
   return (
-    <>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          headerTitle: "",
-          headerShadowVisible: false,
-          headerStyle: { backgroundColor: Colors.background },
-          headerTintColor: Colors.text,
-        }}
-      />
+    <Screen scroll edges={[]}>
+      <Stack.Screen options={{ headerTitle: "" }} />
 
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-        <View style={styles.gifCard}>
-          <Image source={{ uri: exercise.gifUrl }} style={styles.gif} resizeMode="contain" />
-        </View>
+      <Card shadow="hardLg" style={styles.imageCard}>
+        <ExerciseImage
+          images={exercise.images}
+          name={exercise.name}
+          animated
+          style={styles.image}
+        />
+      </Card>
 
-        <Text style={styles.name}>{exercise.name}</Text>
-
-        <View style={styles.chipRow}>
-          {exercise.targetMuscles.map((muscle) => (
-            <View key={muscle} style={styles.chip}>
-              <Text style={styles.chipText}>{muscle}</Text>
-            </View>
+      <View style={styles.titleBlock}>
+        <AppText variant="display">{exercise.name}</AppText>
+        <View style={styles.chips}>
+          {exercise.primaryMuscles.map((muscle) => (
+            <Chip key={muscle} label={muscle} selected />
           ))}
+          {exercise.equipment ? <Chip label={exercise.equipment} /> : null}
+          {exercise.isCustom ? <Chip label="custom" selected tone="highlight" /> : null}
         </View>
+      </View>
 
-        <View style={styles.sheet}>
-          {specs.map((spec, index) => (
-            <View key={spec.label} style={[styles.specRow, index > 0 && styles.specDivider]}>
-              <Text style={styles.specLabel}>{spec.label}</Text>
-              <Text style={styles.specValue}>{spec.value}</Text>
-            </View>
-          ))}
-        </View>
+      <SegmentedControl options={TABS} value={tab} onChange={setTab} />
 
-        <Text style={styles.sectionLabel}>Instructions</Text>
-        <View style={styles.steps}>
-          {exercise.instructions.map((step, index) => (
-            <View key={step} style={styles.step}>
-              <View style={styles.stepNum}>
-                <Text style={styles.stepNumText}>{index + 1}</Text>
+      {tab === "summary" ? (
+        <>
+          {suggestion && suggestion.kind !== "no_data" ? (
+            <Card tone="highlight" style={styles.coach}>
+              <View style={styles.coachHeader}>
+                <Sparkles color={Colors.text} size={18} strokeWidth={2.5} />
+                <AppText variant="label">Next session</AppText>
               </View>
-              <Text style={styles.stepText}>{step.replace(/^Step:\d+\s*/, "")}</Text>
+              <AppText variant="title">
+                {formatNumber(toDisplayWeight(suggestion.weightKg ?? 0, unit))} {unit} ×{" "}
+                {suggestion.reps}
+              </AppText>
+              <AppText>{suggestion.reason}</AppText>
+            </Card>
+          ) : null}
+
+          <SectionLabel>Personal records</SectionLabel>
+          <View style={styles.recordGrid}>
+            {RECORD_KINDS.filter((kind) => bestByKind.has(kind)).map((kind) => (
+              <Card key={kind} style={styles.recordCard}>
+                <Trophy color={Colors.accent} size={18} strokeWidth={2.5} />
+                <AppText variant="label" color={Colors.muted}>
+                  {recordLabel(kind)}
+                </AppText>
+                <AppText variant="number">
+                  {formatRecordValue(kind, bestByKind.get(kind) ?? 0, unit)}
+                </AppText>
+              </Card>
+            ))}
+            {bestByKind.size === 0 ? (
+              <AppText color={Colors.muted}>
+                Log this exercise once and its records show up here.
+              </AppText>
+            ) : null}
+          </View>
+
+          {chartPoints.length > 1 ? (
+            <>
+              <SectionLabel>
+                {exercise.trackingType === "weight_reps"
+                  ? "Estimated 1RM"
+                  : timed
+                    ? "Longest set"
+                    : "Most reps"}
+              </SectionLabel>
+              <Card style={styles.chart}>
+                <LineChart points={chartPoints} formatValue={formatScore} />
+              </Card>
+            </>
+          ) : null}
+        </>
+      ) : null}
+
+      {tab === "history" ? (
+        sessions.length === 0 ? (
+          <AppText color={Colors.muted}>No sets logged yet.</AppText>
+        ) : (
+          sessions.map((session) => (
+            <Card key={session.workoutId} style={styles.session}>
+              <Pressable onPress={() => router.push(`/workouts/${session.workoutId}`)}>
+                <AppText variant="bold">{session.workoutTitle}</AppText>
+                <AppText variant="label" color={Colors.muted}>
+                  {formatRelativeDay(session.startedAt)}
+                </AppText>
+              </Pressable>
+              {session.sets.map((set, index) => (
+                <View key={set.setId} style={styles.historySet}>
+                  <AppText variant="label" color={Colors.muted} style={styles.setIndex}>
+                    {setLabel(set.type, setNumbers(session.sets)[index] ?? 0)}
+                  </AppText>
+                  <AppText variant="mono">
+                    {formatSetValue(set, exercise.trackingType, unit)}
+                  </AppText>
+                </View>
+              ))}
+            </Card>
+          ))
+        )
+      ) : null}
+
+      {tab === "howto" ? (
+        exercise.instructions.length === 0 ? (
+          <AppText color={Colors.muted}>No instructions for this exercise.</AppText>
+        ) : (
+          exercise.instructions.map((step, index) => (
+            <View key={step} style={styles.step}>
+              <View style={styles.stepNumber}>
+                <AppText variant="label">{index + 1}</AppText>
+              </View>
+              <AppText style={styles.flex}>{step}</AppText>
             </View>
-          ))}
-        </View>
-      </ScrollView>
-    </>
+          ))
+        )
+      ) : null}
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  center: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
-    backgroundColor: Colors.background,
+  missing: {
+    padding: Spacing.lg,
   },
-  errorBox: {
-    backgroundColor: Colors.surface,
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
-    borderRadius: Radii.card,
-    boxShadow: Shadow.hard,
-    padding: 16,
-    gap: 6,
-  },
-  errorLabel: {
-    color: Colors.accent,
-    fontFamily: Fonts.mono,
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1,
-  },
-  errorText: {
-    color: Colors.text,
-    fontSize: 15,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  content: {
-    padding: 20,
-    paddingBottom: 40,
-    gap: 16,
-  },
-  gifCard: {
-    backgroundColor: Colors.surface,
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
-    borderRadius: Radii.card,
-    boxShadow: Shadow.hardLg,
+  imageCard: {
     overflow: "hidden",
   },
-  gif: {
+  image: {
     width: "100%",
-    aspectRatio: 1,
+    aspectRatio: 4 / 3,
   },
-  name: {
-    color: Colors.text,
-    fontSize: 34,
-    fontWeight: "900",
-    letterSpacing: -1,
-    lineHeight: 36,
-    textTransform: "uppercase",
+  titleBlock: {
+    gap: Spacing.sm,
   },
-  chipRow: {
+  chips: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: 6,
   },
-  chip: {
-    backgroundColor: Colors.accent,
-    borderWidth: BorderWidth.hair,
-    borderColor: Colors.border,
-    borderRadius: Radii.chip,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+  coach: {
+    padding: Spacing.lg,
+    gap: 6,
   },
-  chipText: {
-    color: Colors.accentInk,
-    fontFamily: Fonts.mono,
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.3,
-    textTransform: "uppercase",
-  },
-  sheet: {
-    backgroundColor: Colors.surface,
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
-    borderRadius: Radii.card,
-    boxShadow: Shadow.hard,
-    overflow: "hidden",
-  },
-  specRow: {
+  coachHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    gap: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 11,
+    gap: 6,
   },
-  specDivider: {
-    borderTopWidth: BorderWidth.hair,
-    borderTopColor: Colors.border,
+  recordGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.md,
   },
-  specLabel: {
-    color: Colors.muted,
-    fontFamily: Fonts.mono,
-    fontSize: 11,
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
+  recordCard: {
+    flexGrow: 1,
+    flexBasis: "45%",
+    padding: Spacing.md,
+    gap: 4,
   },
-  specValue: {
-    flexShrink: 1,
-    textAlign: "right",
-    color: Colors.text,
-    fontSize: 14,
-    fontWeight: "600",
-    textTransform: "capitalize",
+  chart: {
+    padding: Spacing.lg,
   },
-  sectionLabel: {
-    color: Colors.text,
-    fontFamily: Fonts.mono,
-    fontSize: 13,
-    fontWeight: "700",
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    marginTop: 4,
+  session: {
+    padding: Spacing.lg,
+    gap: 6,
   },
-  steps: {
-    gap: 10,
+  historySet: {
+    flexDirection: "row",
+    gap: Spacing.md,
+  },
+  setIndex: {
+    width: 18,
   },
   step: {
     flexDirection: "row",
-    gap: 12,
-    alignItems: "flex-start",
+    gap: Spacing.md,
   },
-  stepNum: {
+  stepNumber: {
     width: 26,
     height: 26,
-    borderRadius: 6,
-    borderWidth: BorderWidth.hair,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surface,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: Colors.surface,
+    borderWidth: BorderWidth.hair,
+    borderColor: Colors.border,
+    borderRadius: Radii.chip,
   },
-  stepNumText: {
-    color: Colors.text,
-    fontFamily: Fonts.mono,
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  stepText: {
+  flex: {
     flex: 1,
-    color: Colors.text,
-    fontSize: 14,
-    lineHeight: 20,
   },
 });

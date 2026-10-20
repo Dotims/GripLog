@@ -1,97 +1,79 @@
-import { BorderWidth, Colors, Fonts, Radii, Shadow } from "@/constants/theme";
-import { Image, StyleSheet, Text, View } from "react-native";
-import type { Exercise } from "./types";
+import { Check } from "lucide-react-native";
+import { StyleSheet, View } from "react-native";
+
+import { AppText, Card } from "@/components/ui";
+import { BorderWidth, Colors, Radii } from "@/constants/theme";
+
+import { ExerciseImage } from "./ExerciseImage";
+import type { ExerciseListItem } from "./repository";
 
 type ExerciseCardProps = {
-  exercise: Exercise;
+  exercise: ExerciseListItem;
+  onPress: () => void;
+  selected?: boolean;
+  uses?: number;
 };
 
-export function ExerciseCard({ exercise }: ExerciseCardProps) {
-  const { name, gifUrl, bodyParts, equipments, targetMuscles } = exercise;
-
-  const meta = [bodyParts[0], equipments[0]].filter(Boolean).join(" / ");
+export function ExerciseCard({ exercise, onPress, selected = false, uses }: ExerciseCardProps) {
+  const { name, images, equipment, primaryMuscles, isCustom } = exercise;
+  const meta = [primaryMuscles[0], equipment].filter(Boolean).join(" / ");
 
   return (
-    <View style={styles.card}>
-      <Image source={{ uri: gifUrl }} style={styles.thumb} />
-
+    <Card
+      onPress={onPress}
+      tone={selected ? "highlight" : "surface"}
+      style={styles.card}
+      accessibilityLabel={name}
+      testID={`exercise-${exercise.id}`}
+    >
+      <ExerciseImage images={images} name={name} style={styles.thumb} />
       <View style={styles.body}>
-        <Text style={styles.name} numberOfLines={2}>
+        <AppText variant="heading" numberOfLines={2}>
           {name}
-        </Text>
-
-        {meta ? (
-          <Text style={styles.meta} numberOfLines={1}>
-            {meta}
-          </Text>
-        ) : null}
-
-        {targetMuscles[0] ? (
-          <View style={styles.chip}>
-            <Text style={styles.chipText} numberOfLines={1}>
-              {targetMuscles[0]}
-            </Text>
-          </View>
-        ) : null}
+        </AppText>
+        <AppText variant="label" color={Colors.muted} numberOfLines={1}>
+          {isCustom ? `custom${meta ? ` / ${meta}` : ""}` : meta}
+        </AppText>
       </View>
-    </View>
+      {selected ? (
+        <View style={styles.check}>
+          <Check color={Colors.accentInk} size={16} strokeWidth={3} />
+        </View>
+      ) : uses ? (
+        <AppText variant="label" color={Colors.muted}>
+          {uses}×
+        </AppText>
+      ) : null}
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     gap: 12,
-    padding: 12,
-    backgroundColor: Colors.surface,
-    borderRadius: Radii.card,
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
-    boxShadow: Shadow.hard,
+    padding: 10,
   },
   thumb: {
-    width: 62,
-    height: 62,
+    width: 56,
+    height: 56,
     borderRadius: 6,
-    borderWidth: BorderWidth.thick,
+    borderWidth: BorderWidth.hair,
     borderColor: Colors.border,
-    backgroundColor: Colors.background,
   },
   body: {
     flex: 1,
-    gap: 6,
+    gap: 4,
   },
-  name: {
-    color: Colors.text,
-    fontSize: 16,
-    fontWeight: "800",
-    letterSpacing: -0.3,
-    lineHeight: 19,
-    textTransform: "uppercase",
-  },
-  meta: {
-    color: Colors.muted,
-    fontFamily: Fonts.mono,
-    fontSize: 11,
-    letterSpacing: 0.3,
-    textTransform: "uppercase",
-  },
-  chip: {
-    alignSelf: "flex-start",
+  check: {
+    width: 28,
+    height: 28,
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: Colors.accent,
     borderWidth: BorderWidth.hair,
     borderColor: Colors.border,
     borderRadius: Radii.chip,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  chipText: {
-    color: Colors.accentInk,
-    fontFamily: Fonts.mono,
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.3,
-    textTransform: "uppercase",
   },
 });

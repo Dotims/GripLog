@@ -1,11 +1,20 @@
 import { Tabs } from "expo-router";
+import { BottomTabBar } from "expo-router/js-tabs";
 import { ClipboardList, Dumbbell, House, User } from "lucide-react-native";
+import { View } from "react-native";
 
-import { Colors, Fonts } from "@/constants/theme";
+import { BorderWidth, Colors, Fonts } from "@/constants/theme";
+import { ActiveWorkoutBar } from "@/features/active-workout/ActiveWorkoutBar";
 
 export default function TabsLayout() {
   return (
     <Tabs
+      tabBar={(props) => (
+        <View>
+          <ActiveWorkoutBar />
+          <BottomTabBar {...props} />
+        </View>
+      )}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: Colors.accent,
@@ -13,15 +22,14 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: Colors.surface,
           borderTopColor: Colors.border,
-          borderTopWidth: 2,
-          height: 68,
+          borderTopWidth: BorderWidth.thick,
+          height: 72,
           paddingTop: 8,
-          paddingBottom: 8,
         },
         tabBarLabelStyle: {
-          fontFamily: Fonts.mono,
+          fontFamily: Fonts.monoBold,
           fontSize: 10,
-          letterSpacing: 0.5,
+          letterSpacing: 0.6,
           textTransform: "uppercase",
         },
       }}
@@ -29,29 +37,31 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
-          tabBarIcon: ({ color, size }) => <House color={color} size={size} />,
+          title: "Feed",
+          tabBarIcon: ({ color, size }) => <House color={color} size={size} strokeWidth={2.5} />,
         }}
       />
       <Tabs.Screen
         name="exercises"
         options={{
           title: "Exercises",
-          tabBarIcon: ({ color, size }) => <Dumbbell color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Dumbbell color={color} size={size} strokeWidth={2.5} />,
         }}
       />
       <Tabs.Screen
         name="routines"
         options={{
-          title: "Routines",
-          tabBarIcon: ({ color, size }) => <ClipboardList color={color} size={size} />,
+          title: "Workout",
+          tabBarIcon: ({ color, size }) => (
+            <ClipboardList color={color} size={size} strokeWidth={2.5} />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <User color={color} size={size} strokeWidth={2.5} />,
         }}
       />
     </Tabs>
