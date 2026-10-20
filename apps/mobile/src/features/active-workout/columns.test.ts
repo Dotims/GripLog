@@ -24,7 +24,11 @@ describe("columnsFor", () => {
 describe("formatPrevious", () => {
   it("formats last time's set for the hint", () => {
     expect(
-      formatPrevious({ weightKg: 80, reps: 8, durationSeconds: null }, "weight_reps", "kg"),
+      formatPrevious(
+        { type: "normal", weightKg: 80, reps: 8, durationSeconds: null },
+        "weight_reps",
+        "kg",
+      ),
     ).toBe("80 × 8");
     expect(formatPrevious(undefined, "weight_reps", "kg")).toBe("-");
   });

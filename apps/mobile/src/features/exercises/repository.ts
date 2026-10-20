@@ -1,4 +1,4 @@
-import type { TrackingType } from "@griplog/core";
+import type { SetType, TrackingType } from "@griplog/core";
 import { and, asc, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 
 import { newId, nowIso } from "@/db/ids";
@@ -133,6 +133,7 @@ export function exerciseHistoryQuery(db: Db, exerciseId: string) {
 export type ExerciseHistoryRow = Awaited<ReturnType<typeof exerciseHistoryQuery>>[number];
 
 export type PreviousSet = {
+  type: SetType;
   weightKg: number | null;
   reps: number | null;
   durationSeconds: number | null;
@@ -144,7 +145,12 @@ export function previousSets(db: Db, exerciseId: string): PreviousSet[] {
   const lastWorkoutId = rows[0]?.workoutId;
   return rows
     .filter((row) => row.workoutId === lastWorkoutId)
-    .map(({ weightKg, reps, durationSeconds }) => ({ weightKg, reps, durationSeconds }));
+    .map(({ type, weightKg, reps, durationSeconds }) => ({
+      type,
+      weightKg,
+      reps,
+      durationSeconds,
+    }));
 }
 
 export type ExerciseInfo = { exerciseId: string; name: string; trackingType: TrackingType };

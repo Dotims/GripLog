@@ -32,7 +32,7 @@
         {
           "backgroundColor": "#DDE0E3",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 120
+          "imageWidth": 160
         }
       ],
       "expo-status-bar",
@@ -41,6 +41,12 @@
       "expo-sqlite",
       "expo-secure-store",
       "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          "color": "#FF3B47"
+        }
+      ],
       [
         "expo-image-picker",
         {

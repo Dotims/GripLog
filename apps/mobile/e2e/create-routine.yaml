@@ -1,0 +1,23 @@
+# Creates a routine and starts a workout from it.
+appId: com.dotims.griplog
+---
+- launchApp:
+    clearState: true
+- tapOn: "Workout"
+- tapOn: "New routine"
+- tapOn:
+    id: "routine-name"
+- inputText: "Push day"
+- tapOn: "Add exercises"
+- tapOn:
+    id: "exercise-search"
+- inputText: "barbell bench"
+- tapOn:
+    id: "exercise-Barbell_Bench_Press_-_Medium_Grip"
+- tapOn:
+    id: "confirm-exercises"
+- tapOn:
+    id: "save-routine"
+- assertVisible: "Push day"
+- tapOn: "Start"
+- assertVisible: "Barbell Bench Press - Medium Grip"

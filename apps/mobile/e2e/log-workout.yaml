@@ -1,0 +1,38 @@
+# Logs a workout with one exercise and checks the summary.
+# Run: maestro test e2e/log-workout.yaml (needs a development build installed)
+appId: com.dotims.griplog
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "start-workout"
+- tapOn:
+    id: "add-exercise"
+- tapOn:
+    id: "exercise-search"
+- inputText: "dumbbell bench"
+- tapOn:
+    id: "exercise-Dumbbell_Bench_Press"
+- tapOn:
+    id: "confirm-exercises"
+- tapOn:
+    id: "input-weight-.*"
+    index: 0
+- inputText: "30"
+- tapOn:
+    id: "input-reps-.*"
+    index: 0
+- inputText: "8"
+- tapOn:
+    id: "complete-.*"
+    index: 0
+- assertVisible:
+    id: "rest-timer"
+- tapOn: "Skip rest"
+- tapOn:
+    id: "finish-workout"
+- tapOn: "Finish"
+- assertVisible: "Done."
+- tapOn:
+    id: "summary-done"
+- assertVisible: "Your workouts · 1"

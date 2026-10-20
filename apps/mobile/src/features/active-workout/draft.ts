@@ -19,20 +19,22 @@ export type TemplateExercise = {
   sets: TemplateSet[];
 };
 
-/** A fresh exercise block, pre-filled with as many sets as last time. */
+/** A fresh exercise block with as many sets, of the same types, as last time. */
 export function newDraftExercise(
   info: ExerciseInfo,
   previous: PreviousSet[],
   restSeconds: number,
 ): DraftExercise {
-  const setCount = previous.length > 0 ? previous.length : DEFAULT_SET_COUNT;
   return {
     id: newId(),
     ...info,
     notes: null,
     restSeconds,
     previous,
-    sets: Array.from({ length: setCount }, () => emptySet()),
+    sets:
+      previous.length > 0
+        ? previous.map((p) => emptySet(p.type))
+        : Array.from({ length: DEFAULT_SET_COUNT }, () => emptySet()),
   };
 }
 

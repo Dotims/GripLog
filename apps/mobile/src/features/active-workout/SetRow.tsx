@@ -116,6 +116,7 @@ export function SetRow({
             }
             decimals={column.decimals}
             accessibilityLabel={column.label}
+            testID={`input-${column.key}-${setId}`}
             style={[styles.input, set.completed && styles.inputCompleted]}
           />
         ))}

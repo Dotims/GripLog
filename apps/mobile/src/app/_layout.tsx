@@ -14,6 +14,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { Colors, Fonts } from "@/constants/theme";
 import { DatabaseProvider } from "@/db/DatabaseProvider";
+import { startRestNotifications } from "@/features/active-workout/rest-notification";
 import { useActiveWorkout } from "@/features/active-workout/use-active-workout";
 import { PreferencesProvider } from "@/features/profile/PreferencesProvider";
 
@@ -47,6 +48,7 @@ function RootStack() {
     SplashScreen.hideAsync().catch(() => {});
     // Restore a workout that was running when the app was closed.
     useActiveWorkout.persist.rehydrate();
+    return startRestNotifications();
   }, []);
 
   return (

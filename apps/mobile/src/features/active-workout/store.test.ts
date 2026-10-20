@@ -9,7 +9,11 @@ function startedStore() {
   store
     .getState()
     .addExercises([
-      newDraftExercise(bench, [{ weightKg: 80, reps: 8, durationSeconds: null }], 90),
+      newDraftExercise(
+        bench,
+        [{ type: "normal", weightKg: 80, reps: 8, durationSeconds: null }],
+        90,
+      ),
     ]);
   return store;
 }
@@ -113,5 +117,23 @@ describe("active workout store", () => {
     const store = createActiveWorkoutStore();
     store.getState().rename("Nothing");
     expect(store.getState().workout).toBeNull();
+  });
+});
+
+describe("newDraftExercise", () => {
+  it("repeats last session's set types, warm-ups included", () => {
+    const draft = newDraftExercise(
+      bench,
+      [
+        { type: "warmup", weightKg: 40, reps: 10, durationSeconds: null },
+        { type: "normal", weightKg: 80, reps: 8, durationSeconds: null },
+      ],
+      90,
+    );
+    expect(draft.sets.map((s) => s.type)).toEqual(["warmup", "normal"]);
+  });
+
+  it("starts with three empty sets for a new exercise", () => {
+    expect(newDraftExercise(bench, [], 90).sets).toHaveLength(3);
   });
 });
