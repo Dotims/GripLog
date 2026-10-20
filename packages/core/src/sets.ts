@@ -42,3 +42,9 @@ export function setLabel(type: SetType, workingIndex: number): string {
       return String(workingIndex);
   }
 }
+
+/** Number shown for each set: normal sets count 1, 2, 3; other types repeat the last number. */
+export function setNumbers(sets: readonly Pick<SetLike, "type">[]): number[] {
+  let count = 0;
+  return sets.map((set) => (set.type === "normal" ? ++count : count));
+}

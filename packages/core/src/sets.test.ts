@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { setLabel, setVolume, totalVolume, workingSetCount, type SetLike } from "./sets";
+import {
+  setLabel,
+  setNumbers,
+  setVolume,
+  totalVolume,
+  workingSetCount,
+  type SetLike,
+} from "./sets";
 
 const set = (overrides: Partial<SetLike>): SetLike => ({
   type: "normal",
@@ -37,5 +44,12 @@ describe("setLabel", () => {
     expect(setLabel("warmup", 1)).toBe("W");
     expect(setLabel("dropset", 1)).toBe("D");
     expect(setLabel("failure", 1)).toBe("F");
+  });
+});
+
+describe("setNumbers", () => {
+  it("counts normal sets only", () => {
+    const types = ["warmup", "normal", "normal", "dropset", "normal"] as const;
+    expect(setNumbers(types.map((type) => ({ type })))).toEqual([0, 1, 2, 2, 3]);
   });
 });
