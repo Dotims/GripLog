@@ -1,0 +1,10 @@
+node_modules
+dist
+coverage
+.expo
+apps/mobile/drizzle
+apps/api/drizzle
+package-lock.json
+*.json
+!package.json
+!.prettierrc.json
