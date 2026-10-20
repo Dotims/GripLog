@@ -1,6 +1,7 @@
 import { formatDuration, formatWeight, type WeightUnit } from "@griplog/core";
 import { Trophy } from "lucide-react-native";
-import { StyleSheet, View } from "react-native";
+import type { ReactNode } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText, Card } from "@/components/ui";
 import { BorderWidth, Colors, Radii, Spacing } from "@/constants/theme";
@@ -16,7 +17,10 @@ type WorkoutCardProps = {
   summary: WorkoutSummary;
   unit: WeightUnit;
   author?: { name: string; initials: string };
-  onPress: () => void;
+  /** Optional: other people's workouts in the social feed have no detail screen. */
+  onPress?: () => void;
+  /** Extra row under the exercises, for example the like button in the social feed. */
+  footer?: ReactNode;
 };
 
 export function WorkoutCard({
@@ -26,11 +30,12 @@ export function WorkoutCard({
   unit,
   author,
   onPress,
+  footer,
 }: WorkoutCardProps) {
   const hidden = summary.exercises.length - VISIBLE_EXERCISES;
 
-  return (
-    <Card onPress={onPress} style={styles.card} accessibilityLabel={title}>
+  const body = (
+    <>
       <View style={styles.top}>
         {author ? (
           <View style={styles.avatar}>
@@ -80,6 +85,30 @@ export function WorkoutCard({
           </AppText>
         ) : null}
       </View>
+    </>
+  );
+
+  if (!footer) {
+    return (
+      <Card onPress={onPress} style={styles.card} accessibilityLabel={title}>
+        {body}
+      </Card>
+    );
+  }
+
+  // A button inside a pressable card is a button inside a button; keep the footer outside the pressable part.
+  return (
+    <Card style={styles.card}>
+      <Pressable
+        onPress={onPress}
+        disabled={!onPress}
+        accessibilityRole={onPress ? "button" : undefined}
+        accessibilityLabel={title}
+        style={({ pressed }) => [styles.body, pressed && { opacity: 0.7 }]}
+      >
+        {body}
+      </Pressable>
+      <View style={styles.footer}>{footer}</View>
     </Card>
   );
 }
@@ -101,6 +130,14 @@ const styles = StyleSheet.create({
   card: {
     padding: Spacing.lg,
     gap: Spacing.md,
+  },
+  body: {
+    gap: Spacing.md,
+  },
+  footer: {
+    paddingTop: Spacing.sm,
+    borderTopWidth: BorderWidth.hair,
+    borderTopColor: Colors.surfaceAlt,
   },
   top: {
     flexDirection: "row",

@@ -1,7 +1,7 @@
 import { formatNumber, toDisplayWeight, weekStreak, weeklyBuckets } from "@griplog/core";
 import { useRouter } from "expo-router";
 import { Dumbbell, Play, Settings, Upload } from "lucide-react-native";
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -14,12 +14,14 @@ import {
   IconButton,
   ScreenHeader,
   SectionLabel,
+  SegmentedControl,
   Stat,
 } from "@/components/ui";
 import { Colors, Spacing } from "@/constants/theme";
 import { useActiveWorkout } from "@/features/active-workout/use-active-workout";
 import { useStartWorkout } from "@/features/active-workout/use-start-workout";
 import { usePreferences } from "@/features/profile/PreferencesProvider";
+import { FollowingFeed } from "@/features/social/FollowingFeed";
 import { useWorkouts } from "@/features/workouts/hooks";
 import { summariseWorkout } from "@/features/workouts/summary";
 import { WorkoutCard } from "@/features/workouts/WorkoutCard";
@@ -28,7 +30,40 @@ import { formatShortDate, todayLabel } from "@/lib/dates";
 const PAGE_SIZE = 15;
 const CHART_WEEKS = 8;
 
+type Tab = "you" | "following";
+
+const TABS = [
+  { value: "you", label: "You" },
+  { value: "following", label: "Following" },
+] as const;
+
 export default function FeedScreen() {
+  const router = useRouter();
+  const [tab, setTab] = useState<Tab>("you");
+
+  // The same header sits on top of both lists.
+  const header = (
+    <View style={styles.header}>
+      <ScreenHeader
+        eyebrow={todayLabel()}
+        title="GripLog"
+        right={
+          <IconButton icon={Settings} label="Settings" onPress={() => router.push("/settings")} />
+        }
+      />
+      <SegmentedControl options={TABS} value={tab} onChange={setTab} />
+    </View>
+  );
+
+  return (
+    <SafeAreaView edges={["top"]} style={styles.root}>
+      {tab === "you" ? <MyFeed header={header} /> : <FollowingFeed header={header} />}
+    </SafeAreaView>
+  );
+}
+
+/** Your own workouts, read from the phone's database. */
+function MyFeed({ header }: { header: ReactElement }) {
   const router = useRouter();
   const { unit } = usePreferences();
   const workouts = useWorkouts();
@@ -49,117 +84,99 @@ export default function FeedScreen() {
   const streak = weekStreak(workouts.map((w) => w.startedAt));
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.root}>
-      <FlatList
-        data={summaries.slice(0, visible)}
-        keyExtractor={(item) => item.workout.id}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-        onEndReached={() => setVisible((count) => count + PAGE_SIZE)}
-        onEndReachedThreshold={0.5}
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <ScreenHeader
-              eyebrow={todayLabel()}
-              title="GripLog"
-              right={
-                <IconButton
-                  icon={Settings}
-                  label="Settings"
-                  onPress={() => router.push("/settings")}
-                />
-              }
-            />
+    <FlatList
+      data={summaries.slice(0, visible)}
+      keyExtractor={(item) => item.workout.id}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+      onEndReached={() => setVisible((count) => count + PAGE_SIZE)}
+      onEndReachedThreshold={0.5}
+      ListHeaderComponent={
+        <View style={styles.header}>
+          {header}
 
-            <Card tone="dark" style={styles.week}>
-              <View style={styles.weekStats}>
-                <Stat
-                  inverted
-                  label="This week"
-                  value={String(thisWeek?.workouts ?? 0)}
-                  unit={thisWeek?.workouts === 1 ? "workout" : "workouts"}
-                />
-                <Stat
-                  inverted
-                  label="Volume"
-                  value={formatNumber(toDisplayWeight(thisWeek?.volumeKg ?? 0, unit), 0)}
-                  unit={unit}
-                />
-                <Stat
-                  inverted
-                  label="Streak"
-                  value={String(streak)}
-                  unit={streak === 1 ? "week" : "weeks"}
-                />
-              </View>
-              <BarChart
+          <Card tone="dark" style={styles.week}>
+            <View style={styles.weekStats}>
+              <Stat
                 inverted
-                height={84}
-                highlightKey={thisWeek?.weekStart.toISOString()}
-                data={weeks.map((week) => ({
-                  key: week.weekStart.toISOString(),
-                  label: formatShortDate(week.weekStart),
-                  value: week.volumeKg,
-                }))}
+                label="This week"
+                value={String(thisWeek?.workouts ?? 0)}
+                unit={thisWeek?.workouts === 1 ? "workout" : "workouts"}
               />
-            </Card>
+              <Stat
+                inverted
+                label="Volume"
+                value={formatNumber(toDisplayWeight(thisWeek?.volumeKg ?? 0, unit), 0)}
+                unit={unit}
+              />
+              <Stat
+                inverted
+                label="Streak"
+                value={String(streak)}
+                unit={streak === 1 ? "week" : "weeks"}
+              />
+            </View>
+            <BarChart
+              inverted
+              height={84}
+              highlightKey={thisWeek?.weekStart.toISOString()}
+              data={weeks.map((week) => ({
+                key: week.weekStart.toISOString(),
+                label: formatShortDate(week.weekStart),
+                value: week.volumeKg,
+              }))}
+            />
+          </Card>
 
-            {hasActiveWorkout ? (
-              <Button
-                label="Resume workout"
-                icon={Play}
-                size="lg"
-                variant="dark"
-                onPress={resume}
-              />
-            ) : (
-              <Button
-                label="Start workout"
-                icon={Play}
-                size="lg"
-                onPress={startEmpty}
-                testID="start-workout"
-              />
-            )}
+          {hasActiveWorkout ? (
+            <Button label="Resume workout" icon={Play} size="lg" variant="dark" onPress={resume} />
+          ) : (
+            <Button
+              label="Start workout"
+              icon={Play}
+              size="lg"
+              onPress={startEmpty}
+              testID="start-workout"
+            />
+          )}
 
-            {workouts.length > 0 ? (
-              <SectionLabel>{`Your workouts · ${workouts.length}`}</SectionLabel>
-            ) : null}
-          </View>
-        }
-        renderItem={({ item }) => (
-          <WorkoutCard
-            title={item.workout.title}
-            startedAt={item.workout.startedAt}
-            summary={item.summary}
-            unit={unit}
-            onPress={() => router.push(`/workouts/${item.workout.id}`)}
-          />
-        )}
-        ListEmptyComponent={
-          <EmptyState
-            icon={Dumbbell}
-            title="No workouts yet"
-            message="Log your first session, or bring your whole history over from Hevy."
-            action={
-              <Button
-                label="Import from Hevy"
-                icon={Upload}
-                variant="secondary"
-                onPress={() => router.push("/import")}
-              />
-            }
-          />
-        }
-        ListFooterComponent={
-          visible < summaries.length ? (
-            <AppText variant="label" color={Colors.muted} align="center">
-              Loading more…
-            </AppText>
-          ) : null
-        }
-      />
-    </SafeAreaView>
+          {workouts.length > 0 ? (
+            <SectionLabel>{`Your workouts · ${workouts.length}`}</SectionLabel>
+          ) : null}
+        </View>
+      }
+      renderItem={({ item }) => (
+        <WorkoutCard
+          title={item.workout.title}
+          startedAt={item.workout.startedAt}
+          summary={item.summary}
+          unit={unit}
+          onPress={() => router.push(`/workouts/${item.workout.id}`)}
+        />
+      )}
+      ListEmptyComponent={
+        <EmptyState
+          icon={Dumbbell}
+          title="No workouts yet"
+          message="Log your first session, or bring your whole history over from Hevy."
+          action={
+            <Button
+              label="Import from Hevy"
+              icon={Upload}
+              variant="secondary"
+              onPress={() => router.push("/import")}
+            />
+          }
+        />
+      }
+      ListFooterComponent={
+        visible < summaries.length ? (
+          <AppText variant="label" color={Colors.muted} align="center">
+            Loading more…
+          </AppText>
+        ) : null
+      }
+    />
   );
 }
 

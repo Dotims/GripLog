@@ -1,10 +1,10 @@
 // Downloads free-exercise-db (public domain) and writes the trimmed catalogue bundled with the app.
-// Usage: node scripts/build-catalog.mjs
+// Usage: npm run build -w @griplog/catalogue
 import { writeFile } from "node:fs/promises";
 
 const SOURCE =
   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json";
-const OUTPUT = new URL("../assets/data/exercises.json", import.meta.url);
+const OUTPUT = new URL("../data/exercises.json", import.meta.url);
 
 const DURATION_HINTS = /plank|hold|hang|stretch|wall sit/i;
 

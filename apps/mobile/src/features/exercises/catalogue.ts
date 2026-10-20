@@ -1,14 +1,6 @@
-import data from "../../../assets/data/exercises.json";
+import { IMAGE_BASE_URL } from "@griplog/catalogue";
 
-import type { CatalogueExercise } from "./repository";
-
-/** Bump when assets/data/exercises.json is regenerated, so existing installs reseed. */
-export const CATALOGUE_VERSION = "free-exercise-db@2026-10-21";
-
-export const catalogue = data as unknown as readonly CatalogueExercise[];
-
-export const IMAGE_BASE_URL =
-  "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/";
+export { catalogue, CATALOGUE_VERSION } from "@griplog/catalogue";
 
 export function exerciseImageUrl(path: string): string {
   return path.startsWith("http") || path.startsWith("file:") ? path : `${IMAGE_BASE_URL}${path}`;

@@ -1,3 +1,4 @@
+import type { CatalogueExercise } from "@griplog/catalogue";
 import type { SetType, TrackingType } from "@griplog/core";
 import { and, asc, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 
@@ -6,18 +7,7 @@ import { exercises, keyValue, sets, workoutExercises, workouts } from "@/db/sche
 import type { Db } from "@/db/types";
 import { enqueueChange } from "@/features/sync/outbox";
 
-export type CatalogueExercise = {
-  id: string;
-  name: string;
-  trackingType: TrackingType;
-  category: string | null;
-  equipment: string | null;
-  level: string | null;
-  primaryMuscles: string[];
-  secondaryMuscles: string[];
-  instructions: string[];
-  images: string[];
-};
+export type { CatalogueExercise } from "@griplog/catalogue";
 
 const CATALOGUE_VERSION_KEY = "catalogue_version";
 

@@ -1,17 +1,17 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
+import { catalogue } from "@griplog/catalogue";
 import { parseHevyCsv } from "@griplog/core";
 
 import { exercises, personalRecords, sets, syncOutbox, workouts } from "@/db/schema";
 import type { Db } from "@/db/types";
-import { seedCatalogue, type CatalogueExercise } from "@/features/exercises/repository";
+import { seedCatalogue } from "@/features/exercises/repository";
 import { createTestDb } from "@/test/test-db";
 
 import { HEVY_EXERCISE_MAP } from "./hevy-exercise-map";
 import { planHevyImport, runHevyImport } from "./hevy-import";
 
-const catalogue: CatalogueExercise[] = require("../../../assets/data/exercises.json");
 const csv = readFileSync(
   path.join(__dirname, "../../../../../packages/core/src/__fixtures__/hevy-export.csv"),
   "utf8",

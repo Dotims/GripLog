@@ -1,0 +1,22 @@
+{
+  "name": "@griplog/catalogue",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The exercise catalogue (free-exercise-db, public domain) shared by the app and the API.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "node scripts/build-catalogue.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@griplog/core": "*"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3"
+  }
+}
