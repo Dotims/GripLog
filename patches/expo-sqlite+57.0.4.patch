@@ -10,3 +10,29 @@ diff --git a/node_modules/expo-sqlite/web/WorkerChannel.ts b/node_modules/expo-s
      resultArray.set(resultBytes, 4);
      Atomics.store(lock, 0, RESOLVED);
    } else {
+@@ -85,6 +85,9 @@ export async function invokeWorkerAsync<T extends SQLiteWorkerMessageType & keyo
+   return deferred.getPromise();
+ }
+ 
++let syncLockBuffer: SharedArrayBuffer | null = null;
++let syncResultBuffer: SharedArrayBuffer | null = null;
++
+ /**
+  * For main thread to invoke worker function synchronously.
+  */
+@@ -101,9 +104,13 @@ export function invokeWorkerSync<T extends SQLiteWorkerMessageType & keyof Resul
+   }
+ 
+   const id = messageId++;
+-  const lockBuffer = new SharedArrayBuffer(4);
++  // Sync calls block the main thread one at a time, so one pair of buffers is reused
++  // instead of allocating a fresh 1 MB SharedArrayBuffer for every statement.
++  syncLockBuffer ??= new SharedArrayBuffer(4);
++  syncResultBuffer ??= new SharedArrayBuffer(1024 * 1024);
++  const lockBuffer = syncLockBuffer;
+   const lock = new Int32Array(lockBuffer);
+-  const resultBuffer = new SharedArrayBuffer(1024 * 1024);
++  const resultBuffer = syncResultBuffer;
+   const resultArray = new Uint8Array(resultBuffer);
+ 
+   Atomics.store(lock, 0, PENDING);

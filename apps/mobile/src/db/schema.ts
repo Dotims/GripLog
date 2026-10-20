@@ -188,6 +188,8 @@ export const syncOutbox = sqliteTable(
     createdAt: text("created_at").notNull(),
     attempts: integer("attempts").notNull().default(0),
     lastError: text("last_error"),
+    /** Set when the server can never accept this change as it is; cleared by the next edit. */
+    blockedReason: text("blocked_reason"),
   },
   (t) => [uniqueIndex("sync_outbox_entity_idx").on(t.entity, t.entityId)],
 );

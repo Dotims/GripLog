@@ -59,6 +59,12 @@ describe("Hevy import", () => {
     expect(db.select().from(syncOutbox).all()).toHaveLength(2);
   });
 
+  it("drops sets with impossible values instead of importing typos", () => {
+    const typo = csv.replace('"normal",80,8,,,8', '"normal",2505,1,,,');
+    const plan = planHevyImport(db, parseHevyCsv(typo));
+    expect(plan).toMatchObject({ skippedSets: 1, setCount: 6 });
+  });
+
   it("skips workouts that were imported before", () => {
     runHevyImport(db, planHevyImport(db, parseHevyCsv(csv)));
     const again = planHevyImport(db, parseHevyCsv(csv));

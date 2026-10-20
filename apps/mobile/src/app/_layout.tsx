@@ -10,13 +10,17 @@ import { DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { Colors, Fonts } from "@/constants/theme";
 import { DatabaseProvider } from "@/db/DatabaseProvider";
 import { startRestNotifications } from "@/features/active-workout/rest-notification";
 import { useActiveWorkout } from "@/features/active-workout/use-active-workout";
+import { SessionProvider } from "@/features/account/SessionProvider";
 import { PreferencesProvider } from "@/features/profile/PreferencesProvider";
+import { AutoSync } from "@/features/sync/AutoSync";
+import { queryClient } from "@/lib/query-client";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -72,6 +76,7 @@ function RootStack() {
       <Stack.Screen name="routines/edit" options={{ presentation: "modal" }} />
       <Stack.Screen name="settings" options={{ ...detailHeader, headerTitle: "Settings" }} />
       <Stack.Screen name="import" options={{ presentation: "modal" }} />
+      <Stack.Screen name="account" options={{ ...detailHeader, headerTitle: "Account" }} />
     </Stack>
   );
 }
@@ -90,14 +95,19 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <DatabaseProvider>
-        <PreferencesProvider>
-          <ThemeProvider value={GripLogTheme}>
-            <StatusBar style="dark" />
-            <RootStack />
-          </ThemeProvider>
-        </PreferencesProvider>
-      </DatabaseProvider>
+      <QueryClientProvider client={queryClient}>
+        <DatabaseProvider>
+          <SessionProvider>
+            <PreferencesProvider>
+              <ThemeProvider value={GripLogTheme}>
+                <StatusBar style="dark" />
+                <AutoSync />
+                <RootStack />
+              </ThemeProvider>
+            </PreferencesProvider>
+          </SessionProvider>
+        </DatabaseProvider>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   );
 }

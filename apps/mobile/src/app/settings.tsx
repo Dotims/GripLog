@@ -1,7 +1,7 @@
 import { formatClock, type WeightUnit } from "@griplog/core";
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
-import { Minus, Plus, Upload } from "lucide-react-native";
+import { Cloud, Minus, Plus, Upload } from "lucide-react-native";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 
@@ -102,6 +102,14 @@ export default function SettingsScreen() {
           onPress={() => setDefaultRestSeconds(Math.min(600, defaultRestSeconds + REST_STEP))}
         />
       </Card>
+
+      <SectionLabel>Account</SectionLabel>
+      <Button
+        label="Account and sync"
+        icon={Cloud}
+        variant="secondary"
+        onPress={() => router.push("/account")}
+      />
 
       <SectionLabel>Data</SectionLabel>
       <Button

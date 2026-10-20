@@ -115,8 +115,14 @@ export default function ImportScreen() {
           <Card style={styles.stats}>
             <Stat label="Workouts" value={String(step.plan.workouts.length)} />
             <Stat label="Sets" value={String(step.plan.setCount)} />
-            <Stat label="Skipped" value={String(step.plan.duplicates)} />
+            <Stat label="Already in" value={String(step.plan.duplicates)} />
           </Card>
+          {step.plan.skippedSets > 0 ? (
+            <AppText color={Colors.muted}>
+              {step.plan.skippedSets} {step.plan.skippedSets === 1 ? "set has" : "sets have"}{" "}
+              impossible values (over 2 000 kg or 1 000 reps) and will be left out.
+            </AppText>
+          ) : null}
 
           <SectionLabel>{`Exercises · ${step.plan.matches.length}`}</SectionLabel>
           <Card style={styles.card}>

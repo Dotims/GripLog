@@ -1,0 +1,1 @@
+ALTER TABLE `sync_outbox` ADD `blocked_reason` text;

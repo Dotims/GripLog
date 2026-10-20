@@ -43,7 +43,12 @@ export class EmptyWorkoutError extends Error {
  * Writes the workout rows only, without records or the outbox. Shared by
  * saveWorkout and the importer, which wrap it in their own transaction.
  */
-export function writeWorkoutRows(tx: Db, input: WorkoutInput, updatedAt: string): void {
+export function writeWorkoutRows(
+  tx: Db,
+  input: WorkoutInput,
+  updatedAt: string,
+  deletedAt: string | null = null,
+): void {
   tx.insert(workouts)
     .values({
       id: input.id,
@@ -55,6 +60,7 @@ export function writeWorkoutRows(tx: Db, input: WorkoutInput, updatedAt: string)
       source: input.source,
       createdAt: updatedAt,
       updatedAt,
+      deletedAt,
     })
     .onConflictDoUpdate({
       target: workouts.id,
@@ -63,8 +69,10 @@ export function writeWorkoutRows(tx: Db, input: WorkoutInput, updatedAt: string)
         notes: input.notes,
         startedAt: input.startedAt,
         endedAt: input.endedAt,
+        routineId: input.routineId,
+        source: input.source,
         updatedAt,
-        deletedAt: null,
+        deletedAt,
       },
     })
     .run();

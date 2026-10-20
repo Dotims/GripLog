@@ -19,55 +19,70 @@ export type RoutineInput = {
   }[];
 };
 
-export function saveRoutine(db: Db, input: RoutineInput): void {
-  const timestamp = nowIso();
-  db.transaction((tx) => {
-    const exists = tx
-      .select({ id: routines.id })
-      .from(routines)
+/** Routine rows only, without the outbox. Shared by local edits and pulled changes. */
+export function writeRoutineRows(
+  tx: Db,
+  input: RoutineInput,
+  meta: { updatedAt: string; deletedAt: string | null; position?: number },
+): void {
+  const exists = tx
+    .select({ id: routines.id })
+    .from(routines)
+    .where(eq(routines.id, input.id))
+    .get();
+  if (exists) {
+    tx.update(routines)
+      .set({
+        name: input.name.trim(),
+        notes: input.notes,
+        updatedAt: meta.updatedAt,
+        deletedAt: meta.deletedAt,
+        ...(meta.position === undefined ? {} : { position: meta.position }),
+      })
       .where(eq(routines.id, input.id))
-      .get();
-    if (exists) {
-      tx.update(routines)
-        .set({ name: input.name.trim(), notes: input.notes, updatedAt: timestamp, deletedAt: null })
-        .where(eq(routines.id, input.id))
-        .run();
-    } else {
-      // New routines go to the bottom of the list.
-      const last = tx
-        .select({ value: max(routines.position) })
-        .from(routines)
-        .get()?.value;
-      tx.insert(routines)
-        .values({
-          id: input.id,
-          name: input.name.trim(),
-          notes: input.notes,
-          position: (last ?? -1) + 1,
-          createdAt: timestamp,
-          updatedAt: timestamp,
-        })
-        .run();
-    }
+      .run();
+  } else {
+    // New routines go to the bottom of the list unless the server says otherwise.
+    const last = tx
+      .select({ value: max(routines.position) })
+      .from(routines)
+      .get()?.value;
+    tx.insert(routines)
+      .values({
+        id: input.id,
+        name: input.name.trim(),
+        notes: input.notes,
+        position: meta.position ?? (last ?? -1) + 1,
+        createdAt: meta.updatedAt,
+        updatedAt: meta.updatedAt,
+        deletedAt: meta.deletedAt,
+      })
+      .run();
+  }
 
-    tx.delete(routineExercises).where(eq(routineExercises.routineId, input.id)).run();
-    input.exercises.forEach((exercise, position) => {
-      tx.insert(routineExercises)
-        .values({
-          id: exercise.id,
-          routineId: input.id,
-          exerciseId: exercise.exerciseId,
-          position,
-          restSeconds: exercise.restSeconds,
-          notes: exercise.notes,
-        })
+  tx.delete(routineExercises).where(eq(routineExercises.routineId, input.id)).run();
+  input.exercises.forEach((exercise, position) => {
+    tx.insert(routineExercises)
+      .values({
+        id: exercise.id,
+        routineId: input.id,
+        exerciseId: exercise.exerciseId,
+        position,
+        restSeconds: exercise.restSeconds,
+        notes: exercise.notes,
+      })
+      .run();
+    exercise.sets.forEach((set, setPosition) => {
+      tx.insert(routineSets)
+        .values({ ...set, routineExerciseId: exercise.id, position: setPosition })
         .run();
-      exercise.sets.forEach((set, setPosition) => {
-        tx.insert(routineSets)
-          .values({ ...set, routineExerciseId: exercise.id, position: setPosition })
-          .run();
-      });
     });
+  });
+}
+
+export function saveRoutine(db: Db, input: RoutineInput): void {
+  db.transaction((tx) => {
+    writeRoutineRows(tx, input, { updatedAt: nowIso(), deletedAt: null });
     enqueueChange(tx, "routine", input.id);
   });
 }

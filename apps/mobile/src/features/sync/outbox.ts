@@ -1,5 +1,5 @@
 import type { SyncEntity } from "@griplog/core";
-import { count, eq, inArray } from "drizzle-orm";
+import { and, count, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 
 import { newId, nowIso } from "@/db/ids";
 import { syncOutbox } from "@/db/schema";
@@ -15,17 +15,48 @@ export function enqueueChange(tx: Db, entity: SyncEntity, entityId: string): voi
     .values({ changeId: newId(), entity, entityId, createdAt: nowIso() })
     .onConflictDoUpdate({
       target: [syncOutbox.entity, syncOutbox.entityId],
-      set: { changeId: newId(), createdAt: nowIso(), attempts: 0, lastError: null },
+      set: {
+        changeId: newId(),
+        createdAt: nowIso(),
+        attempts: 0,
+        lastError: null,
+        blockedReason: null,
+      },
     })
     .run();
 }
 
+/** Changes ready to upload, oldest first. Blocked ones wait for the user to edit them. */
 export function pendingChanges(db: Db, limit: number) {
-  return db.select().from(syncOutbox).orderBy(syncOutbox.createdAt).limit(limit).all();
+  return db
+    .select()
+    .from(syncOutbox)
+    .where(isNull(syncOutbox.blockedReason))
+    .orderBy(syncOutbox.createdAt)
+    .limit(limit)
+    .all();
 }
 
 export function pendingChangeCount(db: Db): number {
-  return db.select({ value: count() }).from(syncOutbox).get()?.value ?? 0;
+  return (
+    db.select({ value: count() }).from(syncOutbox).where(isNull(syncOutbox.blockedReason)).get()
+      ?.value ?? 0
+  );
+}
+
+export function blockedChanges(db: Db) {
+  return db.select().from(syncOutbox).where(isNotNull(syncOutbox.blockedReason)).all();
+}
+
+/**
+ * Parks a change the server will never accept (a poison message), so it stops
+ * holding up the rest of the queue. Editing the same aggregate unblocks it.
+ */
+export function blockChange(db: Db, changeId: string, reason: string): void {
+  db.update(syncOutbox)
+    .set({ blockedReason: reason })
+    .where(eq(syncOutbox.changeId, changeId))
+    .run();
 }
 
 /** Removes uploaded changes by change id, so edits made during the upload stay queued. */
@@ -41,4 +72,16 @@ export function markChangeFailed(db: Db, changeId: string, error: string): void 
     .set({ attempts: row.attempts + 1, lastError: error })
     .where(eq(syncOutbox.changeId, changeId))
     .run();
+}
+
+export type PendingChange = typeof syncOutbox.$inferSelect;
+
+export function hasPendingChange(db: Db, entity: SyncEntity, entityId: string): boolean {
+  return (
+    db
+      .select({ changeId: syncOutbox.changeId })
+      .from(syncOutbox)
+      .where(and(eq(syncOutbox.entity, entity), eq(syncOutbox.entityId, entityId)))
+      .get() !== undefined
+  );
 }

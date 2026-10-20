@@ -1,4 +1,9 @@
-import { inferTrackingType, type ImportedWorkout, type TrackingType } from "@griplog/core";
+import {
+  inferTrackingType,
+  isWithinLimits,
+  type ImportedWorkout,
+  type TrackingType,
+} from "@griplog/core";
 import { eq, inArray } from "drizzle-orm";
 
 import { newId, nowIso } from "@/db/ids";
@@ -19,6 +24,8 @@ export type ExerciseMatch = {
 export type HevyImportPlan = {
   workouts: ImportedWorkout[];
   duplicates: number;
+  /** Sets dropped because their values are out of range. */
+  skippedSets: number;
   setCount: number;
   matches: ExerciseMatch[];
 };
@@ -45,7 +52,22 @@ export function planHevyImport(db: Db, imported: readonly ImportedWorkout[]): He
       .all()
       .map((w) => workoutKey(w.startedAt, w.title)),
   );
-  const fresh = imported.filter((w) => !existing.has(workoutKey(w.startedAt, w.title)));
+  // Sets with impossible values (a 2 505 kg curl is a typo) are dropped, and
+  // exercises or workouts left empty go with them.
+  let skippedSets = 0;
+  const fresh = imported
+    .filter((w) => !existing.has(workoutKey(w.startedAt, w.title)))
+    .map((w) => ({
+      ...w,
+      exercises: w.exercises
+        .map((e) => {
+          const sets = e.sets.filter(isWithinLimits);
+          skippedSets += e.sets.length - sets.length;
+          return { ...e, sets };
+        })
+        .filter((e) => e.sets.length > 0),
+    }))
+    .filter((w) => w.exercises.length > 0);
 
   const setsByTitle = new Map<string, ImportedWorkout["exercises"][number]["sets"]>();
   for (const workout of fresh) {
@@ -87,7 +109,8 @@ export function planHevyImport(db: Db, imported: readonly ImportedWorkout[]): He
 
   return {
     workouts: fresh,
-    duplicates: imported.length - fresh.length,
+    duplicates: imported.filter((w) => existing.has(workoutKey(w.startedAt, w.title))).length,
+    skippedSets,
     setCount: fresh.reduce((sum, w) => sum + w.exercises.reduce((s, e) => s + e.sets.length, 0), 0),
     matches,
   };
