@@ -1,10 +1,24 @@
 import { catalogueName } from "@griplog/catalogue";
-import { SET_TYPES, totalVolume, workingSetCount } from "@griplog/core";
+import {
+  bestOneRepMax,
+  isWorkingSet,
+  SET_TYPES,
+  suggestNextSession,
+  totalVolume,
+  workingSetCount,
+  type Suggestion,
+} from "@griplog/core";
 import { and, count, desc, eq, ilike, inArray, isNull, ne, or, sql, type SQL } from "drizzle-orm";
 
 import type { Database } from "../db/client";
 import type { sets, workoutExercises } from "../db/schema";
 import { follows, likes, user, workouts } from "../db/schema";
+import {
+  exerciseName,
+  exerciseSessions,
+  exercisesDone,
+  type ExerciseSummary,
+} from "../training/history";
 import { builder } from "./builder";
 import { clientError } from "./errors";
 import type { Loaders } from "./loaders";
@@ -163,8 +177,96 @@ UserRef.implement({
   }),
 });
 
+type ProgressPoint = {
+  performedAt: Date;
+  bestOneRepMax: number | null;
+  topWeightKg: number;
+  volumeKg: number;
+};
+
+const ProgressPointRef = builder.objectRef<ProgressPoint>("ProgressPoint").implement({
+  fields: (t) => ({
+    performedAt: t.field({ type: "DateTime", resolve: (p) => p.performedAt }),
+    bestOneRepMax: t.exposeFloat("bestOneRepMax", { nullable: true }),
+    topWeightKg: t.exposeFloat("topWeightKg"),
+    volumeKg: t.exposeFloat("volumeKg"),
+  }),
+});
+
+const SuggestionRef = builder.objectRef<Suggestion>("Suggestion").implement({
+  fields: (t) => ({
+    kind: t.exposeString("kind"),
+    weightKg: t.exposeFloat("weightKg", { nullable: true }),
+    reps: t.exposeInt("reps", { nullable: true }),
+    reason: t.exposeString("reason"),
+  }),
+});
+
+const ExerciseSummaryRef = builder.objectRef<ExerciseSummary>("ExerciseSummary").implement({
+  fields: (t) => ({
+    exerciseId: t.exposeString("exerciseId"),
+    name: t.exposeString("name"),
+    sessionCount: t.exposeInt("sessionCount"),
+    lastPerformedAt: t.field({ type: "DateTime", resolve: (e) => e.lastPerformedAt }),
+  }),
+});
+
+type ExerciseProgress = {
+  exerciseId: string;
+  name: string;
+  points: ProgressPoint[];
+  suggestion: Suggestion;
+};
+
+const ExerciseProgressRef = builder.objectRef<ExerciseProgress>("ExerciseProgress").implement({
+  fields: (t) => ({
+    exerciseId: t.exposeString("exerciseId"),
+    name: t.exposeString("name"),
+    points: t.field({ type: [ProgressPointRef], resolve: (p) => p.points }),
+    suggestion: t.field({ type: SuggestionRef, resolve: (p) => p.suggestion }),
+  }),
+});
+
 builder.queryType({
   fields: (t) => ({
+    workout: t.field({
+      type: WorkoutRef,
+      nullable: true,
+      args: { id: t.arg.id({ required: true }) },
+      resolve: async (_root, args, { db }) => {
+        const [row] = await db
+          .select()
+          .from(workouts)
+          .where(and(eq(workouts.id, String(args.id)), isNull(workouts.deletedAt)));
+        return row ?? null;
+      },
+    }),
+    myExercises: t.field({
+      type: [ExerciseSummaryRef],
+      resolve: (_root, _args, { db, viewer }) => exercisesDone(db, viewer.id),
+    }),
+    /** Charts and the next-session suggestion come from the same pure functions the app uses. */
+    exerciseProgress: t.field({
+      type: ExerciseProgressRef,
+      args: { exerciseId: t.arg.string({ required: true }) },
+      resolve: async (_root, args, { db, viewer }) => {
+        const sessions = await exerciseSessions(db, viewer.id, args.exerciseId);
+        return {
+          exerciseId: args.exerciseId,
+          name: await exerciseName(db, viewer.id, args.exerciseId),
+          points: sessions.map((s) => ({
+            performedAt: s.performedAtDate,
+            bestOneRepMax: bestOneRepMax(s.sets),
+            topWeightKg: Math.max(
+              0,
+              ...s.sets.filter(isWorkingSet).map((set) => set.weightKg ?? 0),
+            ),
+            volumeKg: totalVolume(s.sets),
+          })),
+          suggestion: suggestNextSession(sessions),
+        };
+      },
+    }),
     me: t.field({
       type: UserRef,
       resolve: (_root, _args, { loaders, viewer }) => loaders.user.load(viewer.id),

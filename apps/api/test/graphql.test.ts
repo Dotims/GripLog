@@ -150,3 +150,40 @@ describe("GraphQL feed", () => {
     expect(data.searchUsers.map((u) => u.name)).toEqual(["Ola Radecka"]);
   });
 });
+
+describe("GraphQL progress", () => {
+  it("lists my exercises and charts their progress with a suggestion", async () => {
+    const me = await signUp("progress@example.com");
+    await pushWorkouts(me.headers, ["Week 1", "Week 2"], 10);
+
+    const { data } = await gql<{
+      myExercises: { exerciseId: string; name: string; sessionCount: number }[];
+      exerciseProgress: {
+        points: { bestOneRepMax: number; volumeKg: number }[];
+        suggestion: { kind: string };
+      };
+    }>(
+      me.headers,
+      `{
+        myExercises { exerciseId name sessionCount }
+        exerciseProgress(exerciseId: "Barbell_Bench_Press_-_Medium_Grip") {
+          points { bestOneRepMax volumeKg }
+          suggestion { kind }
+        }
+      }`,
+    );
+
+    expect(data.myExercises).toEqual([
+      {
+        exerciseId: "Barbell_Bench_Press_-_Medium_Grip",
+        name: "Barbell Bench Press - Medium Grip",
+        sessionCount: 2,
+      },
+    ]);
+    expect(data.exerciseProgress.points).toEqual([
+      { bestOneRepMax: 99.3, volumeKg: 640 },
+      { bestOneRepMax: 99.3, volumeKg: 640 },
+    ]);
+    expect(data.exerciseProgress.suggestion.kind).toBe("add_reps");
+  });
+});

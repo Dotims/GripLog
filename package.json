@@ -3,7 +3,7 @@
   "private": true,
   "description": "Offline-first workout tracker for iOS and Android, with a sync API, a web dashboard and an MCP training coach.",
   "license": "MIT",
-  "author": "Rados\u0142aw Marek",
+  "author": "Radosław Marek",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.13.0",
     "patch-package": "^8.0.1",
     "prettier": "^3.9.10",
