@@ -116,18 +116,21 @@ function mapSet(
 
 /**
  * Completing an empty set takes the previous values, like tapping the hint in
- * Hevy. With no history, reps fall back to the bottom of the routine's range.
+ * Hevy. A routine's rep range bounds them: last time's reps are kept inside it,
+ * and with no history the set gets the bottom of the range.
  */
 function fillFromPrevious(set: DraftSet, previous: PreviousSet | undefined): DraftSet {
-  const filled = previous
-    ? {
-        ...set,
-        weightKg: set.weightKg ?? previous.weightKg,
-        reps: set.reps ?? previous.reps,
-        durationSeconds: set.durationSeconds ?? previous.durationSeconds,
-      }
-    : set;
-  return { ...filled, reps: filled.reps ?? set.repsRange?.min ?? null };
+  const range = set.repsRange;
+  const previousReps =
+    previous?.reps != null && range
+      ? Math.min(range.max, Math.max(range.min, previous.reps))
+      : (previous?.reps ?? null);
+  return {
+    ...set,
+    weightKg: set.weightKg ?? previous?.weightKg ?? null,
+    reps: set.reps ?? previousReps ?? range?.min ?? null,
+    durationSeconds: set.durationSeconds ?? previous?.durationSeconds ?? null,
+  };
 }
 
 /** Exercises as the superset helpers see them; drafts saved before supersets have no number. */

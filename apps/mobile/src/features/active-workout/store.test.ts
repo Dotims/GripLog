@@ -192,4 +192,25 @@ describe("supersets and rep ranges", () => {
     expect(saved.exercises[0]!.sets[0]).toMatchObject({ weightKg: 60, reps: 8 });
     expect(saved.exercises[0]!.sets[0]).not.toHaveProperty("repsRange");
   });
+
+  it("keeps last time's reps inside the routine's range", () => {
+    const exercise = draftFromTemplate(
+      bench,
+      {
+        exerciseId: "bench",
+        restSeconds: null,
+        notes: null,
+        sets: [{ type: "normal", weightKg: 50, reps: 10, repsMax: 12 }],
+      },
+      [{ type: "normal", weightKg: 20, reps: 13, durationSeconds: null }],
+      90,
+    );
+    const store = createActiveWorkoutStore();
+    store.getState().start({ title: "Pull", exercises: [exercise] });
+    store.getState().toggleSetCompleted(exercise.id, exercise.sets[0]!.id);
+    expect(store.getState().workout!.exercises[0]!.sets[0]).toMatchObject({
+      weightKg: 50,
+      reps: 12,
+    });
+  });
 });

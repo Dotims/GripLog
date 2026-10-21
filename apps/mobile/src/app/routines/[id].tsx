@@ -8,7 +8,7 @@ import { Colors, Spacing, supersetColor } from "@/constants/theme";
 import { useDatabase } from "@/db/DatabaseProvider";
 import { ExerciseImage } from "@/features/exercises/ExerciseImage";
 import { SupersetBadge } from "@/features/active-workout/SupersetBadge";
-import { supersetLetters } from "@/features/active-workout/supersets";
+import { restsAfter, supersetLetters } from "@/features/active-workout/supersets";
 import { useStartWorkout } from "@/features/active-workout/use-start-workout";
 import { usePreferences } from "@/features/profile/PreferencesProvider";
 import { useRoutine } from "@/features/routines/hooks";
@@ -108,8 +108,10 @@ export default function RoutineDetailScreen() {
           <View style={styles.flex}>
             <AppText variant="heading">{exercise.exercise.name}</AppText>
             <AppText variant="label" color={Colors.muted}>
-              {exercise.sets.length} sets · rest{" "}
-              {formatClock(exercise.restSeconds ?? defaultRestSeconds)}
+              {exercise.sets.length} sets ·{" "}
+              {restsAfter(routine.exercises, exercise.id)
+                ? `rest ${formatClock(exercise.restSeconds ?? defaultRestSeconds)}`
+                : "no rest, straight to the next"}
             </AppText>
             {exercise.sets.some(
               (s) =>
