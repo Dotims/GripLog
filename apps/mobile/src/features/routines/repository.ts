@@ -6,6 +6,17 @@ import { routineExercises, routines, routineSets } from "@/db/schema";
 import type { Db } from "@/db/types";
 import { enqueueChange } from "@/features/sync/outbox";
 
+export type RoutineSetInput = {
+  id: string;
+  type: SetType;
+  weightKg: number | null;
+  /** The target, or the bottom of the range when repsMax is set. */
+  reps: number | null;
+  repsMax: number | null;
+  durationSeconds: number | null;
+  distanceMeters: number | null;
+};
+
 export type RoutineInput = {
   id: string;
   name: string;
@@ -15,7 +26,8 @@ export type RoutineInput = {
     exerciseId: string;
     restSeconds: number | null;
     notes: string | null;
-    sets: { id: string; type: SetType; weightKg: number | null; reps: number | null }[];
+    supersetId: number | null;
+    sets: RoutineSetInput[];
   }[];
 };
 
@@ -70,11 +82,22 @@ export function writeRoutineRows(
         position,
         restSeconds: exercise.restSeconds,
         notes: exercise.notes,
+        supersetId: exercise.supersetId,
       })
       .run();
     exercise.sets.forEach((set, setPosition) => {
       tx.insert(routineSets)
-        .values({ ...set, routineExerciseId: exercise.id, position: setPosition })
+        .values({
+          id: set.id,
+          type: set.type,
+          weightKg: set.weightKg,
+          reps: set.reps,
+          repsMax: set.repsMax,
+          durationSeconds: set.durationSeconds,
+          distanceMeters: set.distanceMeters,
+          routineExerciseId: exercise.id,
+          position: setPosition,
+        })
         .run();
     });
   });
@@ -140,7 +163,18 @@ export function getRoutineInput(db: Db, routineId: string): RoutineInput | null 
       exerciseId: exercise.exerciseId,
       restSeconds: exercise.restSeconds,
       notes: exercise.notes,
-      sets: exercise.sets.map(({ id, type, weightKg, reps }) => ({ id, type, weightKg, reps })),
+      supersetId: exercise.supersetId,
+      sets: exercise.sets.map(
+        ({ id, type, weightKg, reps, repsMax, durationSeconds, distanceMeters }) => ({
+          id,
+          type,
+          weightKg,
+          reps,
+          repsMax,
+          durationSeconds,
+          distanceMeters,
+        }),
+      ),
     })),
   };
 }

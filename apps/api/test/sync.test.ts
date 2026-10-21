@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 
@@ -49,6 +51,49 @@ describe("sync", () => {
       title: "Push day",
       startedAt: sent.startedAt,
     });
+  });
+
+  it("keeps supersets and rep ranges of a routine", async () => {
+    const { headers } = await signUp("routine@example.com");
+    const routine = {
+      id: randomUUID(),
+      name: "Pull day",
+      notes: null,
+      position: 0,
+      updatedAt: "2026-10-21T10:00:00.000Z",
+      deletedAt: null,
+      exercises: ["Pullups", "Plank"].map((exerciseId, position) => ({
+        id: randomUUID(),
+        exerciseId,
+        position,
+        restSeconds: 90,
+        notes: null,
+        supersetId: 0,
+        sets: [
+          {
+            id: randomUUID(),
+            position: 0,
+            type: "normal",
+            weightKg: null,
+            reps: position === 0 ? 8 : null,
+            repsMax: position === 0 ? 12 : null,
+            durationSeconds: position === 1 ? 60 : null,
+            distanceMeters: null,
+          },
+        ],
+      })),
+    };
+
+    const { body } = await push(headers, [
+      { changeId: randomUUID(), entity: "routine", data: routine },
+    ]);
+    expect(body.applied).toHaveLength(1);
+
+    const response = await app.request("/sync/pull?cursor=0", { headers });
+    const pulled = (await response.json()) as { routines: (typeof routine)[] };
+    const [first, second] = pulled.routines[0]!.exercises;
+    expect(first).toMatchObject({ supersetId: 0, sets: [{ reps: 8, repsMax: 12 }] });
+    expect(second).toMatchObject({ supersetId: 0, sets: [{ durationSeconds: 60 }] });
   });
 
   it("treats a retried change id as already applied", async () => {

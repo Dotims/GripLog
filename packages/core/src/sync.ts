@@ -12,13 +12,16 @@ import { SET_LIMITS, SET_TYPES, TRACKING_TYPES } from "./sets";
 const id = z.uuid();
 const timestamp = z.iso.datetime({ offset: true });
 const position = z.int().min(0);
+/** Exercises sharing a number within one workout or routine are a superset. */
+const supersetId = z.int().min(0).max(49).nullable().default(null);
+const reps = z.int().min(0).max(SET_LIMITS.maxReps);
 
 export const syncSetSchema = z.object({
   id,
   position,
   type: z.enum(SET_TYPES),
   weightKg: z.number().min(0).max(SET_LIMITS.maxWeightKg).nullable(),
-  reps: z.int().min(0).max(SET_LIMITS.maxReps).nullable(),
+  reps: reps.nullable(),
   rpe: z.number().min(1).max(10).nullable(),
   durationSeconds: z.int().min(0).nullable(),
   distanceMeters: z.int().min(0).nullable(),
@@ -41,6 +44,7 @@ export const syncWorkoutSchema = z.object({
         exerciseId: z.string().min(1).max(120),
         position,
         notes: z.string().max(1000).nullable(),
+        supersetId,
         sets: z.array(syncSetSchema).max(100),
       }),
     )
@@ -62,6 +66,7 @@ export const syncRoutineSchema = z.object({
         position,
         restSeconds: z.int().min(0).max(3600).nullable(),
         notes: z.string().max(1000).nullable(),
+        supersetId,
         sets: z
           .array(
             z.object({
@@ -69,7 +74,11 @@ export const syncRoutineSchema = z.object({
               position,
               type: z.enum(SET_TYPES),
               weightKg: z.number().min(0).max(SET_LIMITS.maxWeightKg).nullable(),
-              reps: z.int().min(0).max(SET_LIMITS.maxReps).nullable(),
+              /** The target, or the bottom of a rep range when repsMax is set. */
+              reps: reps.nullable(),
+              repsMax: reps.nullable().default(null),
+              durationSeconds: z.int().min(0).nullable().default(null),
+              distanceMeters: z.int().min(0).nullable().default(null),
             }),
           )
           .max(50),

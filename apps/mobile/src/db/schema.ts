@@ -62,6 +62,8 @@ export const routineExercises = sqliteTable(
     position: integer("position").notNull(),
     restSeconds: integer("rest_seconds"),
     notes: text("notes"),
+    // Neighbours with the same number are done as a superset.
+    supersetId: integer("superset_id"),
   },
   (t) => [index("routine_exercises_routine_idx").on(t.routineId)],
 );
@@ -76,7 +78,11 @@ export const routineSets = sqliteTable(
     position: integer("position").notNull(),
     type: text("type", { enum: SET_TYPES }).notNull().default("normal"),
     weightKg: real("weight_kg"),
+    // With repsMax set, reps is the bottom of a rep range ("8-12").
     reps: integer("reps"),
+    repsMax: integer("reps_max"),
+    durationSeconds: integer("duration_seconds"),
+    distanceMeters: integer("distance_meters"),
   },
   (t) => [index("routine_sets_exercise_idx").on(t.routineExerciseId)],
 );
@@ -112,6 +118,7 @@ export const workoutExercises = sqliteTable(
       .references(() => exercises.id),
     position: integer("position").notNull(),
     notes: text("notes"),
+    supersetId: integer("superset_id"),
   },
   (t) => [
     index("workout_exercises_workout_idx").on(t.workoutId),

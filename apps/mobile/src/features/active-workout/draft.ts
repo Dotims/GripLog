@@ -10,14 +10,34 @@ import { emptySet, type ActiveWorkout, type DraftExercise, type DraftSet } from 
 export const DEFAULT_SET_COUNT = 3;
 
 export type TemplateSet = Pick<DraftSet, "type" | "weightKg" | "reps"> &
-  Partial<Pick<DraftSet, "durationSeconds" | "distanceMeters">>;
+  Partial<Pick<DraftSet, "durationSeconds" | "distanceMeters">> & {
+    /** Top of a routine's rep range; reps is then the bottom. */
+    repsMax?: number | null;
+  };
 
 export type TemplateExercise = {
   exerciseId: string;
   restSeconds: number | null;
   notes: string | null;
+  supersetId?: number | null;
   sets: TemplateSet[];
 };
+
+/** A routine target becomes the set's starting value; a rep range stays a hint to beat. */
+function setFromTemplate(s: TemplateSet): DraftSet {
+  const range =
+    s.reps !== null && s.repsMax != null && s.repsMax > s.reps
+      ? { min: s.reps, max: s.repsMax }
+      : null;
+  return {
+    ...emptySet(s.type),
+    weightKg: s.weightKg,
+    reps: range ? null : s.reps,
+    repsRange: range,
+    durationSeconds: s.durationSeconds ?? null,
+    distanceMeters: s.distanceMeters ?? null,
+  };
+}
 
 /** A fresh exercise block with as many sets, of the same types, as last time. */
 export function newDraftExercise(
@@ -30,6 +50,7 @@ export function newDraftExercise(
     ...info,
     notes: null,
     restSeconds,
+    supersetId: null,
     previous,
     sets:
       previous.length > 0
@@ -50,16 +71,11 @@ export function draftFromTemplate(
     ...info,
     notes: template.notes,
     restSeconds: template.restSeconds ?? defaultRestSeconds,
+    supersetId: template.supersetId ?? null,
     previous,
     sets:
       template.sets.length > 0
-        ? template.sets.map((s) => ({
-            ...emptySet(s.type),
-            weightKg: s.weightKg,
-            reps: s.reps,
-            durationSeconds: s.durationSeconds ?? null,
-            distanceMeters: s.distanceMeters ?? null,
-          }))
+        ? template.sets.map(setFromTemplate)
         : Array.from({ length: DEFAULT_SET_COUNT }, () => emptySet()),
   };
 }
@@ -95,9 +111,10 @@ export function toWorkoutInput(workout: ActiveWorkout, endedAt: string): Workout
         id: exercise.id,
         exerciseId: exercise.exerciseId,
         notes: exercise.notes,
+        supersetId: exercise.supersetId ?? null,
         sets: exercise.sets
           .filter((s) => s.completed)
-          .map(({ completed: _completed, ...set }) => set),
+          .map(({ completed: _completed, repsRange: _range, ...set }) => set),
       }))
       .filter((exercise) => exercise.sets.length > 0),
   };
@@ -110,7 +127,8 @@ export function toRoutineInput(
     exerciseId: string;
     restSeconds: number | null;
     notes: string | null;
-    sets: Pick<DraftSet, "type" | "weightKg" | "reps">[];
+    supersetId?: number | null;
+    sets: Pick<DraftSet, "type" | "weightKg" | "reps" | "durationSeconds" | "distanceMeters">[];
   }[],
 ): RoutineInput {
   return {
@@ -122,11 +140,15 @@ export function toRoutineInput(
       exerciseId: exercise.exerciseId,
       restSeconds: exercise.restSeconds,
       notes: exercise.notes,
+      supersetId: exercise.supersetId ?? null,
       sets: exercise.sets.map((s) => ({
         id: newId(),
         type: s.type,
         weightKg: s.weightKg,
         reps: s.reps,
+        repsMax: null,
+        durationSeconds: s.durationSeconds,
+        distanceMeters: s.distanceMeters,
       })),
     })),
   };

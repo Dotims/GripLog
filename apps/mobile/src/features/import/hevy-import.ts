@@ -159,6 +159,7 @@ export function runHevyImport(db: Db, plan: HevyImportPlan): HevyImportResult {
             id: newId(),
             exerciseId: idByTitle.get(exercise.title)!,
             notes: exercise.notes,
+            supersetId: exercise.supersetId,
             sets: exercise.sets.map((set) => ({ id: newId(), ...set })),
           })),
         },

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { syncPushRequestSchema, type SyncWorkout } from "./sync";
+import { syncPushRequestSchema, type SyncRoutine, type SyncWorkout } from "./sync";
 
 const workout: SyncWorkout = {
   id: "0b6c4a0e-6f5e-4b8e-9a51-2f1f3c6d7e80",
@@ -18,6 +18,7 @@ const workout: SyncWorkout = {
       exerciseId: "Barbell_Bench_Press_-_Medium_Grip",
       position: 0,
       notes: null,
+      supersetId: null,
       sets: [
         {
           id: "9d2e7c1a-4b3f-4e6d-8a5c-1b2c3d4e5f60",
@@ -53,6 +54,51 @@ describe("sync contract", () => {
     const bad = structuredClone(change);
     bad.data.exercises[0]!.sets[0]!.rpe = 11;
     expect(syncPushRequestSchema.safeParse({ changes: [bad] }).success).toBe(false);
+  });
+
+  it("accepts changes from older apps that send no superset or rep range", () => {
+    const old = structuredClone(change) as { data: { exercises: Record<string, unknown>[] } };
+    delete old.data.exercises[0]!.supersetId;
+    const parsed = syncPushRequestSchema.parse({ changes: [old] });
+    const data = parsed.changes[0]!.data as SyncWorkout;
+    expect(data.exercises[0]!.supersetId).toBeNull();
+
+    const routine = syncPushRequestSchema.parse({
+      changes: [
+        {
+          changeId: "2b3c4d5e-6f7a-4b2c-9d3e-4f5a6b7c8d9e",
+          entity: "routine",
+          data: {
+            id: "3c4d5e6f-7a8b-4c3d-8e4f-5a6b7c8d9e0f",
+            name: "Pull day",
+            notes: null,
+            position: 0,
+            updatedAt: "2026-10-14T17:20:00.000Z",
+            deletedAt: null,
+            exercises: [
+              {
+                id: "4d5e6f7a-8b9c-4d4e-9f5a-6b7c8d9e0f1a",
+                exerciseId: "Pullups",
+                position: 0,
+                restSeconds: 120,
+                notes: null,
+                sets: [
+                  {
+                    id: "5e6f7a8b-9c0d-4e5f-8a6b-7c8d9e0f1a2b",
+                    position: 0,
+                    type: "normal",
+                    weightKg: null,
+                    reps: 8,
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const set = (routine.changes[0]!.data as SyncRoutine).exercises[0]!.sets[0]!;
+    expect(set).toMatchObject({ reps: 8, repsMax: null, durationSeconds: null });
   });
 
   it("rejects an unknown entity", () => {

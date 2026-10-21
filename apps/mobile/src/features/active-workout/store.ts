@@ -4,6 +4,8 @@ import { createStore, type StateCreator } from "zustand";
 import { newId } from "@/db/ids";
 import type { PreviousSet } from "@/features/exercises/repository";
 
+import { linkWithNext, normalizeSupersets, restsAfter, unlink } from "./supersets";
+
 export type DraftSet = {
   id: string;
   type: SetType;
@@ -13,6 +15,8 @@ export type DraftSet = {
   durationSeconds: number | null;
   distanceMeters: number | null;
   completed: boolean;
+  /** A routine's rep range ("8-12"), shown as the hint until reps are typed. */
+  repsRange?: { min: number; max: number } | null;
 };
 
 export type DraftExercise = {
@@ -22,6 +26,8 @@ export type DraftExercise = {
   trackingType: TrackingType;
   notes: string | null;
   restSeconds: number;
+  /** Neighbours with the same number are done as a superset. */
+  supersetId?: number | null;
   /** Sets from the last time this exercise was done, shown as hints. */
   previous: PreviousSet[];
   sets: DraftSet[];
@@ -56,6 +62,8 @@ export type ActiveWorkoutState = {
   addExercises: (exercises: DraftExercise[]) => void;
   removeExercise: (exerciseId: string) => void;
   moveExercise: (exerciseId: string, direction: -1 | 1) => void;
+  linkSuperset: (exerciseId: string) => void;
+  unlinkSuperset: (exerciseId: string) => void;
   setExerciseNotes: (exerciseId: string, notes: string) => void;
   setRestSeconds: (exerciseId: string, seconds: number) => void;
 
@@ -106,16 +114,25 @@ function mapSet(
   }));
 }
 
-/** Completing an empty set takes the previous values, like tapping the hint in Hevy. */
+/**
+ * Completing an empty set takes the previous values, like tapping the hint in
+ * Hevy. With no history, reps fall back to the bottom of the routine's range.
+ */
 function fillFromPrevious(set: DraftSet, previous: PreviousSet | undefined): DraftSet {
-  if (!previous) return set;
-  return {
-    ...set,
-    weightKg: set.weightKg ?? previous.weightKg,
-    reps: set.reps ?? previous.reps,
-    durationSeconds: set.durationSeconds ?? previous.durationSeconds,
-  };
+  const filled = previous
+    ? {
+        ...set,
+        weightKg: set.weightKg ?? previous.weightKg,
+        reps: set.reps ?? previous.reps,
+        durationSeconds: set.durationSeconds ?? previous.durationSeconds,
+      }
+    : set;
+  return { ...filled, reps: filled.reps ?? set.repsRange?.min ?? null };
 }
+
+/** Exercises as the superset helpers see them; drafts saved before supersets have no number. */
+const withGroups = (exercises: DraftExercise[]) =>
+  exercises.map((e) => ({ ...e, supersetId: e.supersetId ?? null }));
 
 export const activeWorkoutSlice: StateCreator<ActiveWorkoutState> = (set, get) => {
   /** Applies an update only while a workout is running. */
@@ -149,7 +166,10 @@ export const activeWorkoutSlice: StateCreator<ActiveWorkoutState> = (set, get) =
       update((w) => ({ ...w, exercises: [...w.exercises, ...exercises] })),
 
     removeExercise: (exerciseId) =>
-      update((w) => ({ ...w, exercises: w.exercises.filter((e) => e.id !== exerciseId) })),
+      update((w) => ({
+        ...w,
+        exercises: normalizeSupersets(withGroups(w.exercises.filter((e) => e.id !== exerciseId))),
+      })),
 
     moveExercise: (exerciseId, direction) =>
       update((w) => {
@@ -158,8 +178,14 @@ export const activeWorkoutSlice: StateCreator<ActiveWorkoutState> = (set, get) =
         if (from < 0 || to < 0 || to >= w.exercises.length) return w;
         const exercises = [...w.exercises];
         [exercises[from], exercises[to]] = [exercises[to]!, exercises[from]!];
-        return { ...w, exercises };
+        return { ...w, exercises: normalizeSupersets(withGroups(exercises)) };
       }),
+
+    linkSuperset: (exerciseId) =>
+      update((w) => ({ ...w, exercises: linkWithNext(withGroups(w.exercises), exerciseId) })),
+
+    unlinkSuperset: (exerciseId) =>
+      update((w) => ({ ...w, exercises: unlink(withGroups(w.exercises), exerciseId) })),
 
     setExerciseNotes: (exerciseId, notes) =>
       update((w) => mapExercise(w, exerciseId, (e) => ({ ...e, notes: notes || null }))),
@@ -215,7 +241,11 @@ export const activeWorkoutSlice: StateCreator<ActiveWorkoutState> = (set, get) =
             : { ...s, completed: false },
         ),
       );
-      if (completing && exercise.restSeconds > 0) get().startRest(exercise.restSeconds);
+      // In a superset the rest comes after the last exercise of the round.
+      const exercises = withGroups(get().workout?.exercises ?? []);
+      if (completing && exercise.restSeconds > 0 && restsAfter(exercises, exerciseId)) {
+        get().startRest(exercise.restSeconds);
+      }
     },
 
     startRest: (seconds) => {

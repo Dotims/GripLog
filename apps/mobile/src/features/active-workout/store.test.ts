@@ -1,4 +1,4 @@
-import { newDraftExercise, toWorkoutInput, workoutTotals } from "./draft";
+import { draftFromTemplate, newDraftExercise, toWorkoutInput, workoutTotals } from "./draft";
 import { createActiveWorkoutStore } from "./store";
 
 const bench = { exerciseId: "bench", name: "Bench Press", trackingType: "weight_reps" as const };
@@ -135,5 +135,61 @@ describe("newDraftExercise", () => {
 
   it("starts with three empty sets for a new exercise", () => {
     expect(newDraftExercise(bench, [], 90).sets).toHaveLength(3);
+  });
+});
+
+describe("supersets and rep ranges", () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  const row = { exerciseId: "row", name: "Barbell Row", trackingType: "weight_reps" as const };
+
+  function supersetStore() {
+    const store = createActiveWorkoutStore();
+    store.getState().start({ title: "Pull" });
+    store.getState().addExercises([newDraftExercise(bench, [], 90), newDraftExercise(row, [], 60)]);
+    store.getState().linkSuperset(store.getState().workout!.exercises[0]!.id);
+    return store;
+  }
+
+  it("rests only after the last exercise of a superset round", () => {
+    const store = supersetStore();
+    const [first, second] = store.getState().workout!.exercises;
+    expect(first!.supersetId).toBe(0);
+    expect(second!.supersetId).toBe(0);
+
+    store.getState().toggleSetCompleted(first!.id, first!.sets[0]!.id);
+    expect(store.getState().rest).toBeNull();
+
+    store.getState().toggleSetCompleted(second!.id, second!.sets[0]!.id);
+    expect(store.getState().rest).not.toBeNull();
+  });
+
+  it("dissolves a superset when one of its two exercises is removed", () => {
+    const store = supersetStore();
+    store.getState().removeExercise(store.getState().workout!.exercises[1]!.id);
+    expect(store.getState().workout!.exercises[0]!.supersetId).toBeNull();
+  });
+
+  it("leaves a rep range as a hint and saves its bottom when nothing was typed", () => {
+    const exercise = draftFromTemplate(
+      bench,
+      {
+        exerciseId: "bench",
+        restSeconds: null,
+        notes: null,
+        sets: [{ type: "normal", weightKg: 60, reps: 8, repsMax: 12 }],
+      },
+      [],
+      90,
+    );
+    expect(exercise.sets[0]).toMatchObject({ reps: null, repsRange: { min: 8, max: 12 } });
+
+    const store = createActiveWorkoutStore();
+    store.getState().start({ title: "Push", exercises: [exercise] });
+    store.getState().toggleSetCompleted(exercise.id, exercise.sets[0]!.id);
+    const saved = toWorkoutInput(store.getState().workout!, "2026-10-14T19:00:00.000Z");
+    expect(saved.exercises[0]!.sets[0]).toMatchObject({ weightKg: 60, reps: 8 });
+    expect(saved.exercises[0]!.sets[0]).not.toHaveProperty("repsRange");
   });
 });

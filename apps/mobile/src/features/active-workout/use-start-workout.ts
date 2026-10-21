@@ -70,6 +70,7 @@ export function useStartWorkout() {
           exerciseId: e.exerciseId,
           restSeconds: null,
           notes: e.notes,
+          supersetId: e.supersetId,
           sets: e.sets,
         })),
       );

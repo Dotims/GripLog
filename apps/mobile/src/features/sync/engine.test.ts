@@ -57,6 +57,7 @@ function remoteWorkout(id: string, title: string): SyncWorkout {
         exerciseId: "bench",
         position: 0,
         notes: null,
+        supersetId: null,
         sets: [
           {
             id: "5d6c2a1b-0e9f-4c8d-b7a6-1f2e3d4c5b60",

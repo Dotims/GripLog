@@ -33,6 +33,7 @@ export function workoutInput(
       id: randomUUID(),
       exerciseId: block.exerciseId,
       notes: null,
+      supersetId: null,
       sets: block.sets.map(([weightKg, reps, type = "normal"]) => ({
         id: randomUUID(),
         type,

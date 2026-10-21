@@ -134,6 +134,7 @@ export const workoutExercises = pgTable(
     exerciseId: text("exercise_id").notNull(),
     position: integer("position").notNull(),
     notes: text("notes"),
+    supersetId: integer("superset_id"),
   },
   (t) => [index("workout_exercises_workout_idx").on(t.workoutId)],
 );
@@ -182,6 +183,7 @@ export const routineExercises = pgTable(
     position: integer("position").notNull(),
     restSeconds: integer("rest_seconds"),
     notes: text("notes"),
+    supersetId: integer("superset_id"),
   },
   (t) => [index("routine_exercises_routine_idx").on(t.routineId)],
 );
@@ -197,6 +199,9 @@ export const routineSets = pgTable(
     type: setType("type").notNull(),
     weightKg: doublePrecision("weight_kg"),
     reps: integer("reps"),
+    repsMax: integer("reps_max"),
+    durationSeconds: integer("duration_seconds"),
+    distanceMeters: integer("distance_meters"),
   },
   (t) => [index("routine_sets_exercise_idx").on(t.routineExerciseId)],
 );

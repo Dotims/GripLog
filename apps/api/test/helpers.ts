@@ -54,6 +54,7 @@ export function workout(overrides: Partial<SyncWorkout> = {}): SyncWorkout {
         exerciseId: "Barbell_Bench_Press_-_Medium_Grip",
         position: 0,
         notes: null,
+        supersetId: null,
         sets: [
           {
             id: randomUUID(),

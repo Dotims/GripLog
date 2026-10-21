@@ -13,6 +13,8 @@ export type ImportedSet = {
 export type ImportedExercise = {
   title: string;
   notes: string | null;
+  /** Hevy's superset number within the workout, or null. */
+  supersetId: number | null;
   sets: ImportedSet[];
 };
 
@@ -118,7 +120,12 @@ export function parseHevyCsv(text: string): ImportedWorkout[] {
     const current = workout.exercises.at(-1);
     const title = row.exercise_title?.trim() ?? "";
     if (!current || current.title !== title || setIndex <= previousSetIndex) {
-      workout.exercises.push({ title, notes: row.exercise_notes?.trim() || null, sets: [] });
+      workout.exercises.push({
+        title,
+        notes: row.exercise_notes?.trim() || null,
+        supersetId: toNumber(row.superset_id),
+        sets: [],
+      });
     }
     workout.exercises.at(-1)!.sets.push(toImportedSet(row));
     previousSetIndex = setIndex;

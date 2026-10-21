@@ -28,6 +28,7 @@ export type WorkoutInput = {
     id: string;
     exerciseId: string;
     notes: string | null;
+    supersetId: number | null;
     sets: SetInput[];
   }[];
 };
@@ -88,6 +89,7 @@ export function writeWorkoutRows(
         exerciseId: exercise.exerciseId,
         position,
         notes: exercise.notes,
+        supersetId: exercise.supersetId,
       })
       .run();
     exercise.sets.forEach((set, setPosition) => {
@@ -257,6 +259,7 @@ export function getWorkoutInput(db: Db, workoutId: string): WorkoutInput | null 
       id: exercise.id,
       exerciseId: exercise.exerciseId,
       notes: exercise.notes,
+      supersetId: exercise.supersetId,
       sets: exercise.sets.map((set) => ({
         id: set.id,
         type: set.type,

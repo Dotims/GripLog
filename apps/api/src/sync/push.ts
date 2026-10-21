@@ -77,6 +77,7 @@ async function upsertWorkout(
         exerciseId: e.exerciseId,
         position: e.position,
         notes: e.notes,
+        supersetId: e.supersetId,
       })),
     );
     const setRows = workout.exercises.flatMap((e) =>
@@ -121,6 +122,7 @@ async function upsertRoutine(
         position: e.position,
         restSeconds: e.restSeconds,
         notes: e.notes,
+        supersetId: e.supersetId,
       })),
     );
     const setRows = routine.exercises.flatMap((e) =>

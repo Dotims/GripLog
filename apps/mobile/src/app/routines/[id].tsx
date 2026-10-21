@@ -46,12 +46,18 @@ export default function RoutineDetailScreen() {
         trackingType: e.exercise.trackingType,
         restSeconds: e.restSeconds,
         notes: e.notes,
-        sets: e.sets.map(({ id: setId, type, weightKg, reps }) => ({
-          id: setId,
-          type,
-          weightKg,
-          reps,
-        })),
+        supersetId: e.supersetId,
+        sets: e.sets.map(
+          ({ id: setId, type, weightKg, reps, repsMax, durationSeconds, distanceMeters }) => ({
+            id: setId,
+            type,
+            weightKg,
+            reps,
+            repsMax,
+            durationSeconds,
+            distanceMeters,
+          }),
+        ),
       })),
     });
     router.push("/routines/edit");
