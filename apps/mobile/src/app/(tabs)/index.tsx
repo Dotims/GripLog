@@ -6,6 +6,7 @@ import { FlatList, StyleSheet, View } from "react-native";
 
 import { BarChart } from "@/components/charts/BarChart";
 import {
+  Appear,
   AppText,
   Button,
   Card,
@@ -158,14 +159,16 @@ function MyFeed({ header }: { header: ReactElement }) {
           ) : null}
         </View>
       }
-      renderItem={({ item }) => (
-        <WorkoutCard
-          title={item.workout.title}
-          startedAt={item.workout.startedAt}
-          summary={item.summary}
-          unit={unit}
-          onPress={() => router.push(`/workouts/${item.workout.id}`)}
-        />
+      renderItem={({ item, index }) => (
+        <Appear index={index}>
+          <WorkoutCard
+            title={item.workout.title}
+            startedAt={item.workout.startedAt}
+            summary={item.summary}
+            unit={unit}
+            onPress={() => router.push(`/workouts/${item.workout.id}`)}
+          />
+        </Appear>
       )}
       ListEmptyComponent={
         <EmptyState

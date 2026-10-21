@@ -2,7 +2,7 @@ import { Search, X } from "lucide-react-native";
 import { useDeferredValue, useState, type ReactElement } from "react";
 import { FlatList, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
 
-import { AppText, Chip } from "@/components/ui";
+import { Appear, AppText, Chip } from "@/components/ui";
 import { Colors, Fonts, Radii, Spacing } from "@/constants/theme";
 
 import { COMMON_EXERCISE_IDS } from "@/features/import/hevy-exercise-map";
@@ -98,13 +98,15 @@ export function ExerciseBrowser({
           </AppText>
         </View>
       }
-      renderItem={({ item }) => (
-        <ExerciseCard
-          exercise={item}
-          onPress={() => onSelect(item)}
-          selected={selectedIds?.has(item.id)}
-          uses={usage.get(item.id)}
-        />
+      renderItem={({ item, index }) => (
+        <Appear index={index}>
+          <ExerciseCard
+            exercise={item}
+            onPress={() => onSelect(item)}
+            selected={selectedIds?.has(item.id)}
+            uses={usage.get(item.id)}
+          />
+        </Appear>
       )}
       ListEmptyComponent={
         <AppText color={Colors.muted} align="center" style={styles.empty}>

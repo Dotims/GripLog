@@ -160,8 +160,11 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
         accessibilityRole="button"
         testID={`add-set-${exerciseId}`}
       >
-        <Plus color={Colors.text} size={16} strokeWidth={2.4} />
-        <AppText variant="bold">Add set</AppText>
+        {/* Text straight inside the animated pressable gets clipped on Android; the row keeps it whole. */}
+        <View style={styles.addSetContent}>
+          <Plus color={Colors.text} size={16} strokeWidth={2.4} />
+          <AppText variant="bold">Add set</AppText>
+        </View>
       </PressableScale>
 
       {/* Drawn last so it sits over the set rows; a border would change the layout. */}
@@ -283,11 +286,14 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  addSet: {
+  addSetContent: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
     gap: 6,
+  },
+  addSet: {
+    alignItems: "center",
+    justifyContent: "center",
     margin: 12,
     marginTop: 8,
     paddingVertical: 11,

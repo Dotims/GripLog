@@ -3,6 +3,7 @@ import { ClipboardList, Play, Plus, Upload } from "lucide-react-native";
 import { StyleSheet, View } from "react-native";
 
 import {
+  Appear,
   AppText,
   Button,
   Card,
@@ -72,28 +73,26 @@ export default function WorkoutTab() {
           message="Save the workouts you repeat as routines and start them in one tap."
         />
       ) : (
-        routines.map((routine) => (
-          <Card
-            key={routine.id}
-            onPress={() => router.push(`/routines/${routine.id}`)}
-            style={styles.routine}
-          >
-            <View style={styles.routineText}>
-              <AppText variant="title" numberOfLines={1}>
-                {routine.name}
-              </AppText>
-              <AppText color={Colors.muted} numberOfLines={2}>
-                {routine.exercises.map((e) => e.exercise.name).join(", ") || "No exercises yet"}
-              </AppText>
-            </View>
-            <Button
-              label="Start"
-              size="sm"
-              icon={Play}
-              onPress={() => startRoutine(routine.id)}
-              disabled={routine.exercises.length === 0}
-            />
-          </Card>
+        routines.map((routine, index) => (
+          <Appear key={routine.id} index={index}>
+            <Card onPress={() => router.push(`/routines/${routine.id}`)} style={styles.routine}>
+              <View style={styles.routineText}>
+                <AppText variant="title" numberOfLines={1}>
+                  {routine.name}
+                </AppText>
+                <AppText color={Colors.muted} numberOfLines={2}>
+                  {routine.exercises.map((e) => e.exercise.name).join(", ") || "No exercises yet"}
+                </AppText>
+              </View>
+              <Button
+                label="Start"
+                size="sm"
+                icon={Play}
+                onPress={() => startRoutine(routine.id)}
+                disabled={routine.exercises.length === 0}
+              />
+            </Card>
+          </Appear>
         ))
       )}
     </Screen>

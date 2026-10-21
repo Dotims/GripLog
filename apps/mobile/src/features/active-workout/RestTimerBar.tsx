@@ -2,7 +2,14 @@ import { formatClock } from "@griplog/core";
 import * as Haptics from "expo-haptics";
 import { useEffect } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import Animated, { SlideInDown, SlideOutDown } from "react-native-reanimated";
+import Animated, {
+  Easing,
+  SlideInDown,
+  SlideOutDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 import { AppText } from "@/components/ui";
 import { Colors, Radii, Spacing } from "@/constants/theme";
@@ -17,8 +24,19 @@ export function RestTimerBar({ bottomInset }: { bottomInset: number }) {
   const now = useNow(250, rest !== null);
 
   const remaining = rest ? Math.max(0, (rest.endsAt - now) / 1000) : 0;
-  const total = rest ? (rest.endsAt - rest.startedAt) / 1000 : 1;
   const finished = rest !== null && remaining <= 0;
+
+  // The line drains continuously on the UI thread instead of stepping with the clock.
+  const progress = useSharedValue(1);
+  const startedAt = rest?.startedAt;
+  const endsAt = rest?.endsAt;
+  useEffect(() => {
+    if (startedAt === undefined || endsAt === undefined) return;
+    const left = Math.max(0, endsAt - Date.now());
+    progress.set(left / (endsAt - startedAt));
+    progress.set(withTiming(0, { duration: left, easing: Easing.linear }));
+  }, [startedAt, endsAt, progress]);
+  const progressStyle = useAnimatedStyle(() => ({ width: `${progress.get() * 100}%` }));
 
   useEffect(() => {
     if (!finished) return;
@@ -36,7 +54,7 @@ export function RestTimerBar({ bottomInset }: { bottomInset: number }) {
       testID="rest-timer"
     >
       <View style={styles.bar}>
-        <View style={[styles.progress, { width: `${(remaining / total) * 100}%` }]} />
+        <Animated.View style={[styles.progress, progressStyle]} />
         <View style={styles.row}>
           <View>
             <AppText variant="caption" color={Colors.muted}>

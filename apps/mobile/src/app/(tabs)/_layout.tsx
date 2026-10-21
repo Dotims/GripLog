@@ -3,6 +3,7 @@ import { BottomTabBar } from "expo-router/js-tabs";
 import { ClipboardList, Dumbbell, House, User } from "lucide-react-native";
 import { View } from "react-native";
 
+import { TabIcon } from "@/components/ui";
 import { Colors, Fonts } from "@/constants/theme";
 import { ActiveWorkoutBar } from "@/features/active-workout/ActiveWorkoutBar";
 
@@ -17,6 +18,8 @@ export default function TabsLayout() {
       )}
       screenOptions={{
         headerShown: false,
+        // A short cross-slide between tabs instead of a hard cut.
+        animation: "shift",
         tabBarActiveTintColor: Colors.accent,
         tabBarInactiveTintColor: Colors.muted,
         tabBarStyle: {
@@ -35,22 +38,26 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: "Feed",
-          tabBarIcon: ({ color, size }) => <House color={color} size={size} strokeWidth={2} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <TabIcon icon={House} color={color} size={size} focused={focused} />
+          ),
         }}
       />
       <Tabs.Screen
         name="exercises"
         options={{
           title: "Exercises",
-          tabBarIcon: ({ color, size }) => <Dumbbell color={color} size={size} strokeWidth={2} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <TabIcon icon={Dumbbell} color={color} size={size} focused={focused} />
+          ),
         }}
       />
       <Tabs.Screen
         name="routines"
         options={{
           title: "Workout",
-          tabBarIcon: ({ color, size }) => (
-            <ClipboardList color={color} size={size} strokeWidth={2} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <TabIcon icon={ClipboardList} color={color} size={size} focused={focused} />
           ),
         }}
       />
@@ -58,7 +65,9 @@ export default function TabsLayout() {
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color, size }) => <User color={color} size={size} strokeWidth={2} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <TabIcon icon={User} color={color} size={size} focused={focused} />
+          ),
         }}
       />
     </Tabs>

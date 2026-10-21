@@ -1,4 +1,5 @@
 export { AppText } from "./AppText";
+export { Appear } from "./Appear";
 export { Button } from "./Button";
 export { Card } from "./Card";
 export { Chip } from "./Chip";
@@ -9,6 +10,7 @@ export { ScreenHeader } from "./ScreenHeader";
 export { SectionLabel } from "./SectionLabel";
 export { SegmentedControl } from "./SegmentedControl";
 export { Stat } from "./Stat";
+export { TabIcon } from "./TabIcon";
 export { TextField } from "./TextField";
 export { KeyboardToolbar, KEYBOARD_TOOLBAR_ID } from "./KeyboardToolbar";
 export { DurationInput } from "./DurationInput";

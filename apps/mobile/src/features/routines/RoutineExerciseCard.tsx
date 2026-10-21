@@ -268,7 +268,7 @@ function TargetField({
       <RepRangeInput
         value={{ reps: set.reps, repsMax: set.repsMax }}
         onChange={onChange}
-        placeholder="8-12"
+        placeholder="-"
         accessibilityLabel="Reps or rep range"
         style={styles.flex}
       />
@@ -279,7 +279,7 @@ function TargetField({
       <DurationInput
         value={set.durationSeconds}
         onChange={(durationSeconds) => onChange({ durationSeconds })}
-        placeholder="0:30"
+        placeholder="-"
         accessibilityLabel="Target time"
         style={styles.flex}
       />
