@@ -16,7 +16,7 @@
   --error: #ff5a4f;
   --radius: 20px;
   --radius-sm: 12px;
-  --font: "Inter", system-ui, sans-serif;
+  --font: "Onest", system-ui, sans-serif;
   color-scheme: dark;
 }
 
@@ -60,7 +60,7 @@ a {
   align-items: center;
   gap: 10px;
   margin: 0 8px 28px;
-  font-weight: 800;
+  font-weight: 700;
   font-size: 20px;
   letter-spacing: -0.4px;
 }
@@ -115,7 +115,7 @@ a {
 
 .title {
   margin: 6px 0 28px;
-  font-weight: 800;
+  font-weight: 700;
   font-size: 40px;
   line-height: 1.1;
   letter-spacing: -1.2px;
