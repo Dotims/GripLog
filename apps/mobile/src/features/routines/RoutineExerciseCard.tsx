@@ -1,5 +1,5 @@
 import { formatClock, setLabel, setNumbers, type WeightUnit } from "@griplog/core";
-import { MoreHorizontal, Plus, Timer, Trash2 } from "lucide-react-native";
+import { MoreHorizontal, Timer, Trash2 } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
@@ -12,7 +12,6 @@ import {
   DurationInput,
   NumberInput,
   OptionsSheet,
-  PressableScale,
   RepRangeInput,
 } from "@/components/ui";
 import { Colors, Radii, Spacing, supersetColor } from "@/constants/theme";
@@ -165,18 +164,16 @@ export function RoutineExerciseCard({
         </Animated.View>
       ))}
 
-      <PressableScale
+      {/* Plain Pressable, label spanning the button: sized to its text, Android drew it as "Add". */}
+      <Pressable
         onPress={() => actions.addSet(exerciseId)}
-        scaleTo={0.98}
-        background={{ idle: Colors.surfaceRaised, pressed: Colors.surfaceAlt }}
-        style={styles.addSet}
+        style={({ pressed }) => [styles.addSet, pressed && styles.addSetPressed]}
         accessibilityRole="button"
       >
-        <View style={styles.addSetContent}>
-          <Plus color={Colors.text} size={16} strokeWidth={2.4} />
-          <AppText variant="bold">Add set</AppText>
-        </View>
-      </PressableScale>
+        <AppText variant="bold" align="center" style={styles.addSetLabel}>
+          + Add set
+        </AppText>
+      </Pressable>
 
       {/* Drawn last so it sits over the set rows; a border would change the layout. */}
       {color ? <View style={[styles.stripe, { backgroundColor: color }]} /> : null}
@@ -379,14 +376,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: Colors.error,
   },
-  addSetContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
+  addSetLabel: {
+    alignSelf: "stretch",
+  },
+  addSetPressed: {
+    backgroundColor: Colors.surfaceAlt,
   },
   addSet: {
-    alignItems: "center",
     justifyContent: "center",
+    backgroundColor: Colors.surfaceRaised,
     margin: 12,
     marginTop: 8,
     paddingVertical: 11,

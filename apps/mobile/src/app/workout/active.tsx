@@ -1,7 +1,14 @@
 import { formatNumber, toDisplayWeight } from "@griplog/core";
 import { useRouter } from "expo-router";
 import { ChevronDown, Dumbbell, Plus, Trash2 } from "lucide-react-native";
-import { Platform, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useShallow } from "zustand/react/shallow";
@@ -119,66 +126,72 @@ export default function ActiveWorkoutScreen() {
         <Button label="Finish" size="sm" onPress={finish} testID="finish-workout" />
       </View>
 
-      <ScrollView
+      {/* Edge-to-edge Android does not shrink the window for the keyboard. */}
+      <KeyboardAvoidingView
         style={styles.flex}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 140 }]}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
-        automaticallyAdjustKeyboardInsets
+        behavior={Platform.OS === "android" ? "padding" : undefined}
       >
-        <TextInput
-          value={title}
-          onChangeText={rename}
-          style={styles.title}
-          placeholder="Workout title"
-          placeholderTextColor={Colors.faint}
-          selectionColor={Colors.accent}
-          keyboardAppearance="dark"
-          accessibilityLabel="Workout title"
-        />
-        <TextInput
-          value={notes ?? ""}
-          onChangeText={setNotes}
-          style={styles.notes}
-          placeholder="How did it feel?"
-          placeholderTextColor={Colors.faint}
-          selectionColor={Colors.accent}
-          keyboardAppearance="dark"
-          multiline
-        />
-
-        <Card style={styles.stats}>
-          <Stat
-            label="Volume"
-            value={formatNumber(toDisplayWeight(totals.volumeKg, unit), 0)}
-            unit={unit}
+        <ScrollView
+          style={styles.flex}
+          contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 140 }]}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+          automaticallyAdjustKeyboardInsets
+        >
+          <TextInput
+            value={title}
+            onChangeText={rename}
+            style={styles.title}
+            placeholder="Workout title"
+            placeholderTextColor={Colors.faint}
+            selectionColor={Colors.accent}
+            keyboardAppearance="dark"
+            accessibilityLabel="Workout title"
           />
-          <Stat label="Sets done" value={String(totals.sets)} />
-          <Stat label="Exercises" value={String(exerciseIds.length)} />
-        </Card>
+          <TextInput
+            value={notes ?? ""}
+            onChangeText={setNotes}
+            style={styles.notes}
+            placeholder="How did it feel?"
+            placeholderTextColor={Colors.faint}
+            selectionColor={Colors.accent}
+            keyboardAppearance="dark"
+            multiline
+          />
 
-        {exerciseIds.map((id, index) => (
-          <Animated.View key={id} entering={FadeInDown.duration(250)}>
-            <ExerciseBlock
-              exerciseId={id}
+          <Card style={styles.stats}>
+            <Stat
+              label="Volume"
+              value={formatNumber(toDisplayWeight(totals.volumeKg, unit), 0)}
               unit={unit}
-              isFirst={index === 0}
-              isLast={index === exerciseIds.length - 1}
             />
-          </Animated.View>
-        ))}
+            <Stat label="Sets done" value={String(totals.sets)} />
+            <Stat label="Exercises" value={String(exerciseIds.length)} />
+          </Card>
 
-        <Button
-          label="Add exercise"
-          icon={Plus}
-          size="lg"
-          onPress={() =>
-            router.push({ pathname: "/workout/pick-exercise", params: { target: "workout" } })
-          }
-          testID="add-exercise"
-        />
-        <Button label="Discard workout" icon={Trash2} variant="danger" onPress={discard} />
-      </ScrollView>
+          {exerciseIds.map((id, index) => (
+            <Animated.View key={id} entering={FadeInDown.duration(250)}>
+              <ExerciseBlock
+                exerciseId={id}
+                unit={unit}
+                isFirst={index === 0}
+                isLast={index === exerciseIds.length - 1}
+              />
+            </Animated.View>
+          ))}
+
+          <Button
+            label="Add exercise"
+            icon={Plus}
+            size="lg"
+            onPress={() =>
+              router.push({ pathname: "/workout/pick-exercise", params: { target: "workout" } })
+            }
+            testID="add-exercise"
+          />
+          <Button label="Discard workout" icon={Trash2} variant="danger" onPress={discard} />
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       <RestTimerBar bottomInset={insets.bottom} />
       <KeyboardToolbar />

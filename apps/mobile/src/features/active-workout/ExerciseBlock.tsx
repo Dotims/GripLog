@@ -1,12 +1,12 @@
 import { formatClock, setNumbers, type WeightUnit } from "@griplog/core";
 import { useRouter } from "expo-router";
-import { MoreHorizontal, Plus, Timer } from "lucide-react-native";
+import { MoreHorizontal, Timer } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import Animated, { FadeOut } from "react-native-reanimated";
 import { useShallow } from "zustand/react/shallow";
 
-import { AppText, Card, OptionsSheet, PressableScale } from "@/components/ui";
+import { AppText, Card, OptionsSheet } from "@/components/ui";
 import { Colors, Fonts, Radii, Spacing, supersetColor } from "@/constants/theme";
 import { ExerciseImage } from "@/features/exercises/ExerciseImage";
 import { confirm } from "@/lib/dialog";
@@ -152,20 +152,17 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
         </Animated.View>
       ))}
 
-      <PressableScale
+      {/* Plain Pressable, label spanning the button: sized to its text, Android drew it as "Add". */}
+      <Pressable
         onPress={() => actions.addSet(exerciseId)}
-        scaleTo={0.98}
-        background={{ idle: Colors.surfaceRaised, pressed: Colors.surfaceAlt }}
-        style={styles.addSet}
+        style={({ pressed }) => [styles.addSet, pressed && styles.addSetPressed]}
         accessibilityRole="button"
         testID={`add-set-${exerciseId}`}
       >
-        {/* Text straight inside the animated pressable gets clipped on Android; the row keeps it whole. */}
-        <View style={styles.addSetContent}>
-          <Plus color={Colors.text} size={16} strokeWidth={2.4} />
-          <AppText variant="bold">Add set</AppText>
-        </View>
-      </PressableScale>
+        <AppText variant="bold" align="center" style={styles.addSetLabel}>
+          + Add set
+        </AppText>
+      </Pressable>
 
       {/* Drawn last so it sits over the set rows; a border would change the layout. */}
       {color ? <View style={[styles.stripe, { backgroundColor: color }]} /> : null}
@@ -286,14 +283,15 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  addSetContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
+  addSetLabel: {
+    alignSelf: "stretch",
+  },
+  addSetPressed: {
+    backgroundColor: Colors.surfaceAlt,
   },
   addSet: {
-    alignItems: "center",
     justifyContent: "center",
+    backgroundColor: Colors.surfaceRaised,
     margin: 12,
     marginTop: 8,
     paddingVertical: 11,

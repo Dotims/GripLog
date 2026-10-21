@@ -1,5 +1,12 @@
 import type { ReactNode } from "react";
-import { Platform, ScrollView, StyleSheet, View, type ScrollViewProps } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+  type ScrollViewProps,
+} from "react-native";
 import { useSafeAreaInsets, type Edge } from "react-native-safe-area-context";
 
 import { Colors, Spacing } from "@/constants/theme";
@@ -40,17 +47,23 @@ export function Screen({
   return (
     <View style={[styles.root, { paddingTop: top, paddingBottom: bottom }]}>
       {scroll ? (
-        <ScrollView
-          contentContainerStyle={[styles.content, contentContainerStyle]}
-          keyboardShouldPersistTaps={keyboardShouldPersistTaps}
-          keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
-          // Keeps the focused field above the keyboard on iOS; Android resizes the window instead.
-          automaticallyAdjustKeyboardInsets
-          showsVerticalScrollIndicator={false}
-          indicatorStyle="white"
+        // Edge-to-edge Android no longer shrinks the window for the keyboard, so the
+        // scroll view is padded instead; iOS insets the scroll view itself.
+        <KeyboardAvoidingView
+          style={styles.root}
+          behavior={Platform.OS === "android" ? "padding" : undefined}
         >
-          {children}
-        </ScrollView>
+          <ScrollView
+            contentContainerStyle={[styles.content, contentContainerStyle]}
+            keyboardShouldPersistTaps={keyboardShouldPersistTaps}
+            keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+            automaticallyAdjustKeyboardInsets
+            showsVerticalScrollIndicator={false}
+            indicatorStyle="white"
+          >
+            {children}
+          </ScrollView>
+        </KeyboardAvoidingView>
       ) : (
         children
       )}
