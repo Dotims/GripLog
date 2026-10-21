@@ -46,7 +46,9 @@ export default function ImportScreen() {
   const pick = async () => {
     const result = await DocumentPicker.getDocumentAsync({
       type: ["text/csv", "text/comma-separated-values", "text/plain", "application/vnd.ms-excel"],
-      copyToCacheDirectory: true,
+      // On Android read the content:// URI directly: the picker's cache copy lands in
+      // a folder Expo Go is not allowed to read.
+      copyToCacheDirectory: Platform.OS !== "android",
     });
     const asset = result.canceled ? null : result.assets[0];
     if (!asset) return;
@@ -159,8 +161,8 @@ export default function ImportScreen() {
 
       {step.kind === "done" ? (
         <Animated.View entering={FadeIn} style={styles.stack}>
-          <Card tone="highlight" style={[styles.card, styles.done]}>
-            <CheckCircle2 color={Colors.text} size={32} strokeWidth={2.5} />
+          <Card tone="raised" style={[styles.card, styles.done]}>
+            <CheckCircle2 color={Colors.success} size={32} strokeWidth={2} />
             <AppText variant="title">Imported</AppText>
             <AppText>
               {step.result.workouts} workouts and {step.result.sets} sets
