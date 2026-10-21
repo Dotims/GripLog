@@ -90,6 +90,7 @@ export default function RoutineDetailScreen() {
       {routine.exercises.map((exercise) => (
         <Card key={exercise.id} style={styles.exercise}>
           <ExerciseImage
+            exerciseId={exercise.exerciseId}
             images={exercise.exercise.images}
             name={exercise.exercise.name}
             style={styles.thumb}

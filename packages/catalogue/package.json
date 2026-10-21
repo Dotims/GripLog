@@ -11,6 +11,7 @@
   },
   "scripts": {
     "build": "node scripts/build-catalogue.mjs",
+    "animations": "node scripts/match-animations.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

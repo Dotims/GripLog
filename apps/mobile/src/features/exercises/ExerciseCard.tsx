@@ -27,7 +27,7 @@ export function ExerciseCard({ exercise, onPress, selected = false, uses }: Exer
       accessibilityLabel={name}
       testID={`exercise-${exercise.id}`}
     >
-      <ExerciseImage images={images} name={name} style={styles.thumb} />
+      <ExerciseImage exerciseId={exercise.id} images={images} name={name} style={styles.thumb} />
       <View style={styles.body}>
         <AppText variant="bold" numberOfLines={2}>
           {name}

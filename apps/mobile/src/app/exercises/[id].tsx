@@ -16,6 +16,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { LineChart } from "@/components/charts/LineChart";
 import { AppText, Card, Chip, Screen, SectionLabel, SegmentedControl } from "@/components/ui";
 import { Colors, Radii, Spacing, tabular } from "@/constants/theme";
+import { animationUrl } from "@/features/exercises/catalogue";
 import { ExerciseImage } from "@/features/exercises/ExerciseImage";
 import { useExercise, useExerciseHistory, useExerciseRecords } from "@/features/exercises/hooks";
 import { groupSessions, sessionScore, toProgressionSessions } from "@/features/exercises/sessions";
@@ -93,6 +94,7 @@ export default function ExerciseDetailScreen() {
 
       <Card style={styles.imageCard}>
         <ExerciseImage
+          exerciseId={exercise.id}
           images={exercise.images}
           name={exercise.name}
           animated
@@ -208,6 +210,12 @@ export default function ExerciseDetailScreen() {
             </View>
           ))
         )
+      ) : null}
+
+      {tab === "howto" && animationUrl(exercise.id) ? (
+        <AppText variant="caption" color={Colors.faint}>
+          Animation: ExerciseDB, © Gym visual
+        </AppText>
       ) : null}
     </Screen>
   );

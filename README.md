@@ -35,7 +35,7 @@ The interface is dark and quiet on purpose: you look at it between sets, often i
 - Log sets with weight, reps and RPE, as normal, warm-up, drop or failure sets. Swipe a set to delete it.
 - The "previous" column shows what you lifted last time; ticking an empty set fills it in.
 - Rest timer that survives the app being killed and buzzes the locked phone with a local notification.
-- 870+ exercises with photos (bundled, public domain), search, muscle filters and custom exercises.
+- 870+ exercises with search, muscle filters and custom exercises. 400+ of them, including every common gym lift, show an animated 3D demo with the working muscles highlighted; the rest use start and end photos.
 - Routines, "repeat this workout" and "save as routine".
 - Personal records (heaviest weight, estimated 1RM, best set volume, most reps) recomputed on every save, edit and delete.
 - A next-session suggestion per lift: double progression, plus a deload after three sessions without progress.
@@ -208,6 +208,7 @@ npm test            # API tests expect the Postgres from docker compose
 ## Credits
 
 - Exercise data and photos: [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain).
+- Exercise animations: [ExerciseDB](https://github.com/ExerciseDB/exercisedb-api), © [Gym visual](https://gymvisual.com/). They are streamed from the ExerciseDB CDN and not stored in this repository; `packages/catalogue/data/animations.json` holds only the matched ids, built by `npm run animations -w @griplog/catalogue`.
 - Font: [Inter](https://rsms.me/inter/) (SIL Open Font License).
 
 ## License

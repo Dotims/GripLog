@@ -23,6 +23,8 @@ export const Colors = {
   error: "#FF5A4F",
   overlay: "rgba(0, 0, 0, 0.6)",
   chartIdle: "#34343A",
+  /** Backdrop for exercise animations, which are drawn on white. */
+  media: "#FFFFFF",
 } as const;
 
 /** Inter, loaded in the root layout. */

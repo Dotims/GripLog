@@ -78,7 +78,12 @@ export function WorkoutCard({
         {summary.exercises.slice(0, VISIBLE_EXERCISES).map((exercise, index) => (
           <View key={`${exercise.name}-${index}`} style={styles.exerciseRow}>
             {exercise.images ? (
-              <ExerciseImage images={exercise.images} name={exercise.name} style={styles.thumb} />
+              <ExerciseImage
+                exerciseId={exercise.exerciseId}
+                images={exercise.images}
+                name={exercise.name}
+                style={styles.thumb}
+              />
             ) : null}
             <AppText numberOfLines={1} style={styles.flex} color={Colors.text}>
               {exercise.name}

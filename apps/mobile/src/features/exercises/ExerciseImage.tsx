@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 import Animated, {
   cancelAnimation,
@@ -14,24 +14,35 @@ import Animated, {
 import { AppText } from "@/components/ui";
 import { Colors } from "@/constants/theme";
 
-import { exerciseImageUrl } from "./catalogue";
+import { animationUrl, exerciseImageUrl } from "./catalogue";
 
 const AnimatedImage = Animated.createAnimatedComponent(Image);
 
 type ExerciseImageProps = {
+  /** Catalogue id; exercises linked to ExerciseDB show its animation instead of photos. */
+  exerciseId?: string;
   images: readonly string[];
   name: string;
-  /** Crossfade between the start and end photo, standing in for a GIF. */
+  /** Play the animation, or crossfade the start and end photo when there is none. */
   animated?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
-export function ExerciseImage({ images, name, animated = false, style }: ExerciseImageProps) {
+export function ExerciseImage({
+  exerciseId,
+  images,
+  name,
+  animated = false,
+  style,
+}: ExerciseImageProps) {
   const [first, second] = images;
   const opacity = useSharedValue(0);
+  // A GIF that fails to load (offline, never cached) falls back to the photos.
+  const [gifFailed, setGifFailed] = useState(false);
+  const gif = exerciseId && !gifFailed ? animationUrl(exerciseId) : undefined;
 
   useEffect(() => {
-    if (!animated || !second) return;
+    if (gif || !animated || !second) return;
     opacity.value = withRepeat(
       withSequence(
         withDelay(700, withTiming(1, { duration: 450 })),
@@ -40,9 +51,30 @@ export function ExerciseImage({ images, name, animated = false, style }: Exercis
       -1,
     );
     return () => cancelAnimation(opacity);
-  }, [animated, opacity, second]);
+  }, [animated, gif, opacity, second]);
 
   const topStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  if (gif) {
+    return (
+      <View
+        style={[styles.frame, styles.animation, style]}
+        accessibilityLabel={name}
+        accessibilityRole="image"
+      >
+        <Image
+          source={{ uri: gif }}
+          style={StyleSheet.absoluteFill}
+          contentFit="contain"
+          cachePolicy="disk"
+          // Lists show the start position; the detail screen plays the movement.
+          autoplay={animated}
+          transition={150}
+          onError={() => setGifFailed(true)}
+        />
+      </View>
+    );
+  }
 
   if (!first) {
     return (
@@ -79,6 +111,10 @@ const styles = StyleSheet.create({
   frame: {
     overflow: "hidden",
     backgroundColor: Colors.surfaceAlt,
+  },
+  // The animations are drawn on white, so the frame matches instead of showing a seam.
+  animation: {
+    backgroundColor: Colors.media,
   },
   placeholder: {
     overflow: "hidden",
