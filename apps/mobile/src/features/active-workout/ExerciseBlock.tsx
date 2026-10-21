@@ -3,17 +3,21 @@ import { useRouter } from "expo-router";
 import { MoreHorizontal, Plus, Timer } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
+import Animated, { FadeOut } from "react-native-reanimated";
+import { useShallow } from "zustand/react/shallow";
 
-import { AppText, Card, OptionsSheet } from "@/components/ui";
-import { Colors, Fonts, Radii, Spacing } from "@/constants/theme";
+import { AppText, Card, OptionsSheet, PressableScale } from "@/components/ui";
+import { Colors, Fonts, Radii, Spacing, supersetColor } from "@/constants/theme";
 import { ExerciseImage } from "@/features/exercises/ExerciseImage";
 import { confirm } from "@/lib/dialog";
 
 import { columnsFor } from "./columns";
 import { SET_ROW_COLUMNS, SetRow } from "./SetRow";
+import { SupersetBadge } from "./SupersetBadge";
+import { supersetLetters, supersetPosition } from "./supersets";
 import { useActiveWorkout } from "./use-active-workout";
 
-const REST_OPTIONS = [0, 30, 60, 90, 120, 150, 180, 240, 300];
+export const REST_OPTIONS = [0, 30, 60, 90, 120, 150, 180, 240, 300];
 
 type ExerciseBlockProps = {
   exerciseId: string;
@@ -27,6 +31,23 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
   const exercise = useActiveWorkout((state) =>
     state.workout?.exercises.find((e) => e.id === exerciseId),
   );
+  // Only the superset layout, so typing in another exercise does not re-render this one.
+  const superset = useActiveWorkout(
+    useShallow((state) => {
+      const groups = (state.workout?.exercises ?? []).map((e) => ({
+        id: e.id,
+        supersetId: e.supersetId ?? null,
+      }));
+      const own = groups.find((e) => e.id === exerciseId)?.supersetId ?? null;
+      if (own === null) return { letter: null, index: -1, position: null };
+      const letters = supersetLetters(groups);
+      return {
+        letter: letters.get(own) ?? null,
+        index: [...letters.keys()].indexOf(own),
+        position: supersetPosition(groups, exerciseId),
+      };
+    }),
+  );
   const actions = useActiveWorkout.getState();
   const [menu, setMenu] = useState<"main" | "rest" | null>(null);
 
@@ -34,6 +55,8 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
 
   const columns = columnsFor(exercise.trackingType, unit);
   const numbers = setNumbers(exercise.sets);
+  const color = superset.letter ? supersetColor(superset.index) : null;
+  const linkedBelow = superset.position === "first" || superset.position === "middle";
 
   return (
     <Card style={styles.card}>
@@ -46,19 +69,24 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
         >
           <ExerciseImage
             exerciseId={exercise.exerciseId}
-            trackingType={exercise.trackingType}
             name={exercise.name}
+            trackingType={exercise.trackingType}
             style={styles.thumb}
           />
-          <AppText variant="heading" color={Colors.accent} numberOfLines={2} style={styles.flex}>
-            {exercise.name}
-          </AppText>
+          <View style={styles.titleText}>
+            <AppText variant="heading" color={Colors.accent} numberOfLines={2}>
+              {exercise.name}
+            </AppText>
+            {superset.letter && color ? (
+              <SupersetBadge letter={superset.letter} color={color} />
+            ) : null}
+          </View>
         </Pressable>
         <Pressable
           onPress={() => setMenu("main")}
           accessibilityRole="button"
           accessibilityLabel={`${exercise.name} options`}
-          hitSlop={8}
+          hitSlop={10}
           style={styles.menuButton}
         >
           <MoreHorizontal color={Colors.muted} size={22} strokeWidth={2} />
@@ -77,9 +105,11 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
       />
 
       <Pressable onPress={() => setMenu("rest")} style={styles.rest} accessibilityRole="button">
-        <Timer color={Colors.accent} size={14} strokeWidth={2} />
-        <AppText variant="label" color={Colors.accent}>
-          Rest timer: {exercise.restSeconds > 0 ? formatClock(exercise.restSeconds) : "off"}
+        <Timer color={Colors.muted} size={14} strokeWidth={2} />
+        <AppText variant="label" color={Colors.muted}>
+          {linkedBelow
+            ? "No rest within the superset"
+            : `Rest ${exercise.restSeconds > 0 ? formatClock(exercise.restSeconds) : "off"}`}
         </AppText>
       </Pressable>
 
@@ -109,10 +139,9 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
         <View style={{ width: SET_ROW_COLUMNS.check }} />
       </View>
 
-      <View>
-        {exercise.sets.map((set, index) => (
+      {exercise.sets.map((set, index) => (
+        <Animated.View key={set.id} exiting={FadeOut}>
           <SetRow
-            key={set.id}
             exerciseId={exerciseId}
             setId={set.id}
             workingIndex={numbers[index] ?? 0}
@@ -120,18 +149,23 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
             trackingType={exercise.trackingType}
             unit={unit}
           />
-        ))}
-      </View>
+        </Animated.View>
+      ))}
 
-      <Pressable
+      <PressableScale
         onPress={() => actions.addSet(exerciseId)}
-        style={({ pressed }) => [styles.addSet, pressed && { backgroundColor: Colors.surfaceAlt }]}
+        scaleTo={0.98}
+        background={{ idle: Colors.surfaceRaised, pressed: Colors.surfaceAlt }}
+        style={styles.addSet}
         accessibilityRole="button"
         testID={`add-set-${exerciseId}`}
       >
         <Plus color={Colors.text} size={16} strokeWidth={2.4} />
         <AppText variant="bold">Add set</AppText>
-      </Pressable>
+      </PressableScale>
+
+      {/* Drawn last so it sits over the set rows; a border would change the layout. */}
+      {color ? <View style={[styles.stripe, { backgroundColor: color }]} /> : null}
 
       <OptionsSheet
         visible={menu === "main"}
@@ -144,6 +178,17 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
           ...(isLast
             ? []
             : [{ label: "Move down", onPress: () => actions.moveExercise(exerciseId, 1) }]),
+          ...(isLast || linkedBelow
+            ? []
+            : [
+                {
+                  label: "Superset with next exercise",
+                  onPress: () => actions.linkSuperset(exerciseId),
+                },
+              ]),
+          ...(superset.letter
+            ? [{ label: "Remove from superset", onPress: () => actions.unlinkSuperset(exerciseId) }]
+            : []),
           { label: "Rest timer", onPress: () => setTimeout(() => setMenu("rest"), 250) },
           {
             label: "Remove exercise",
@@ -177,12 +222,19 @@ const styles = StyleSheet.create({
   card: {
     overflow: "hidden",
   },
+  stripe: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 3,
+  },
   header: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     gap: Spacing.sm,
     paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.md,
+    paddingTop: Spacing.lg,
   },
   titleArea: {
     flex: 1,
@@ -190,16 +242,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: Spacing.md,
   },
+  titleText: {
+    flex: 1,
+    gap: 6,
+  },
   thumb: {
-    width: 44,
-    height: 44,
-    borderRadius: Radii.sm,
+    width: 52,
+    height: 52,
+    borderRadius: Radii.md,
   },
   menuButton: {
-    paddingTop: 12,
+    alignSelf: "flex-start",
+    paddingTop: 4,
   },
   notes: {
     marginHorizontal: Spacing.lg,
+    marginTop: Spacing.sm,
     paddingVertical: 4,
     color: Colors.text,
     fontFamily: Fonts.regular,
@@ -211,6 +269,7 @@ const styles = StyleSheet.create({
     gap: 6,
     alignSelf: "flex-start",
     marginHorizontal: Spacing.lg,
+    marginTop: 2,
     marginBottom: Spacing.sm,
   },
   tableHeader: {
@@ -232,7 +291,7 @@ const styles = StyleSheet.create({
     margin: 12,
     marginTop: 8,
     paddingVertical: 11,
-    borderRadius: 12,
-    backgroundColor: Colors.surfaceRaised,
+    borderRadius: Radii.md,
+    borderCurve: "continuous",
   },
 });

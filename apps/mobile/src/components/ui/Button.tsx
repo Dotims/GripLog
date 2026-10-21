@@ -1,17 +1,11 @@
 import * as Haptics from "expo-haptics";
 import type { LucideIcon } from "lucide-react-native";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from "react-native";
+import { ActivityIndicator, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 
 import { Colors, Fonts, Radii } from "@/constants/theme";
 
 import { AppText } from "./AppText";
+import { PressableScale } from "./PressableScale";
 
 type ButtonProps = {
   label: string;
@@ -55,7 +49,7 @@ export function Button({
   const inactive = disabled || loading;
 
   return (
-    <Pressable
+    <PressableScale
       testID={testID}
       accessibilityRole="button"
       accessibilityLabel={label}
@@ -65,13 +59,13 @@ export function Button({
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
         onPress();
       }}
-      style={({ pressed }) => [
+      background={{ idle: colors.background, pressed: colors.pressed }}
+      style={[
         styles.base,
         {
           height: metrics.height,
           paddingHorizontal: metrics.paddingHorizontal,
           borderRadius: metrics.radius,
-          backgroundColor: pressed ? colors.pressed : colors.background,
         },
         inactive && styles.disabled,
         style,
@@ -90,7 +84,7 @@ export function Button({
           </AppText>
         </View>
       )}
-    </Pressable>
+    </PressableScale>
   );
 }
 

@@ -69,17 +69,20 @@ export function NumberInput({
           onChange(parsed);
         }
       }}
-      style={[styles.input, style]}
+      style={[fieldStyles.input, style]}
     />
   );
 }
 
-const styles = StyleSheet.create({
+/** Shared by the number, duration and rep range fields so a set row reads as one line. */
+export const fieldStyles = StyleSheet.create({
   input: {
     minWidth: 56,
-    height: 36,
+    height: 38,
     paddingHorizontal: 6,
+    paddingVertical: 0,
     borderRadius: Radii.sm,
+    borderCurve: "continuous",
     backgroundColor: Colors.surfaceAlt,
     color: Colors.text,
     fontFamily: Fonts.semibold,

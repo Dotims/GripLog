@@ -18,6 +18,8 @@ export const Colors = {
   accentInk: "#FFFFFF",
   success: "#32D17A",
   successSoft: "rgba(50, 209, 122, 0.12)",
+  /** successSoft over a card, opaque so it can be animated to and from the surface. */
+  successRow: "#182B22",
   gold: "#F5C451",
   goldSoft: "rgba(245, 196, 81, 0.14)",
   error: "#FF5A4F",
@@ -26,6 +28,13 @@ export const Colors = {
   /** Backdrop for exercise animations, which are drawn on white. */
   media: "#FFFFFF",
 } as const;
+
+/** One colour per superset, so linked exercises read as a group at a glance. */
+export const SupersetColors = ["#60A5FA", "#34D3C0", "#F472B6", "#A3E635"] as const;
+
+export function supersetColor(index: number): string {
+  return SupersetColors[index % SupersetColors.length]!;
+}
 
 /** Onest in four weights, loaded in the root layout. */
 export const Fonts = {

@@ -11,5 +11,8 @@ export { SegmentedControl } from "./SegmentedControl";
 export { Stat } from "./Stat";
 export { TextField } from "./TextField";
 export { KeyboardToolbar, KEYBOARD_TOOLBAR_ID } from "./KeyboardToolbar";
+export { DurationInput } from "./DurationInput";
 export { NumberInput } from "./NumberInput";
+export { RepRangeInput, parseRepRange, type RepRange } from "./RepRangeInput";
 export { OptionsSheet, type SheetOption } from "./OptionsSheet";
+export { PressableScale } from "./PressableScale";

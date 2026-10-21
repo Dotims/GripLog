@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
-import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
+import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 
 import { Colors, Radii } from "@/constants/theme";
+
+import { PressableScale } from "./PressableScale";
 
 type CardProps = {
   children: ReactNode;
@@ -41,16 +43,17 @@ export function Card({
   }
 
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       onLongPress={onLongPress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       testID={testID}
-      style={({ pressed }) => [base, pressed && styles.pressed]}
+      scaleTo={0.98}
+      style={base}
     >
       {children}
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -58,9 +61,5 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: Radii.card,
     borderCurve: "continuous",
-  },
-  pressed: {
-    opacity: 0.82,
-    transform: [{ scale: 0.985 }],
   },
 });

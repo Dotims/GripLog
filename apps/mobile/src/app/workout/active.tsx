@@ -2,7 +2,7 @@ import { formatNumber, toDisplayWeight } from "@griplog/core";
 import { useRouter } from "expo-router";
 import { ChevronDown, Dumbbell, Plus, Trash2 } from "lucide-react-native";
 import { Platform, ScrollView, StyleSheet, TextInput, View } from "react-native";
-import Animated, { FadeInDown, LinearTransition } from "react-native-reanimated";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useShallow } from "zustand/react/shallow";
 
@@ -158,7 +158,7 @@ export default function ActiveWorkoutScreen() {
         </Card>
 
         {exerciseIds.map((id, index) => (
-          <Animated.View key={id} entering={FadeInDown.duration(250)} layout={LinearTransition}>
+          <Animated.View key={id} entering={FadeInDown.duration(250)}>
             <ExerciseBlock
               exerciseId={id}
               unit={unit}

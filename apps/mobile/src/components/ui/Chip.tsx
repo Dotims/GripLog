@@ -1,8 +1,9 @@
-import { Pressable, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
 import { Colors, Radii } from "@/constants/theme";
 
 import { AppText } from "./AppText";
+import { PressableScale } from "./PressableScale";
 
 type ChipProps = {
   label: string;
@@ -22,21 +23,18 @@ export function Chip({ label, selected = false, onPress, tone = "light" }: ChipP
     ? SELECTED[tone]
     : { background: Colors.surfaceRaised, ink: Colors.muted };
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       disabled={!onPress}
       accessibilityRole={onPress ? "button" : "text"}
       accessibilityState={{ selected }}
-      style={({ pressed }) => [
-        styles.chip,
-        { backgroundColor: colors.background },
-        pressed && { opacity: 0.7 },
-      ]}
+      scaleTo={0.94}
+      style={[styles.chip, { backgroundColor: colors.background }]}
     >
       <AppText variant="label" color={colors.ink} numberOfLines={1} style={styles.text}>
         {label}
       </AppText>
-    </Pressable>
+    </PressableScale>
   );
 }
 

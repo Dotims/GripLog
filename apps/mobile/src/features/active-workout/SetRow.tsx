@@ -1,22 +1,38 @@
-import { setLabel, type TrackingType, type WeightUnit } from "@griplog/core";
+import { formatClock, setLabel, type TrackingType, type WeightUnit } from "@griplog/core";
 import * as Haptics from "expo-haptics";
 import { Check, Trash2 } from "lucide-react-native";
-import { useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Pressable, StyleSheet } from "react-native";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
-import { AppText, NumberInput, OptionsSheet } from "@/components/ui";
+import { AppText, DurationInput, NumberInput, OptionsSheet } from "@/components/ui";
 import { Colors, Radii } from "@/constants/theme";
 import type { PreviousSet } from "@/features/exercises/repository";
 
-import { columnsFor, formatPrevious } from "./columns";
+import { columnsFor, formatPrevious, type SetColumn } from "./columns";
+import type { DraftSet } from "./store";
 import { useActiveWorkout } from "./use-active-workout";
 
-const TYPE_STYLES = {
+export const SET_TYPE_STYLES = {
   normal: { background: Colors.surfaceAlt, ink: Colors.text },
   warmup: { background: Colors.goldSoft, ink: Colors.gold },
   dropset: { background: "rgba(140, 120, 255, 0.16)", ink: "#A99BFF" },
   failure: { background: Colors.accentSoft, ink: Colors.accent },
+} as const;
+
+export const SET_TYPE_LABELS = {
+  normal: "Normal set",
+  warmup: "Warm-up",
+  dropset: "Drop set",
+  failure: "To failure",
 } as const;
 
 const RPE_VALUES = [6, 7, 7.5, 8, 8.5, 9, 9.5, 10];
@@ -30,6 +46,14 @@ type SetRowProps = {
   trackingType: TrackingType;
   unit: WeightUnit;
 };
+
+/** The grey hint inside an empty field: the routine's rep range, else last time's value. */
+function hintFor(column: SetColumn, set: DraftSet, previous: PreviousSet | undefined): string {
+  if (column.key === "reps" && set.repsRange) return `${set.repsRange.min}-${set.repsRange.max}`;
+  const value = previous ? column.read({ ...previous, distanceMeters: null }) : null;
+  if (value === null) return "-";
+  return column.kind === "duration" ? formatClock(value) : String(value);
+}
 
 export function SetRow({
   exerciseId,
@@ -48,10 +72,26 @@ export function SetRow({
   const removeSet = useActiveWorkout((state) => state.removeSet);
   const [menu, setMenu] = useState<"type" | "rpe" | null>(null);
 
+  const completed = set?.completed ?? false;
+  const done = useSharedValue(completed ? 1 : 0);
+  const checkScale = useSharedValue(1);
+  useEffect(() => {
+    done.set(withTiming(completed ? 1 : 0, { duration: 240 }));
+  }, [completed, done]);
+
+  // The row washes green and the check pops when a set is ticked.
+  const rowStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(done.value, [0, 1], [Colors.surface, Colors.successRow]),
+  }));
+  const checkStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(done.value, [0, 1], [Colors.surfaceAlt, Colors.success]),
+    transform: [{ scale: checkScale.value }],
+  }));
+
   if (!set) return null;
 
   const columns = columnsFor(trackingType, unit);
-  const typeStyle = TYPE_STYLES[set.type];
+  const typeStyle = SET_TYPE_STYLES[set.type];
 
   const fillFromPrevious = () => {
     if (!previous) return;
@@ -61,6 +101,19 @@ export function SetRow({
       reps: previous.reps,
       durationSeconds: previous.durationSeconds,
     });
+  };
+
+  const onCheck = () => {
+    if (!set.completed) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      checkScale.set(
+        withSequence(
+          withTiming(0.82, { duration: 80 }),
+          withSpring(1, { damping: 9, stiffness: 320 }),
+        ),
+      );
+    }
+    toggle(exerciseId, setId);
   };
 
   return (
@@ -79,11 +132,12 @@ export function SetRow({
         </Pressable>
       )}
     >
-      <View style={[styles.row, set.completed && styles.completed]} testID={`set-row-${setId}`}>
+      <Animated.View style={[styles.row, rowStyle]} testID={`set-row-${setId}`}>
         <Pressable
           onPress={() => setMenu("type")}
           accessibilityRole="button"
           accessibilityLabel={`Set ${setLabel(set.type, workingIndex)} options`}
+          hitSlop={4}
           style={[styles.label, { backgroundColor: typeStyle.background }]}
         >
           <AppText variant="bold" color={typeStyle.ink} style={styles.labelText}>
@@ -106,41 +160,48 @@ export function SetRow({
           ) : null}
         </Pressable>
 
-        {columns.map((column) => (
-          <NumberInput
-            key={column.key}
-            value={column.read(set)}
-            onChange={(value) => updateSet(exerciseId, setId, column.write(value))}
-            placeholder={
-              previous ? String(column.read({ ...previous, distanceMeters: null }) ?? "") : "-"
-            }
-            decimals={column.decimals}
-            accessibilityLabel={column.label}
-            testID={`input-${column.key}-${setId}`}
-            style={[styles.input, set.completed && styles.inputCompleted]}
-          />
-        ))}
+        {columns.map((column) =>
+          column.kind === "duration" ? (
+            <DurationInput
+              key={column.key}
+              value={column.read(set)}
+              onChange={(value) => updateSet(exerciseId, setId, column.write(value))}
+              placeholder={hintFor(column, set, previous)}
+              accessibilityLabel={column.label}
+              testID={`input-${column.key}-${setId}`}
+              style={[styles.input, set.completed && styles.inputCompleted]}
+            />
+          ) : (
+            <NumberInput
+              key={column.key}
+              value={column.read(set)}
+              onChange={(value) => updateSet(exerciseId, setId, column.write(value))}
+              placeholder={hintFor(column, set, previous)}
+              decimals={column.decimals}
+              accessibilityLabel={column.label}
+              testID={`input-${column.key}-${setId}`}
+              style={[styles.input, set.completed && styles.inputCompleted]}
+            />
+          ),
+        )}
 
         <Pressable
-          onPress={() => {
-            if (!set.completed) {
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-            }
-            toggle(exerciseId, setId);
-          }}
+          onPress={onCheck}
           accessibilityRole="checkbox"
           accessibilityState={{ checked: set.completed }}
           accessibilityLabel="Complete set"
           testID={`complete-${setId}`}
-          style={[styles.check, set.completed && styles.checkDone]}
+          hitSlop={6}
         >
-          <Check
-            color={set.completed ? Colors.surface : Colors.faint}
-            size={18}
-            strokeWidth={3.5}
-          />
+          <Animated.View style={[styles.check, checkStyle]}>
+            <Check
+              color={set.completed ? Colors.background : Colors.faint}
+              size={18}
+              strokeWidth={3.5}
+            />
+          </Animated.View>
         </Pressable>
-      </View>
+      </Animated.View>
 
       <OptionsSheet
         visible={menu === "type"}
@@ -148,12 +209,7 @@ export function SetRow({
         onClose={() => setMenu(null)}
         options={[
           ...(["normal", "warmup", "dropset", "failure"] as const).map((type) => ({
-            label: {
-              normal: "Normal set",
-              warmup: "Warm-up",
-              dropset: "Drop set",
-              failure: "To failure",
-            }[type],
+            label: SET_TYPE_LABELS[type],
             selected: set.type === type,
             onPress: () => updateSet(exerciseId, setId, { type }),
           })),
@@ -183,7 +239,7 @@ export function SetRow({
 
 export const SET_ROW_COLUMNS = {
   label: 34,
-  check: 36,
+  check: 38,
   input: 64,
 };
 
@@ -194,10 +250,6 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 12,
     paddingVertical: 5,
-    backgroundColor: Colors.surface,
-  },
-  completed: {
-    backgroundColor: Colors.successSoft,
   },
   label: {
     width: SET_ROW_COLUMNS.label,
@@ -205,6 +257,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Radii.sm,
+    borderCurve: "continuous",
   },
   labelText: {
     fontSize: 14,
@@ -221,14 +274,11 @@ const styles = StyleSheet.create({
   },
   check: {
     width: SET_ROW_COLUMNS.check,
-    height: 32,
+    height: 34,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.surfaceAlt,
     borderRadius: Radii.sm,
-  },
-  checkDone: {
-    backgroundColor: Colors.success,
+    borderCurve: "continuous",
   },
   delete: {
     width: 76,

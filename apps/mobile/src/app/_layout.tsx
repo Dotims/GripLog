@@ -72,7 +72,11 @@ function RootStack() {
       <Stack.Screen name="exercises/new" options={{ presentation: "modal" }} />
       <Stack.Screen name="workouts/[id]" options={detailHeader} />
       <Stack.Screen name="routines/[id]" options={detailHeader} />
-      <Stack.Screen name="routines/edit" options={{ presentation: "modal" }} />
+      <Stack.Screen
+        name="routines/edit"
+        // No swipe-to-dismiss: edits only leave through Save or Cancel.
+        options={{ presentation: "modal", gestureEnabled: false }}
+      />
       <Stack.Screen name="settings" options={{ ...detailHeader, headerTitle: "Settings" }} />
       <Stack.Screen name="import" options={{ presentation: "modal" }} />
       <Stack.Screen name="account" options={{ ...detailHeader, headerTitle: "Account" }} />
