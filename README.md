@@ -12,7 +12,7 @@
 ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-ff3b47.svg)](LICENSE)
 
-<img src="docs/media/demo.gif" width="320" alt="GripLog on Android: the animated bench press demo, logging two sets with the rest timer, and the summary with three new personal records" />
+<img src="docs/media/demo.gif" width="320" alt="GripLog on Android with a real training history: the feed, an animated exercise demo, building a routine with a rep range and a superset, logging it with the rest timer, and the summary with new personal records" />
 
 </div>
 
@@ -20,9 +20,9 @@
 
 GripLog is the app I actually log my gym sessions in. It started as a Hevy replacement and grew into a full stack project: a React Native app that works with zero signal on the gym floor, a Postgres backed API that syncs it, a GraphQL feed for training with friends, a web dashboard for progress charts, and an MCP server that lets an assistant like Claude review your training using numbers computed by tested code instead of guesses.
 
-My own history (144 workouts and 2 600+ sets exported from Hevy) imports in about a second, and the screenshots below show that real data. The recording above is a first session in a fresh install: an exercise demo, two sets with the rest timer, and the records they set. Both were captured from the app running in Expo Go on an Android emulator.
+My own history (144 workouts and 2 600+ sets exported from Hevy) imports in about a second, and the recording and screenshots show that real data: the feed, an exercise demo, a new routine with a rep range and a superset, a session logged from it and the records it set. Both were captured from the app running in Expo Go on an Android emulator.
 
-The interface is dark and quiet on purpose: you look at it between sets, often in a dim gym. Colour carries meaning only: red for actions and progress, green for completed sets, gold for personal records.
+The interface is dark and quiet on purpose: you look at it between sets, often in a dim gym. Colour carries meaning only: red for actions and progress, green for completed sets, gold for personal records, and one colour per superset. Type is Onest in four weights with tabular figures, so timers and weights never jitter. Motion is Reanimated on the UI thread: spring press feedback, a sliding segmented control, sheets that rise and settle, a set that washes green when ticked, a rest line that drains continuously and a summary that counts its numbers up.
 
 <p align="center">
   <img src="docs/media/screens.png" alt="Feed, exercise detail with a next-session suggestion, an active workout with the rest timer, and the profile" />
@@ -32,11 +32,13 @@ The interface is dark and quiet on purpose: you look at it between sets, often i
 
 **In the gym (fully offline)**
 
-- Log sets with weight, reps and RPE, as normal, warm-up, drop or failure sets. Swipe a set to delete it.
+- Log sets with weight, reps and RPE, as normal, warm-up, drop or failure sets. Exercises without a load take reps only, timed ones (plank, carries) take a stopwatch-style time, cardio takes distance and time. Swipe a set to delete it.
 - The "previous" column shows what you lifted last time; ticking an empty set fills it in.
 - Rest timer that survives the app being killed and buzzes the locked phone with a local notification.
-- 870+ exercises with search, muscle filters and custom exercises. 400+ of them, including every common gym lift, show an animated 3D demo with the working muscles highlighted; the rest use start and end photos.
-- Routines, "repeat this workout" and "save as routine".
+- 400+ exercises, each with an animated 3D demo of the movement with the working muscles highlighted, plus search, muscle filters, your own custom exercises and the lifts you have logged before. The library is sorted by how often you do each lift.
+- Routines with targets per set: a fixed weight and reps, a rep range like 8-12, or a time. A range is the hint you aim for while logging.
+- Supersets: link neighbouring exercises in a routine or mid-workout; the rest timer waits until the last exercise of each round.
+- "Repeat this workout" and "save as routine".
 - Personal records (heaviest weight, estimated 1RM, best set volume, most reps) recomputed on every save, edit and delete.
 - A next-session suggestion per lift: double progression, plus a deload after three sessions without progress.
 - One-tap import of a Hevy CSV export, with a review step and safe re-runs.
@@ -97,6 +99,7 @@ Things I deliberately built the hard way, because they are the interesting part.
 - **Last write wins** on `updatedAt`, and a guessed id can never overwrite another user's data (tested).
 - **Poison messages are parked**: the client validates every payload with the same zod schema as the server. A bad change (my Hevy export contains a 2 505 kg curl) is set aside with a reason instead of blocking the queue, and a rejected batch is bisected to find the culprit.
 - Pulls page per entity type with a cursor that may hold back but never skips a row.
+- **The contract evolves without breaking old phones**: new fields (superset numbers, rep ranges, timed targets) have defaults in the zod schema, so an app version that does not know them still pushes valid changes.
 
 ### REST and GraphQL, each where it wins
 
@@ -201,6 +204,7 @@ npm test            # API tests expect the Postgres from docker compose
 - [x] GraphQL social feed
 - [x] Web dashboard
 - [x] MCP coach
+- [x] Supersets, rep ranges and timed targets in routines
 - [ ] iOS Live Activity for the rest timer and EAS builds
 - [ ] Hosted API and web deploy
 - [ ] In-app coach chat on top of the MCP tools
@@ -209,7 +213,7 @@ npm test            # API tests expect the Postgres from docker compose
 
 - Exercise data and photos: [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain).
 - Exercise animations: [ExerciseDB](https://github.com/ExerciseDB/exercisedb-api), © [Gym visual](https://gymvisual.com/). They are streamed from the ExerciseDB CDN and not stored in this repository; `packages/catalogue/data/animations.json` holds only the matched ids, built by `npm run animations -w @griplog/catalogue`.
-- Font: [Inter](https://rsms.me/inter/) (SIL Open Font License).
+- Font: [Onest](https://fonts.google.com/specimen/Onest) (SIL Open Font License).
 
 ## License
 
