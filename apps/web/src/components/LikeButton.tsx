@@ -60,7 +60,8 @@ export function LikeButton({
       aria-pressed={workout.likedByMe}
       onClick={() => toggle.mutate()}
     >
-      {workout.likedByMe ? "♥" : "♡"} {workout.likeCount}
+      {workout.likedByMe ? "♥" : "♡"} {workout.likeCount}{" "}
+      {workout.likeCount === 1 ? "like" : "likes"}
     </button>
   );
 }

@@ -1,53 +1,23 @@
 import { StyleSheet, Text, type TextProps } from "react-native";
 
-import { Colors, Fonts } from "@/constants/theme";
+import { Colors, Fonts, tabular } from "@/constants/theme";
 
 const variants = StyleSheet.create({
-  display: {
-    fontFamily: Fonts.display,
-    fontSize: 36,
-    lineHeight: 38,
-    letterSpacing: -1.5,
-    textTransform: "uppercase",
-  },
-  title: {
-    fontFamily: Fonts.display,
-    fontSize: 24,
-    lineHeight: 27,
-    letterSpacing: -0.8,
-    textTransform: "uppercase",
-  },
-  heading: {
-    fontFamily: Fonts.heading,
-    fontSize: 17,
-    lineHeight: 21,
-    letterSpacing: -0.3,
-  },
-  body: {
-    fontFamily: Fonts.body,
-    fontSize: 15,
-    lineHeight: 21,
-  },
-  bold: {
-    fontFamily: Fonts.bold,
-    fontSize: 15,
-    lineHeight: 21,
-  },
-  label: {
-    fontFamily: Fonts.monoBold,
+  display: { fontFamily: Fonts.heavy, fontSize: 32, lineHeight: 38, letterSpacing: -0.9 },
+  title: { fontFamily: Fonts.bold, fontSize: 22, lineHeight: 28, letterSpacing: -0.5 },
+  heading: { fontFamily: Fonts.semibold, fontSize: 17, lineHeight: 22, letterSpacing: -0.2 },
+  body: { fontFamily: Fonts.regular, fontSize: 15, lineHeight: 21 },
+  bold: { fontFamily: Fonts.semibold, fontSize: 15, lineHeight: 21 },
+  label: { fontFamily: Fonts.medium, fontSize: 13, lineHeight: 17, letterSpacing: 0.1 },
+  caption: {
+    fontFamily: Fonts.semibold,
     fontSize: 11,
+    lineHeight: 14,
     letterSpacing: 0.8,
     textTransform: "uppercase",
   },
-  mono: {
-    fontFamily: Fonts.mono,
-    fontSize: 13,
-  },
-  number: {
-    fontFamily: Fonts.monoBold,
-    fontSize: 22,
-    letterSpacing: -0.5,
-  },
+  mono: { fontFamily: Fonts.medium, fontSize: 14, lineHeight: 19, ...tabular },
+  number: { fontFamily: Fonts.bold, fontSize: 24, lineHeight: 29, letterSpacing: -0.6, ...tabular },
 });
 
 export type TextVariant = keyof typeof variants;

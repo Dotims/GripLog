@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 import Animated, { SlideInDown, SlideOutDown } from "react-native-reanimated";
 
 import { AppText } from "@/components/ui";
-import { BorderWidth, Colors, Radii, Shadow, Spacing } from "@/constants/theme";
+import { Colors, Radii, Spacing } from "@/constants/theme";
 import { useNow } from "@/lib/use-now";
 
 import { useActiveWorkout } from "./use-active-workout";
@@ -39,12 +39,10 @@ export function RestTimerBar({ bottomInset }: { bottomInset: number }) {
         <View style={[styles.progress, { width: `${(remaining / total) * 100}%` }]} />
         <View style={styles.row}>
           <View>
-            <AppText variant="label" color={Colors.faint}>
+            <AppText variant="caption" color={Colors.muted}>
               Rest
             </AppText>
-            <AppText variant="number" color={Colors.surface}>
-              {formatClock(Math.ceil(remaining))}
-            </AppText>
+            <AppText variant="number">{formatClock(Math.ceil(remaining))}</AppText>
           </View>
           <View style={styles.actions}>
             <TimerButton label="-15" onPress={() => adjustRest(-15)} />
@@ -73,7 +71,7 @@ function TimerButton({
       accessibilityLabel={label === "Skip" ? "Skip rest" : `${label} seconds`}
       style={({ pressed }) => [styles.button, accent && styles.accent, pressed && { opacity: 0.7 }]}
     >
-      <AppText variant="label" color={accent ? Colors.accentInk : Colors.text}>
+      <AppText variant="bold" color={accent ? Colors.accentInk : Colors.text}>
         {label}
       </AppText>
     </Pressable>
@@ -90,39 +88,37 @@ const styles = StyleSheet.create({
   },
   bar: {
     overflow: "hidden",
-    backgroundColor: Colors.text,
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
+    backgroundColor: Colors.surfaceRaised,
     borderRadius: Radii.card,
-    boxShadow: Shadow.hard,
+    borderCurve: "continuous",
+    borderWidth: 1,
+    borderColor: Colors.hairline,
   },
   progress: {
     position: "absolute",
-    top: 0,
-    bottom: 0,
     left: 0,
-    backgroundColor: "#2A2C30",
+    bottom: 0,
+    height: 3,
+    backgroundColor: Colors.accent,
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: Spacing.md,
+    padding: Spacing.lg,
   },
   actions: {
     flexDirection: "row",
     gap: Spacing.sm,
   },
   button: {
-    minWidth: 52,
+    minWidth: 56,
     height: 40,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 10,
-    backgroundColor: Colors.surface,
-    borderWidth: BorderWidth.hair,
-    borderColor: Colors.border,
-    borderRadius: Radii.chip,
+    paddingHorizontal: 12,
+    backgroundColor: Colors.surfaceAlt,
+    borderRadius: Radii.md,
   },
   accent: {
     backgroundColor: Colors.accent,

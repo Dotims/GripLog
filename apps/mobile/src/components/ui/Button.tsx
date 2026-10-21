@@ -9,7 +9,7 @@ import {
   type ViewStyle,
 } from "react-native";
 
-import { BorderWidth, Colors, Fonts, PRESS_OFFSET, Radii, Shadow } from "@/constants/theme";
+import { Colors, Fonts, Radii } from "@/constants/theme";
 
 import { AppText } from "./AppText";
 
@@ -26,17 +26,17 @@ type ButtonProps = {
 };
 
 const VARIANTS = {
-  primary: { background: Colors.accent, ink: Colors.accentInk },
-  secondary: { background: Colors.surface, ink: Colors.text },
-  dark: { background: Colors.text, ink: Colors.surface },
-  ghost: { background: "transparent", ink: Colors.text },
-  danger: { background: Colors.surface, ink: Colors.error },
+  primary: { background: Colors.accent, pressed: Colors.accentPressed, ink: Colors.accentInk },
+  secondary: { background: Colors.surfaceRaised, pressed: Colors.surfaceAlt, ink: Colors.text },
+  dark: { background: Colors.surfaceRaised, pressed: Colors.surfaceAlt, ink: Colors.accent },
+  ghost: { background: "transparent", pressed: Colors.surfaceRaised, ink: Colors.muted },
+  danger: { background: "transparent", pressed: Colors.surfaceRaised, ink: Colors.error },
 } as const;
 
 const SIZES = {
-  sm: { height: 36, paddingHorizontal: 12, fontSize: 12, icon: 16 },
-  md: { height: 48, paddingHorizontal: 16, fontSize: 14, icon: 18 },
-  lg: { height: 58, paddingHorizontal: 20, fontSize: 16, icon: 22 },
+  sm: { height: 36, paddingHorizontal: 14, fontSize: 14, icon: 16, radius: Radii.sm },
+  md: { height: 48, paddingHorizontal: 18, fontSize: 15, icon: 18, radius: Radii.md },
+  lg: { height: 56, paddingHorizontal: 22, fontSize: 16, icon: 20, radius: Radii.md },
 } as const;
 
 export function Button({
@@ -52,7 +52,6 @@ export function Button({
 }: ButtonProps) {
   const colors = VARIANTS[variant];
   const metrics = SIZES[size];
-  const flat = variant === "ghost";
   const inactive = disabled || loading;
 
   return (
@@ -71,11 +70,9 @@ export function Button({
         {
           height: metrics.height,
           paddingHorizontal: metrics.paddingHorizontal,
-          backgroundColor: colors.background,
+          borderRadius: metrics.radius,
+          backgroundColor: pressed ? colors.pressed : colors.background,
         },
-        flat ? styles.flat : styles.raised,
-        pressed && !flat && styles.pressed,
-        pressed && flat && styles.flatPressed,
         inactive && styles.disabled,
         style,
       ]}
@@ -84,12 +81,12 @@ export function Button({
         <ActivityIndicator color={colors.ink} />
       ) : (
         <View style={styles.content}>
-          {Icon ? <Icon color={colors.ink} size={metrics.icon} strokeWidth={2.5} /> : null}
+          {Icon ? <Icon color={colors.ink} size={metrics.icon} strokeWidth={2.2} /> : null}
           <AppText
-            style={{ fontFamily: Fonts.heading, fontSize: metrics.fontSize, letterSpacing: 0.4 }}
+            style={{ fontFamily: Fonts.semibold, fontSize: metrics.fontSize }}
             color={colors.ink}
           >
-            {label.toUpperCase()}
+            {label}
           </AppText>
         </View>
       )}
@@ -101,25 +98,10 @@ const styles = StyleSheet.create({
   base: {
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: Radii.card,
-  },
-  raised: {
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
-    boxShadow: Shadow.hard,
-  },
-  flat: {
-    borderWidth: 0,
-  },
-  pressed: {
-    boxShadow: Shadow.none,
-    transform: [{ translateX: PRESS_OFFSET }, { translateY: PRESS_OFFSET }],
-  },
-  flatPressed: {
-    opacity: 0.6,
+    borderCurve: "continuous",
   },
   disabled: {
-    opacity: 0.45,
+    opacity: 0.4,
   },
   content: {
     flexDirection: "row",

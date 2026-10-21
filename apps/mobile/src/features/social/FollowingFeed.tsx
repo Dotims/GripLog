@@ -32,7 +32,7 @@ function LikeButton({ workout }: { workout: FeedWorkout }) {
         color={workout.likedByMe ? Colors.accent : Colors.text}
         fill={workout.likedByMe ? Colors.accent : "transparent"}
         size={20}
-        strokeWidth={2.5}
+        strokeWidth={2}
       />
       <AppText variant="label">{workout.likeCount}</AppText>
     </Pressable>

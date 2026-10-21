@@ -8,22 +8,22 @@ type StatProps = {
   label: string;
   value: string;
   unit?: string;
+  /** Kept for compatibility: every surface is dark now. */
   inverted?: boolean;
 };
 
-export function Stat({ label, value, unit, inverted = false }: StatProps) {
-  const ink = inverted ? Colors.surface : Colors.text;
+export function Stat({ label, value, unit }: StatProps) {
   return (
     <View style={styles.stat}>
-      <AppText variant="label" color={inverted ? Colors.faint : Colors.muted} numberOfLines={1}>
+      <AppText variant="label" color={Colors.muted} numberOfLines={1}>
         {label}
       </AppText>
       <View style={styles.valueRow}>
-        <AppText variant="number" color={ink} numberOfLines={1} adjustsFontSizeToFit>
+        <AppText variant="number" numberOfLines={1} adjustsFontSizeToFit>
           {value}
         </AppText>
         {unit ? (
-          <AppText variant="mono" color={inverted ? Colors.faint : Colors.muted}>
+          <AppText variant="label" color={Colors.muted}>
             {unit}
           </AppText>
         ) : null}
@@ -35,7 +35,7 @@ export function Stat({ label, value, unit, inverted = false }: StatProps) {
 const styles = StyleSheet.create({
   stat: {
     flex: 1,
-    gap: 2,
+    gap: 4,
   },
   valueRow: {
     flexDirection: "row",

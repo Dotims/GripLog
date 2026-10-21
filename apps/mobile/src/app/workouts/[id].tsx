@@ -11,7 +11,7 @@ import { ClipboardPlus, Repeat, Trash2, Trophy } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText, Button, Card, Screen, Stat } from "@/components/ui";
-import { BorderWidth, Colors, Radii, Spacing } from "@/constants/theme";
+import { Colors, Radii, Spacing } from "@/constants/theme";
 import { useDatabase } from "@/db/DatabaseProvider";
 import { toRoutineInput } from "@/features/active-workout/draft";
 import { useStartWorkout } from "@/features/active-workout/use-start-workout";
@@ -121,7 +121,7 @@ export default function WorkoutDetailScreen() {
                     {set.rpe ? `  @${set.rpe}` : ""}
                   </AppText>
                   {recordSets.has(set.id) ? (
-                    <Trophy color={Colors.text} size={16} strokeWidth={2.5} />
+                    <Trophy color={Colors.gold} size={16} strokeWidth={2.2} />
                   ) : null}
                   {estimate ? (
                     <AppText variant="label" color={Colors.muted}>
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: 9,
     borderTopWidth: 1,
-    borderTopColor: Colors.surfaceAlt,
+    borderTopColor: Colors.hairline,
   },
   setLabel: {
     width: 28,
@@ -187,12 +187,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: Colors.surfaceAlt,
-    borderWidth: BorderWidth.hair,
-    borderColor: Colors.border,
-    borderRadius: Radii.chip,
+    borderRadius: Radii.sm,
   },
   setLabelSpecial: {
-    backgroundColor: Colors.highlight,
+    backgroundColor: Colors.goldSoft,
   },
   flex: {
     flex: 1,

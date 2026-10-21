@@ -141,7 +141,7 @@ function SignedIn() {
       ) : null}
       {status === "error" && lastError ? (
         <View style={styles.error}>
-          <CloudUpload color={Colors.error} size={18} strokeWidth={2.5} />
+          <CloudUpload color={Colors.error} size={18} strokeWidth={2} />
           <AppText color={Colors.error} style={styles.flex}>
             {lastError}. Changes stay queued and go out next time.
           </AppText>

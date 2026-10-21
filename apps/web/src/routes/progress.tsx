@@ -61,22 +61,23 @@ export function ProgressPage({ exerciseId }: { exerciseId: string | undefined })
           {suggestion && suggestion.kind !== "no_data" ? (
             <div className="card suggestion">
               <div className="stat-label">Next session</div>
-              <div className="workout-title" style={{ marginTop: 4 }}>
+              <div className="title" style={{ margin: "6px 0 4px", fontSize: 34 }}>
                 {formatNumber(suggestion.weightKg ?? 0)} kg × {suggestion.reps}
               </div>
-              <p style={{ marginBottom: 0 }}>{suggestion.reason}</p>
+              <p className="meta" style={{ margin: 0, fontSize: 15 }}>
+                {suggestion.reason}
+              </p>
             </div>
           ) : null}
           <div className="card">
             <h2 className="workout-title" style={{ marginTop: 0 }}>
               {progress.data?.exerciseProgress.name ?? "Pick an exercise"}
             </h2>
-            <div style={{ display: "flex", gap: 8, margin: "12px 0", flexWrap: "wrap" }}>
+            <div className="segmented">
               {METRICS.map((m) => (
                 <button
                   key={m.value}
-                  className={`button ${m.value === metric ? "" : "button-secondary"}`}
-                  style={{ height: 36 }}
+                  aria-pressed={m.value === metric}
                   onClick={() => setMetric(m.value)}
                 >
                   {m.label}

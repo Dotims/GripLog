@@ -1,29 +1,37 @@
+/**
+ * GripLog design tokens: a dark, quiet interface where colour carries meaning.
+ * Red is the one accent (actions, the current week, progress), green means
+ * done, gold means a personal record. Everything else is greys.
+ */
 export const Colors = {
-  accent: "#FF3B47",
-  accentSoft: "#FFDADD",
+  background: "#0A0A0B",
+  surface: "#141416",
+  surfaceRaised: "#1C1C1F",
+  surfaceAlt: "#26262A",
+  hairline: "rgba(255, 255, 255, 0.07)",
+  text: "#F4F4F6",
+  muted: "#9B9BA4",
+  faint: "#5E5E66",
+  accent: "#FF4757",
+  accentPressed: "#E23E4D",
+  accentSoft: "rgba(255, 71, 87, 0.14)",
   accentInk: "#FFFFFF",
-  background: "#DDE0E3", // cool concrete ground, white cards pop against it
-  surface: "#FFFFFF",
-  surfaceAlt: "#F1F2F4",
-  border: "#000000",
-  text: "#17181A",
-  muted: "#5A5C61", // secondary ink, cool grey, dark enough for small mono text
-  faint: "#9A9DA3",
-  error: "#C81E1E",
-  success: "#14883E",
-  successSoft: "#CDEFD6",
-  highlight: "#FFD23F", // personal records
-  overlay: "rgba(23, 24, 26, 0.45)",
+  success: "#32D17A",
+  successSoft: "rgba(50, 209, 122, 0.12)",
+  gold: "#F5C451",
+  goldSoft: "rgba(245, 196, 81, 0.14)",
+  error: "#FF5A4F",
+  overlay: "rgba(0, 0, 0, 0.6)",
+  chartIdle: "#34343A",
 } as const;
 
-/** Loaded in the root layout. Mono is reserved for labels, meta and numbers. */
+/** Inter, loaded in the root layout. */
 export const Fonts = {
-  display: "Archivo_900Black",
-  heading: "Archivo_800ExtraBold",
-  bold: "Archivo_700Bold",
-  body: "Archivo_500Medium",
-  mono: "JetBrainsMono_500Medium",
-  monoBold: "JetBrainsMono_700Bold",
+  regular: "Inter_400Regular",
+  medium: "Inter_500Medium",
+  semibold: "Inter_600SemiBold",
+  bold: "Inter_700Bold",
+  heavy: "Inter_800ExtraBold",
 } as const;
 
 export const Spacing = {
@@ -36,21 +44,11 @@ export const Spacing = {
 } as const;
 
 export const Radii = {
-  card: 10,
-  chip: 6,
+  sm: 10,
+  md: 14,
+  card: 20,
   pill: 999,
 } as const;
 
-export const BorderWidth = {
-  hair: 1.5,
-  thick: 2.5,
-} as const;
-
-export const Shadow = {
-  hard: "3px 3px 0 #000000",
-  hardLg: "5px 5px 0 #000000",
-  none: "0px 0px 0 #000000",
-} as const;
-
-/** How far a pressed card sinks into its shadow. */
-export const PRESS_OFFSET = 3;
+/** Tabular figures keep weights and timers from jittering as digits change. */
+export const tabular = { fontVariant: ["tabular-nums" as const] };

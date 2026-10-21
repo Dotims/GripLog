@@ -12,7 +12,7 @@ export function WorkoutCard({ workout }: { workout: FeedWorkout }) {
       <div className="author">
         <div className="avatar">{workout.user.name.charAt(0).toUpperCase()}</div>
         <div>
-          <div style={{ fontWeight: 700 }}>{workout.user.isMe ? "You" : workout.user.name}</div>
+          <div style={{ fontWeight: 600 }}>{workout.user.isMe ? "You" : workout.user.name}</div>
           <div className="meta">{formatDay(workout.startedAt)}</div>
         </div>
       </div>
@@ -24,19 +24,19 @@ export function WorkoutCard({ workout }: { workout: FeedWorkout }) {
         <Stat label="Volume" value={formatWeight(workout.volumeKg)} />
         <Stat label="Sets" value={String(workout.setCount)} />
       </div>
-      <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none", display: "grid", gap: 4 }}>
+      <ul className="exercise-list">
         {workout.exercises.slice(0, 3).map((e, i) => (
           <li key={i}>
-            <span className="meta" style={{ display: "inline-block", width: 32 }}>
-              {e.sets.length}×
+            <span>{e.name}</span>
+            <span className="meta">
+              {e.sets.length} {e.sets.length === 1 ? "set" : "sets"}
             </span>
-            {e.name}
           </li>
         ))}
       </ul>
       {hidden > 0 ? (
-        <div className="meta" style={{ marginTop: 6 }}>
-          + {hidden} more
+        <div className="meta" style={{ marginTop: 8 }}>
+          and {hidden} more {hidden === 1 ? "exercise" : "exercises"}
         </div>
       ) : null}
       <LikeButton workout={workout} />

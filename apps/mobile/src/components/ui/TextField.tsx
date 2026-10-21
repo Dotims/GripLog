@@ -1,6 +1,6 @@
 import { StyleSheet, TextInput, View, type TextInputProps } from "react-native";
 
-import { BorderWidth, Colors, Fonts, Radii } from "@/constants/theme";
+import { Colors, Fonts, Radii } from "@/constants/theme";
 
 import { AppText } from "./AppText";
 
@@ -19,6 +19,7 @@ export function TextField({ label, style, ...props }: TextFieldProps) {
       <TextInput
         placeholderTextColor={Colors.faint}
         selectionColor={Colors.accent}
+        keyboardAppearance="dark"
         {...props}
         style={[styles.input, props.multiline && styles.multiline, style]}
       />
@@ -28,22 +29,21 @@ export function TextField({ label, style, ...props }: TextFieldProps) {
 
 const styles = StyleSheet.create({
   wrapper: {
-    gap: 6,
+    gap: 8,
   },
   input: {
-    minHeight: 48,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: Colors.surface,
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
-    borderRadius: Radii.card,
+    minHeight: 50,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: Colors.surfaceRaised,
+    borderRadius: Radii.md,
+    borderCurve: "continuous",
     color: Colors.text,
-    fontFamily: Fonts.body,
+    fontFamily: Fonts.regular,
     fontSize: 16,
   },
   multiline: {
-    minHeight: 96,
+    minHeight: 100,
     textAlignVertical: "top",
   },
 });

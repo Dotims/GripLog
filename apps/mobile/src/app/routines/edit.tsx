@@ -13,7 +13,7 @@ import {
   ScreenHeader,
   TextField,
 } from "@/components/ui";
-import { BorderWidth, Colors, Radii, Spacing } from "@/constants/theme";
+import { Colors, Radii, Spacing } from "@/constants/theme";
 import { useDatabase } from "@/db/DatabaseProvider";
 import { columnsFor } from "@/features/active-workout/columns";
 import { usePreferences } from "@/features/profile/PreferencesProvider";
@@ -130,7 +130,7 @@ export default function RoutineEditorScreen() {
                   accessibilityLabel="Remove set"
                   hitSlop={8}
                 >
-                  <X color={Colors.muted} size={18} strokeWidth={2.5} />
+                  <X color={Colors.muted} size={18} strokeWidth={2} />
                 </Pressable>
               </View>
             ))}
@@ -141,7 +141,7 @@ export default function RoutineEditorScreen() {
               accessibilityRole="button"
             >
               <Plus color={Colors.text} size={16} strokeWidth={3} />
-              <AppText variant="label">Add set</AppText>
+              <AppText variant="bold">Add set</AppText>
             </Pressable>
           </Card>
         );
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: 6,
     borderTopWidth: 1,
-    borderTopColor: Colors.surfaceAlt,
+    borderTopColor: Colors.hairline,
   },
   setLabel: {
     width: 30,
@@ -195,9 +195,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: Colors.surfaceAlt,
-    borderWidth: BorderWidth.hair,
-    borderColor: Colors.border,
-    borderRadius: Radii.chip,
+    borderRadius: Radii.sm,
   },
   inputGroup: {
     flex: 1,
@@ -213,8 +211,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    paddingVertical: 12,
-    borderTopWidth: BorderWidth.hair,
-    borderColor: Colors.border,
+    margin: 12,
+    marginTop: 8,
+    paddingVertical: 11,
+    borderRadius: 12,
+    backgroundColor: Colors.surfaceRaised,
   },
 });

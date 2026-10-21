@@ -4,12 +4,12 @@ import { Pressable, StyleSheet, View } from "react-native";
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
 
 import { AppText } from "@/components/ui";
-import { BorderWidth, Colors, Radii, Shadow, Spacing } from "@/constants/theme";
+import { Colors, Radii, Spacing } from "@/constants/theme";
 
 import { ElapsedTime } from "./ElapsedTime";
 import { useActiveWorkout } from "./use-active-workout";
 
-/** Floating strip above the tab bar while a workout runs, like Hevy's. */
+/** Floating strip above the tab bar while a workout runs. */
 export function ActiveWorkoutBar() {
   const router = useRouter();
   // Selecting two fields keeps this bar from re-rendering on every set edit.
@@ -25,19 +25,19 @@ export function ActiveWorkoutBar() {
         accessibilityRole="button"
         accessibilityLabel="Resume workout"
         testID="active-workout-bar"
-        style={({ pressed }) => [styles.bar, pressed && styles.pressed]}
+        style={({ pressed }) => [styles.bar, pressed && { opacity: 0.85 }]}
       >
-        <View style={styles.pulse} />
+        <View style={styles.dot} />
         <View style={styles.text}>
-          <AppText variant="label" color={Colors.accentInk}>
+          <AppText variant="caption" color={Colors.accent}>
             Workout in progress
           </AppText>
-          <AppText variant="heading" color={Colors.accentInk} numberOfLines={1}>
+          <AppText variant="bold" numberOfLines={1}>
             {title}
           </AppText>
         </View>
-        <ElapsedTime startedAt={startedAt} color={Colors.accentInk} />
-        <ChevronUp color={Colors.accentInk} size={22} strokeWidth={3} />
+        <ElapsedTime startedAt={startedAt} variant="heading" />
+        <ChevronUp color={Colors.muted} size={20} strokeWidth={2} />
       </Pressable>
     </Animated.View>
   );
@@ -47,33 +47,27 @@ const styles = StyleSheet.create({
   wrapper: {
     paddingHorizontal: Spacing.md,
     paddingBottom: Spacing.sm,
-    backgroundColor: "transparent",
   },
   bar: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.md,
     paddingHorizontal: Spacing.lg,
-    paddingVertical: 10,
-    backgroundColor: Colors.accent,
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
+    paddingVertical: 12,
+    backgroundColor: Colors.surfaceRaised,
     borderRadius: Radii.card,
-    boxShadow: Shadow.hard,
+    borderCurve: "continuous",
+    borderWidth: 1,
+    borderColor: Colors.hairline,
   },
-  pressed: {
-    boxShadow: Shadow.none,
-    transform: [{ translateX: 3 }, { translateY: 3 }],
-  },
-  pulse: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: Colors.highlight,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.accent,
   },
   text: {
     flex: 1,
+    gap: 2,
   },
 });

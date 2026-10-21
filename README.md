@@ -12,7 +12,7 @@
 ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-ff3b47.svg)](LICENSE)
 
-<img src="docs/media/demo.gif" width="340" alt="Logging a workout in GripLog: feed, exercise library, progress suggestion, sets and rest timer" />
+<img src="docs/media/demo.gif" width="320" alt="Logging a workout in GripLog on Android: feed, exercise detail with the progress chart, sets with the rest timer, summary and profile" />
 
 </div>
 
@@ -20,7 +20,9 @@
 
 GripLog is the app I actually log my gym sessions in. It started as a Hevy replacement and grew into a full stack project: a React Native app that works with zero signal on the gym floor, a Postgres backed API that syncs it, a GraphQL feed for training with friends, a web dashboard for progress charts, and an MCP server that lets an assistant like Claude review your training using numbers computed by tested code instead of guesses.
 
-My own history (144 workouts and 2 600+ sets exported from Hevy) imports in about a second, and everything you see in the screenshots is that real data.
+My own history (144 workouts and 2 600+ sets exported from Hevy) imports in about a second, and everything you see in the recording and screenshots is that real data, captured from the app running in Expo Go on an Android emulator.
+
+The interface is dark and quiet on purpose: you look at it between sets, often in a dim gym. Colour carries meaning only: red for actions and progress, green for completed sets, gold for personal records.
 
 <p align="center">
   <img src="docs/media/screens.png" alt="Feed, exercise detail with a next-session suggestion, an active workout with the rest timer, and the profile" />

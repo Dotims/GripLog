@@ -47,7 +47,7 @@ export default function WorkoutTab() {
         )}
       </View>
 
-      <SectionLabel>{`Routines · ${routines.length}`}</SectionLabel>
+      <SectionLabel>Routines</SectionLabel>
       <View style={styles.actions}>
         <Button
           label="New routine"

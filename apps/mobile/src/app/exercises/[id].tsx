@@ -15,7 +15,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { LineChart } from "@/components/charts/LineChart";
 import { AppText, Card, Chip, Screen, SectionLabel, SegmentedControl } from "@/components/ui";
-import { BorderWidth, Colors, Radii, Spacing } from "@/constants/theme";
+import { Colors, Radii, Spacing, tabular } from "@/constants/theme";
 import { ExerciseImage } from "@/features/exercises/ExerciseImage";
 import { useExercise, useExerciseHistory, useExerciseRecords } from "@/features/exercises/hooks";
 import { groupSessions, sessionScore, toProgressionSessions } from "@/features/exercises/sessions";
@@ -91,7 +91,7 @@ export default function ExerciseDetailScreen() {
     <Screen scroll edges={[]}>
       <Stack.Screen options={{ headerTitle: "" }} />
 
-      <Card shadow="hardLg" style={styles.imageCard}>
+      <Card style={styles.imageCard}>
         <ExerciseImage
           images={exercise.images}
           name={exercise.name}
@@ -104,10 +104,10 @@ export default function ExerciseDetailScreen() {
         <AppText variant="display">{exercise.name}</AppText>
         <View style={styles.chips}>
           {exercise.primaryMuscles.map((muscle) => (
-            <Chip key={muscle} label={muscle} selected />
+            <Chip key={muscle} label={muscle} selected tone="accent" />
           ))}
           {exercise.equipment ? <Chip label={exercise.equipment} /> : null}
-          {exercise.isCustom ? <Chip label="custom" selected tone="highlight" /> : null}
+          {exercise.isCustom ? <Chip label="custom" selected tone="gold" /> : null}
         </View>
       </View>
 
@@ -116,16 +116,18 @@ export default function ExerciseDetailScreen() {
       {tab === "summary" ? (
         <>
           {suggestion && suggestion.kind !== "no_data" ? (
-            <Card tone="highlight" style={styles.coach}>
+            <Card tone="raised" style={styles.coach}>
               <View style={styles.coachHeader}>
-                <Sparkles color={Colors.text} size={18} strokeWidth={2.5} />
-                <AppText variant="label">Next session</AppText>
+                <Sparkles color={Colors.accent} size={16} strokeWidth={2.2} />
+                <AppText variant="caption" color={Colors.accent}>
+                  Next session
+                </AppText>
               </View>
-              <AppText variant="title">
+              <AppText variant="display">
                 {formatNumber(toDisplayWeight(suggestion.weightKg ?? 0, unit))} {unit} ×{" "}
                 {suggestion.reps}
               </AppText>
-              <AppText>{suggestion.reason}</AppText>
+              <AppText color={Colors.muted}>{suggestion.reason}</AppText>
             </Card>
           ) : null}
 
@@ -133,11 +135,11 @@ export default function ExerciseDetailScreen() {
           <View style={styles.recordGrid}>
             {RECORD_KINDS.filter((kind) => bestByKind.has(kind)).map((kind) => (
               <Card key={kind} style={styles.recordCard}>
-                <Trophy color={Colors.accent} size={18} strokeWidth={2.5} />
+                <Trophy color={Colors.gold} size={18} strokeWidth={2.2} />
                 <AppText variant="label" color={Colors.muted}>
                   {recordLabel(kind)}
                 </AppText>
-                <AppText variant="number">
+                <AppText variant="heading" style={tabular} numberOfLines={1} adjustsFontSizeToFit>
                   {formatRecordValue(kind, bestByKind.get(kind) ?? 0, unit)}
                 </AppText>
               </Card>
@@ -242,13 +244,14 @@ const styles = StyleSheet.create({
   recordGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: Spacing.md,
+    gap: Spacing.sm,
   },
   recordCard: {
     flexGrow: 1,
-    flexBasis: "45%",
+    flexBasis: 0,
+    minWidth: 96,
     padding: Spacing.md,
-    gap: 4,
+    gap: 6,
   },
   chart: {
     padding: Spacing.lg,
@@ -274,9 +277,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: Colors.surface,
-    borderWidth: BorderWidth.hair,
-    borderColor: Colors.border,
-    borderRadius: Radii.chip,
+    borderRadius: Radii.sm,
   },
   flex: {
     flex: 1,

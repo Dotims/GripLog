@@ -2,7 +2,7 @@ import { Check } from "lucide-react-native";
 import { StyleSheet, View } from "react-native";
 
 import { AppText, Card } from "@/components/ui";
-import { BorderWidth, Colors, Radii } from "@/constants/theme";
+import { Colors, Radii } from "@/constants/theme";
 
 import { ExerciseImage } from "./ExerciseImage";
 import type { ExerciseListItem } from "./repository";
@@ -16,31 +16,34 @@ type ExerciseCardProps = {
 
 export function ExerciseCard({ exercise, onPress, selected = false, uses }: ExerciseCardProps) {
   const { name, images, equipment, primaryMuscles, isCustom } = exercise;
-  const meta = [primaryMuscles[0], equipment].filter(Boolean).join(" / ");
+  const meta = [primaryMuscles[0], equipment, isCustom ? "custom" : null]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <Card
       onPress={onPress}
-      tone={selected ? "highlight" : "surface"}
-      style={styles.card}
+      style={[styles.card, selected && styles.selected]}
       accessibilityLabel={name}
       testID={`exercise-${exercise.id}`}
     >
       <ExerciseImage images={images} name={name} style={styles.thumb} />
       <View style={styles.body}>
-        <AppText variant="heading" numberOfLines={2}>
+        <AppText variant="bold" numberOfLines={2}>
           {name}
         </AppText>
-        <AppText variant="label" color={Colors.muted} numberOfLines={1}>
-          {isCustom ? `custom${meta ? ` / ${meta}` : ""}` : meta}
-        </AppText>
+        {meta ? (
+          <AppText variant="label" color={Colors.muted} numberOfLines={1} style={styles.meta}>
+            {meta}
+          </AppText>
+        ) : null}
       </View>
       {selected ? (
         <View style={styles.check}>
-          <Check color={Colors.accentInk} size={16} strokeWidth={3} />
+          <Check color={Colors.accentInk} size={15} strokeWidth={3} />
         </View>
       ) : uses ? (
-        <AppText variant="label" color={Colors.muted}>
+        <AppText variant="label" color={Colors.faint}>
           {uses}×
         </AppText>
       ) : null}
@@ -52,28 +55,31 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 14,
     padding: 10,
+    paddingRight: 16,
+  },
+  selected: {
+    backgroundColor: Colors.accentSoft,
   },
   thumb: {
-    width: 56,
-    height: 56,
-    borderRadius: 6,
-    borderWidth: BorderWidth.hair,
-    borderColor: Colors.border,
+    width: 54,
+    height: 54,
+    borderRadius: Radii.md,
   },
   body: {
     flex: 1,
-    gap: 4,
+    gap: 3,
+  },
+  meta: {
+    textTransform: "capitalize",
   },
   check: {
-    width: 28,
-    height: 28,
+    width: 24,
+    height: 24,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: Colors.accent,
-    borderWidth: BorderWidth.hair,
-    borderColor: Colors.border,
-    borderRadius: Radii.chip,
+    borderRadius: Radii.pill,
   },
 });

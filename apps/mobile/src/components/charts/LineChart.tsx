@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
-import Svg, { Circle, Line, Polyline } from "react-native-svg";
+import Svg, { Circle, Defs, Line, LinearGradient, Path, Stop } from "react-native-svg";
 
 import { AppText } from "@/components/ui";
 import { Colors } from "@/constants/theme";
@@ -14,9 +14,9 @@ type LineChartProps = {
   formatValue: (value: number) => string;
 };
 
-const PADDING = 10;
+const PADDING = 12;
 
-export function LineChart({ points, height = 160, formatValue }: LineChartProps) {
+export function LineChart({ points, height = 170, formatValue }: LineChartProps) {
   const [width, setWidth] = useState(0);
   const values = points.map((p) => p.value);
   const min = Math.min(...values);
@@ -28,61 +28,64 @@ export function LineChart({ points, height = 160, formatValue }: LineChartProps)
       ? width / 2
       : PADDING + (index / (points.length - 1)) * (width - PADDING * 2);
   const y = (value: number) => PADDING + (1 - (value - min) / span) * (height - PADDING * 2);
-  const coordinates = points.map((point, index) => `${x(index)},${y(point.value)}`).join(" ");
+  const line = points
+    .map((point, index) => `${index === 0 ? "M" : "L"}${x(index)},${y(point.value)}`)
+    .join(" ");
+  const area = `${line} L${x(points.length - 1)},${height} L${x(0)},${height} Z`;
+  const last = points.at(-1);
 
   return (
     <View style={styles.wrapper}>
+      <View style={styles.header}>
+        <AppText variant="label" color={Colors.muted}>
+          Low {formatValue(min)}
+        </AppText>
+        <AppText variant="label" color={Colors.muted}>
+          High {formatValue(max)}
+        </AppText>
+      </View>
       <View style={{ height }} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
-        {width > 0 ? (
-          <Animated.View entering={FadeIn.duration(400)}>
+        {width > 0 && last ? (
+          <Animated.View entering={FadeIn.duration(500)}>
             <Svg width={width} height={height}>
-              {[0, 0.5, 1].map((fraction) => (
+              <Defs>
+                <LinearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+                  <Stop offset="0" stopColor={Colors.accent} stopOpacity={0.28} />
+                  <Stop offset="1" stopColor={Colors.accent} stopOpacity={0} />
+                </LinearGradient>
+              </Defs>
+              {[0.25, 0.5, 0.75].map((fraction) => (
                 <Line
                   key={fraction}
                   x1={0}
                   x2={width}
-                  y1={PADDING + fraction * (height - PADDING * 2)}
-                  y2={PADDING + fraction * (height - PADDING * 2)}
-                  stroke={Colors.faint}
+                  y1={height * fraction}
+                  y2={height * fraction}
+                  stroke={Colors.hairline}
                   strokeWidth={1}
-                  strokeDasharray="4 4"
                 />
               ))}
-              <Polyline
-                points={coordinates}
+              <Path d={area} fill="url(#area)" />
+              <Path
+                d={line}
                 fill="none"
                 stroke={Colors.accent}
-                strokeWidth={3}
+                strokeWidth={2.5}
                 strokeLinejoin="round"
                 strokeLinecap="round"
               />
-              {points.map((point, index) => (
-                <Circle
-                  key={point.key}
-                  cx={x(index)}
-                  cy={y(point.value)}
-                  r={index === points.length - 1 ? 6 : 3.5}
-                  fill={index === points.length - 1 ? Colors.accent : Colors.surface}
-                  stroke={Colors.border}
-                  strokeWidth={2}
-                />
-              ))}
+              <Circle cx={x(points.length - 1)} cy={y(last.value)} r={9} fill={Colors.accentSoft} />
+              <Circle cx={x(points.length - 1)} cy={y(last.value)} r={4.5} fill={Colors.accent} />
             </Svg>
           </Animated.View>
         ) : null}
-        <AppText variant="label" color={Colors.muted} style={[styles.axisLabel, { top: -4 }]}>
-          {formatValue(max)}
-        </AppText>
-        <AppText variant="label" color={Colors.muted} style={[styles.axisLabel, { bottom: -4 }]}>
-          {formatValue(min)}
-        </AppText>
       </View>
-      <View style={styles.footer}>
-        <AppText variant="label" color={Colors.muted}>
+      <View style={styles.header}>
+        <AppText variant="label" color={Colors.faint}>
           {points[0]?.label}
         </AppText>
-        <AppText variant="label" color={Colors.muted}>
-          {points.at(-1)?.label}
+        <AppText variant="label" color={Colors.faint}>
+          {last?.label}
         </AppText>
       </View>
     </View>
@@ -91,15 +94,9 @@ export function LineChart({ points, height = 160, formatValue }: LineChartProps)
 
 const styles = StyleSheet.create({
   wrapper: {
-    gap: 4,
+    gap: 8,
   },
-  axisLabel: {
-    position: "absolute",
-    left: 0,
-    backgroundColor: Colors.surface,
-    paddingRight: 4,
-  },
-  footer: {
+  header: {
     flexDirection: "row",
     justifyContent: "space-between",
   },

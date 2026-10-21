@@ -45,7 +45,7 @@ export function WorkoutPage({ id }: { id: string }) {
         const numbers = setNumbers(exercise.sets.map((s) => ({ type: s.type as SetType })));
         return (
           <section key={exercise.id} className="card">
-            <h2 style={{ margin: "0 0 8px", color: "var(--accent)" }}>
+            <h2 className="exercise-name">
               {workout.user.isMe ? (
                 <Link to="/progress" search={{ exercise: exercise.exerciseId }}>
                   {exercise.name}

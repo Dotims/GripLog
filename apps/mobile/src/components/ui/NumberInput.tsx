@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { StyleSheet, TextInput, type StyleProp, type TextStyle } from "react-native";
 
-import { Colors, Fonts, Radii } from "@/constants/theme";
+import { Colors, Fonts, Radii, tabular } from "@/constants/theme";
 
 type NumberInputProps = {
   value: number | null;
@@ -47,6 +47,7 @@ export function NumberInput({
       placeholder={placeholder}
       placeholderTextColor={Colors.faint}
       selectionColor={Colors.accent}
+      keyboardAppearance="dark"
       keyboardType={decimals ? "decimal-pad" : "number-pad"}
       returnKeyType="done"
       selectTextOnFocus
@@ -75,11 +76,12 @@ const styles = StyleSheet.create({
     minWidth: 56,
     height: 36,
     paddingHorizontal: 6,
-    borderRadius: Radii.chip,
+    borderRadius: Radii.sm,
     backgroundColor: Colors.surfaceAlt,
     color: Colors.text,
-    fontFamily: Fonts.monoBold,
-    fontSize: 15,
+    fontFamily: Fonts.semibold,
+    fontSize: 16,
     textAlign: "center",
+    ...tabular,
   },
 });

@@ -139,9 +139,7 @@ const styles = StyleSheet.create({
   thumb: {
     width: 56,
     height: 56,
-    borderRadius: 6,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
+    borderRadius: 14,
   },
   flex: {
     flex: 1,

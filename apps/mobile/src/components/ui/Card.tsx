@@ -1,41 +1,36 @@
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 
-import { BorderWidth, Colors, PRESS_OFFSET, Radii, Shadow } from "@/constants/theme";
+import { Colors, Radii } from "@/constants/theme";
 
 type CardProps = {
   children: ReactNode;
   onPress?: () => void;
   onLongPress?: () => void;
   style?: StyleProp<ViewStyle>;
-  tone?: "surface" | "accent" | "highlight" | "dark";
-  shadow?: "hard" | "hardLg";
+  tone?: "surface" | "raised" | "accent" | "gold";
   accessibilityLabel?: string;
   testID?: string;
 };
 
 const TONES = {
   surface: Colors.surface,
+  raised: Colors.surfaceRaised,
   accent: Colors.accent,
-  highlight: Colors.highlight,
-  dark: Colors.text,
+  gold: Colors.goldSoft,
 } as const;
 
-/**
- * The basic neo-brutalist block: thick border and a hard shadow. Pressable
- * cards sink into their shadow while held, like a physical button.
- */
+/** A rounded surface. Depth comes from the surface colour, not borders or shadows. */
 export function Card({
   children,
   onPress,
   onLongPress,
   style,
   tone = "surface",
-  shadow = "hard",
   accessibilityLabel,
   testID,
 }: CardProps) {
-  const base = [styles.card, { backgroundColor: TONES[tone], boxShadow: Shadow[shadow] }, style];
+  const base = [styles.card, { backgroundColor: TONES[tone] }, style];
 
   if (!onPress && !onLongPress) {
     return (
@@ -61,12 +56,11 @@ export function Card({
 
 const styles = StyleSheet.create({
   card: {
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
     borderRadius: Radii.card,
+    borderCurve: "continuous",
   },
   pressed: {
-    boxShadow: Shadow.none,
-    transform: [{ translateX: PRESS_OFFSET }, { translateY: PRESS_OFFSET }],
+    opacity: 0.82,
+    transform: [{ scale: 0.985 }],
   },
 });

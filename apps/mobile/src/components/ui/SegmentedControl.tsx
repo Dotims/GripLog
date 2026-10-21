@@ -1,7 +1,7 @@
 import * as Haptics from "expo-haptics";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { BorderWidth, Colors, Radii } from "@/constants/theme";
+import { Colors, Radii } from "@/constants/theme";
 
 import { AppText } from "./AppText";
 
@@ -32,7 +32,11 @@ export function SegmentedControl<T extends string>({
             }}
             style={[styles.segment, selected && styles.selected]}
           >
-            <AppText variant="label" color={selected ? Colors.accentInk : Colors.text}>
+            <AppText
+              variant="label"
+              color={selected ? Colors.text : Colors.muted}
+              style={selected && styles.selectedText}
+            >
               {option.label}
             </AppText>
           </Pressable>
@@ -48,18 +52,21 @@ const styles = StyleSheet.create({
     padding: 3,
     gap: 3,
     backgroundColor: Colors.surface,
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
-    borderRadius: Radii.card,
+    borderRadius: Radii.md,
+    borderCurve: "continuous",
   },
   segment: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 9,
-    borderRadius: Radii.chip,
+    borderRadius: Radii.sm,
+    borderCurve: "continuous",
   },
   selected: {
-    backgroundColor: Colors.text,
+    backgroundColor: Colors.surfaceAlt,
+  },
+  selectedText: {
+    fontFamily: "Inter_600SemiBold",
   },
 });

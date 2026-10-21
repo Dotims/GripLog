@@ -2,7 +2,7 @@ import { Image } from "expo-image";
 import { StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ui";
-import { BorderWidth, Colors, Radii } from "@/constants/theme";
+import { Colors, Fonts, Radii } from "@/constants/theme";
 
 export function Avatar({
   uri,
@@ -18,7 +18,7 @@ export function Avatar({
       {uri ? (
         <Image source={{ uri }} style={StyleSheet.absoluteFill} contentFit="cover" />
       ) : (
-        <AppText variant="title" color={Colors.accentInk} style={{ fontSize: size * 0.36 }}>
+        <AppText color={Colors.accent} style={{ fontFamily: Fonts.bold, fontSize: size * 0.36 }}>
           {initials}
         </AppText>
       )}
@@ -31,10 +31,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    backgroundColor: Colors.accent,
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
-    borderRadius: Radii.card,
-    boxShadow: "3px 3px 0 #000000",
+    backgroundColor: Colors.accentSoft,
+    borderRadius: Radii.pill,
   },
 });

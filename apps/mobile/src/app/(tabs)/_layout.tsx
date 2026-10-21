@@ -3,7 +3,7 @@ import { BottomTabBar } from "expo-router/js-tabs";
 import { ClipboardList, Dumbbell, House, User } from "lucide-react-native";
 import { View } from "react-native";
 
-import { BorderWidth, Colors, Fonts } from "@/constants/theme";
+import { Colors, Fonts } from "@/constants/theme";
 import { ActiveWorkoutBar } from "@/features/active-workout/ActiveWorkoutBar";
 
 export default function TabsLayout() {
@@ -20,17 +20,14 @@ export default function TabsLayout() {
         tabBarActiveTintColor: Colors.accent,
         tabBarInactiveTintColor: Colors.muted,
         tabBarStyle: {
-          backgroundColor: Colors.surface,
-          borderTopColor: Colors.border,
-          borderTopWidth: BorderWidth.thick,
-          height: 72,
-          paddingTop: 8,
+          backgroundColor: Colors.background,
+          borderTopColor: Colors.hairline,
+          borderTopWidth: 1,
+          paddingTop: 6,
         },
         tabBarLabelStyle: {
-          fontFamily: Fonts.monoBold,
-          fontSize: 10,
-          letterSpacing: 0.6,
-          textTransform: "uppercase",
+          fontFamily: Fonts.medium,
+          fontSize: 11,
         },
       }}
     >
@@ -38,14 +35,14 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: "Feed",
-          tabBarIcon: ({ color, size }) => <House color={color} size={size} strokeWidth={2.5} />,
+          tabBarIcon: ({ color, size }) => <House color={color} size={size} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name="exercises"
         options={{
           title: "Exercises",
-          tabBarIcon: ({ color, size }) => <Dumbbell color={color} size={size} strokeWidth={2.5} />,
+          tabBarIcon: ({ color, size }) => <Dumbbell color={color} size={size} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
@@ -53,7 +50,7 @@ export default function TabsLayout() {
         options={{
           title: "Workout",
           tabBarIcon: ({ color, size }) => (
-            <ClipboardList color={color} size={size} strokeWidth={2.5} />
+            <ClipboardList color={color} size={size} strokeWidth={2} />
           ),
         }}
       />
@@ -61,7 +58,7 @@ export default function TabsLayout() {
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color, size }) => <User color={color} size={size} strokeWidth={2.5} />,
+          tabBarIcon: ({ color, size }) => <User color={color} size={size} strokeWidth={2} />,
         }}
       />
     </Tabs>

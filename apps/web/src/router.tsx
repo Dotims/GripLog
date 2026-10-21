@@ -59,7 +59,8 @@ function AppLayout() {
     <div className="shell">
       <nav className="sidebar">
         <p className="brand">
-          Grip<span>Log</span>
+          <img src="/logo.png" alt="" />
+          GripLog
         </p>
         <Link to="/" className="nav-link">
           Feed

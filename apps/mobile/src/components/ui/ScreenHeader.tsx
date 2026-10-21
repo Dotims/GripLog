@@ -11,13 +11,12 @@ type ScreenHeaderProps = {
   right?: ReactNode;
 };
 
-/** Big uppercase title with a small mono line above it, used at the top of every tab. */
 export function ScreenHeader({ title, eyebrow, right }: ScreenHeaderProps) {
   return (
     <View style={styles.row}>
       <View style={styles.text}>
         {eyebrow ? (
-          <AppText variant="label" color={Colors.muted}>
+          <AppText variant="caption" color={Colors.muted}>
             {eyebrow}
           </AppText>
         ) : null}
@@ -39,7 +38,7 @@ const styles = StyleSheet.create({
   },
   text: {
     flex: 1,
-    gap: 2,
+    gap: 4,
   },
   right: {
     flexDirection: "row",

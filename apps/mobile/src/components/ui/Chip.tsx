@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet } from "react-native";
 
-import { BorderWidth, Colors, Radii } from "@/constants/theme";
+import { Colors, Radii } from "@/constants/theme";
 
 import { AppText } from "./AppText";
 
@@ -8,17 +8,19 @@ type ChipProps = {
   label: string;
   selected?: boolean;
   onPress?: () => void;
-  tone?: "accent" | "highlight" | "dark";
+  tone?: "accent" | "gold" | "light";
 };
 
 const SELECTED = {
-  accent: { background: Colors.accent, ink: Colors.accentInk },
-  highlight: { background: Colors.highlight, ink: Colors.text },
-  dark: { background: Colors.text, ink: Colors.surface },
+  accent: { background: Colors.accentSoft, ink: Colors.accent },
+  gold: { background: Colors.goldSoft, ink: Colors.gold },
+  light: { background: Colors.text, ink: Colors.background },
 } as const;
 
-export function Chip({ label, selected = false, onPress, tone = "accent" }: ChipProps) {
-  const colors = selected ? SELECTED[tone] : { background: Colors.surface, ink: Colors.text };
+export function Chip({ label, selected = false, onPress, tone = "light" }: ChipProps) {
+  const colors = selected
+    ? SELECTED[tone]
+    : { background: Colors.surfaceRaised, ink: Colors.muted };
   return (
     <Pressable
       onPress={onPress}
@@ -31,7 +33,7 @@ export function Chip({ label, selected = false, onPress, tone = "accent" }: Chip
         pressed && { opacity: 0.7 },
       ]}
     >
-      <AppText variant="label" color={colors.ink} numberOfLines={1}>
+      <AppText variant="label" color={colors.ink} numberOfLines={1} style={styles.text}>
         {label}
       </AppText>
     </Pressable>
@@ -41,10 +43,11 @@ export function Chip({ label, selected = false, onPress, tone = "accent" }: Chip
 const styles = StyleSheet.create({
   chip: {
     alignSelf: "flex-start",
-    borderWidth: BorderWidth.hair,
-    borderColor: Colors.border,
-    borderRadius: Radii.chip,
-    paddingHorizontal: 9,
-    paddingVertical: 5,
+    borderRadius: Radii.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  text: {
+    textTransform: "capitalize",
   },
 });

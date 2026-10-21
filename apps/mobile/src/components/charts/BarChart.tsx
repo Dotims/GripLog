@@ -8,14 +8,13 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { AppText } from "@/components/ui";
-import { BorderWidth, Colors } from "@/constants/theme";
+import { Colors } from "@/constants/theme";
 
 export type BarDatum = { key: string; label: string; value: number };
 
 type BarChartProps = {
   data: readonly BarDatum[];
   height?: number;
-  inverted?: boolean;
   /** Bar drawn in the accent colour, usually the current week. */
   highlightKey?: string;
 };
@@ -24,41 +23,33 @@ function Bar({
   ratio,
   index,
   highlighted,
-  inverted,
 }: {
   ratio: number;
   index: number;
   highlighted: boolean;
-  inverted: boolean;
 }) {
   const progress = useSharedValue(0);
 
   useEffect(() => {
-    progress.value = withDelay(index * 40, withTiming(ratio, { duration: 450 }));
+    progress.value = withDelay(index * 35, withTiming(ratio, { duration: 500 }));
   }, [index, progress, ratio]);
 
-  const style = useAnimatedStyle(() => ({ height: `${progress.value * 100}%` }));
-  const empty = ratio === 0;
+  const style = useAnimatedStyle(() => ({ height: `${Math.max(progress.value * 100, 2)}%` }));
 
   return (
     <Animated.View
       style={[
         styles.bar,
         style,
-        {
-          backgroundColor: highlighted ? Colors.accent : inverted ? Colors.surface : Colors.text,
-          borderColor: inverted ? Colors.surface : Colors.border,
-        },
-        empty && styles.emptyBar,
+        { backgroundColor: highlighted ? Colors.accent : Colors.chartIdle },
       ]}
     />
   );
 }
 
 /** Animated column chart. Bars are plain views, so it renders the same on every platform. */
-export function BarChart({ data, height = 120, inverted = false, highlightKey }: BarChartProps) {
+export function BarChart({ data, height = 120, highlightKey }: BarChartProps) {
   const max = Math.max(...data.map((d) => d.value), 0);
-  const ink = inverted ? Colors.faint : Colors.muted;
 
   return (
     <View style={styles.wrapper}>
@@ -69,7 +60,6 @@ export function BarChart({ data, height = 120, inverted = false, highlightKey }:
               ratio={max > 0 ? datum.value / max : 0}
               index={index}
               highlighted={datum.key === highlightKey}
-              inverted={inverted}
             />
           </View>
         ))}
@@ -79,7 +69,7 @@ export function BarChart({ data, height = 120, inverted = false, highlightKey }:
           <AppText
             key={datum.key}
             variant="label"
-            color={ink}
+            color={datum.key === highlightKey ? Colors.text : Colors.faint}
             style={styles.label}
             numberOfLines={1}
           >
@@ -93,7 +83,7 @@ export function BarChart({ data, height = 120, inverted = false, highlightKey }:
 
 const styles = StyleSheet.create({
   wrapper: {
-    gap: 6,
+    gap: 8,
   },
   plot: {
     flexDirection: "row",
@@ -107,12 +97,7 @@ const styles = StyleSheet.create({
   },
   bar: {
     width: "100%",
-    minHeight: 3,
-    borderWidth: BorderWidth.hair,
-    borderRadius: 3,
-  },
-  emptyBar: {
-    opacity: 0.25,
+    borderRadius: 6,
   },
   labels: {
     flexDirection: "row",
@@ -120,8 +105,7 @@ const styles = StyleSheet.create({
   },
   label: {
     flex: 1,
-    fontSize: 9,
-    letterSpacing: 0,
+    fontSize: 10,
     textAlign: "center",
   },
 });

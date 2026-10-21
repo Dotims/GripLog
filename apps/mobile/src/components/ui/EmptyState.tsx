@@ -2,7 +2,7 @@ import type { LucideIcon } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { BorderWidth, Colors, Radii, Spacing } from "@/constants/theme";
+import { Colors, Radii, Spacing } from "@/constants/theme";
 
 import { AppText } from "./AppText";
 
@@ -17,12 +17,12 @@ export function EmptyState({ icon: Icon, title, message, action }: EmptyStatePro
   return (
     <View style={styles.box}>
       <View style={styles.icon}>
-        <Icon color={Colors.text} size={26} strokeWidth={2.5} />
+        <Icon color={Colors.accent} size={26} strokeWidth={2} />
       </View>
       <AppText variant="title" align="center">
         {title}
       </AppText>
-      <AppText color={Colors.muted} align="center">
+      <AppText color={Colors.muted} align="center" style={styles.message}>
         {message}
       </AppText>
       {action ? <View style={styles.action}>{action}</View> : null}
@@ -34,26 +34,26 @@ const styles = StyleSheet.create({
   box: {
     alignItems: "center",
     gap: Spacing.sm,
-    padding: Spacing.xl,
-    borderWidth: BorderWidth.thick,
-    borderStyle: "dashed",
-    borderColor: Colors.border,
+    paddingVertical: Spacing.xxl,
+    paddingHorizontal: Spacing.xl,
+    backgroundColor: Colors.surface,
     borderRadius: Radii.card,
+    borderCurve: "continuous",
   },
   icon: {
-    width: 56,
-    height: 56,
+    width: 60,
+    height: 60,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.highlight,
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
-    borderRadius: Radii.card,
-    marginBottom: Spacing.xs,
-    transform: [{ rotate: "-4deg" }],
+    backgroundColor: Colors.accentSoft,
+    borderRadius: Radii.pill,
+    marginBottom: Spacing.sm,
+  },
+  message: {
+    maxWidth: 280,
   },
   action: {
-    marginTop: Spacing.sm,
+    marginTop: Spacing.md,
     alignSelf: "stretch",
   },
 });

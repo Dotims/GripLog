@@ -3,7 +3,7 @@ import { useDeferredValue, useState, type ReactElement } from "react";
 import { FlatList, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
 
 import { AppText, Chip } from "@/components/ui";
-import { BorderWidth, Colors, Fonts, Radii, Spacing } from "@/constants/theme";
+import { Colors, Fonts, Radii, Spacing } from "@/constants/theme";
 
 import { MUSCLE_GROUPS } from "./catalogue";
 import { ExerciseCard } from "./ExerciseCard";
@@ -46,20 +46,21 @@ export function ExerciseBrowser({
         <View style={styles.header}>
           {header}
           <View style={styles.search}>
-            <Search color={Colors.muted} size={18} strokeWidth={2.5} />
+            <Search color={Colors.muted} size={18} strokeWidth={2} />
             <TextInput
               value={query}
               onChangeText={setQuery}
               placeholder={`Search ${exercises.length} exercises`}
               placeholderTextColor={Colors.faint}
               selectionColor={Colors.accent}
+              keyboardAppearance="dark"
               style={styles.searchInput}
               autoCorrect={false}
               testID="exercise-search"
             />
             {query ? (
               <Pressable onPress={() => setQuery("")} accessibilityLabel="Clear search" hitSlop={8}>
-                <X color={Colors.text} size={18} strokeWidth={2.5} />
+                <X color={Colors.muted} size={18} strokeWidth={2} />
               </Pressable>
             ) : null}
           </View>
@@ -72,7 +73,7 @@ export function ExerciseBrowser({
             <Chip
               label="All"
               selected={muscle === null}
-              tone="dark"
+              tone="light"
               onPress={() => setMuscle(null)}
             />
             {MUSCLE_GROUPS.map((group) => (
@@ -80,12 +81,12 @@ export function ExerciseBrowser({
                 key={group}
                 label={group}
                 selected={muscle === group}
-                tone="dark"
+                tone="light"
                 onPress={() => setMuscle(muscle === group ? null : group)}
               />
             ))}
           </ScrollView>
-          <AppText variant="label" color={Colors.muted}>
+          <AppText variant="caption" color={Colors.faint}>
             {visible.length} {visible.length === 1 ? "exercise" : "exercises"}
           </AppText>
         </View>
@@ -110,7 +111,7 @@ export function ExerciseBrowser({
 const styles = StyleSheet.create({
   content: {
     padding: Spacing.lg,
-    gap: 10,
+    gap: 8,
   },
   header: {
     gap: Spacing.md,
@@ -119,19 +120,18 @@ const styles = StyleSheet.create({
   search: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    height: 48,
+    gap: 10,
+    height: 46,
     paddingHorizontal: 14,
-    backgroundColor: Colors.surface,
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
-    borderRadius: Radii.card,
+    backgroundColor: Colors.surfaceRaised,
+    borderRadius: Radii.md,
+    borderCurve: "continuous",
   },
   searchInput: {
     flex: 1,
     height: "100%",
     color: Colors.text,
-    fontFamily: Fonts.body,
+    fontFamily: Fonts.regular,
     fontSize: 16,
   },
   chips: {

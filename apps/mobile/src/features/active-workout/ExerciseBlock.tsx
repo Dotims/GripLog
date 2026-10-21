@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 
 import { AppText, Card, OptionsSheet } from "@/components/ui";
-import { BorderWidth, Colors, Fonts, Spacing } from "@/constants/theme";
+import { Colors, Fonts, Spacing } from "@/constants/theme";
 import { confirm } from "@/lib/dialog";
 
 import { columnsFor } from "./columns";
@@ -53,11 +53,12 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
           hitSlop={8}
           style={styles.menuButton}
         >
-          <MoreHorizontal color={Colors.text} size={22} strokeWidth={2.5} />
+          <MoreHorizontal color={Colors.muted} size={22} strokeWidth={2} />
         </Pressable>
       </View>
 
       <TextInput
+        keyboardAppearance="dark"
         value={exercise.notes ?? ""}
         onChangeText={(notes) => actions.setExerciseNotes(exerciseId, notes)}
         placeholder="Add notes"
@@ -68,29 +69,29 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
       />
 
       <Pressable onPress={() => setMenu("rest")} style={styles.rest} accessibilityRole="button">
-        <Timer color={Colors.muted} size={14} strokeWidth={2.5} />
-        <AppText variant="label" color={Colors.muted}>
-          Rest {exercise.restSeconds > 0 ? formatClock(exercise.restSeconds) : "off"}
+        <Timer color={Colors.accent} size={14} strokeWidth={2} />
+        <AppText variant="label" color={Colors.accent}>
+          Rest timer: {exercise.restSeconds > 0 ? formatClock(exercise.restSeconds) : "off"}
         </AppText>
       </Pressable>
 
       <View style={styles.tableHeader}>
         <AppText
-          variant="label"
-          color={Colors.muted}
+          variant="caption"
+          color={Colors.faint}
           style={{ width: SET_ROW_COLUMNS.label }}
           align="center"
         >
           Set
         </AppText>
-        <AppText variant="label" color={Colors.muted} style={styles.flex}>
+        <AppText variant="caption" color={Colors.faint} style={styles.flex}>
           Previous
         </AppText>
         {columns.map((column) => (
           <AppText
             key={column.key}
-            variant="label"
-            color={Colors.muted}
+            variant="caption"
+            color={Colors.faint}
             style={{ width: SET_ROW_COLUMNS.input }}
             align="center"
           >
@@ -120,8 +121,8 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
         accessibilityRole="button"
         testID={`add-set-${exerciseId}`}
       >
-        <Plus color={Colors.text} size={16} strokeWidth={3} />
-        <AppText variant="label">Add set</AppText>
+        <Plus color={Colors.text} size={16} strokeWidth={2.4} />
+        <AppText variant="bold">Add set</AppText>
       </Pressable>
 
       <OptionsSheet
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
     marginHorizontal: Spacing.lg,
     paddingVertical: 4,
     color: Colors.text,
-    fontFamily: Fonts.body,
+    fontFamily: Fonts.regular,
     fontSize: 14,
   },
   rest: {
@@ -200,10 +201,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderTopWidth: BorderWidth.hair,
-    borderColor: Colors.border,
+    paddingHorizontal: 12,
+    paddingTop: 6,
+    paddingBottom: 4,
   },
   flex: {
     flex: 1,
@@ -213,8 +213,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    paddingVertical: 12,
-    borderTopWidth: BorderWidth.hair,
-    borderColor: Colors.border,
+    margin: 12,
+    marginTop: 8,
+    paddingVertical: 11,
+    borderRadius: 12,
+    backgroundColor: Colors.surfaceRaised,
   },
 });

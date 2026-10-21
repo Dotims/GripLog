@@ -94,7 +94,7 @@ export default function ProfileScreen() {
             size={84}
           />
           <View style={styles.camera}>
-            <Camera color={Colors.text} size={14} strokeWidth={2.5} />
+            <Camera color={Colors.text} size={13} strokeWidth={2} />
           </View>
         </Pressable>
         <View style={styles.bio}>
@@ -176,7 +176,7 @@ export default function ProfileScreen() {
                   {formatRelativeDay(workout.startedAt)} · {formatDuration(summary.durationSeconds)}
                 </AppText>
               </View>
-              <AppText variant="mono">
+              <AppText variant="mono" color={Colors.muted}>
                 {formatNumber(toDisplayWeight(summary.volumeKg, unit), 0)} {unit}
               </AppText>
             </Pressable>
@@ -195,13 +195,13 @@ const styles = StyleSheet.create({
   },
   camera: {
     position: "absolute",
-    right: -6,
-    bottom: -6,
-    padding: 5,
-    backgroundColor: Colors.highlight,
-    borderWidth: 2,
-    borderColor: Colors.border,
-    borderRadius: 6,
+    right: -2,
+    bottom: -2,
+    padding: 6,
+    backgroundColor: Colors.surfaceAlt,
+    borderWidth: 3,
+    borderColor: Colors.background,
+    borderRadius: 999,
   },
   bio: {
     flex: 1,
@@ -228,11 +228,11 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
   },
   divider: {
-    borderTopWidth: 1.5,
-    borderTopColor: Colors.border,
+    borderTopWidth: 1,
+    borderTopColor: Colors.hairline,
   },
   pressed: {
-    backgroundColor: Colors.surfaceAlt,
+    backgroundColor: Colors.surfaceRaised,
   },
   flex: {
     flex: 1,

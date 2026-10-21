@@ -1,7 +1,7 @@
 import { Modal, Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { BorderWidth, Colors, Radii, Shadow, Spacing } from "@/constants/theme";
+import { Colors, Radii, Spacing } from "@/constants/theme";
 
 import { AppText } from "./AppText";
 
@@ -26,8 +26,9 @@ export function OptionsSheet({ visible, title, options, onClose }: OptionsSheetP
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close" />
       <View style={[styles.sheet, { paddingBottom: insets.bottom + Spacing.md }]}>
+        <View style={styles.grabber} />
         {title ? (
-          <AppText variant="label" color={Colors.muted} style={styles.title}>
+          <AppText variant="caption" color={Colors.muted} style={styles.title}>
             {title}
           </AppText>
         ) : null}
@@ -45,13 +46,20 @@ export function OptionsSheet({ visible, title, options, onClose }: OptionsSheetP
               pressed && { backgroundColor: Colors.surfaceAlt },
             ]}
           >
-            <AppText variant="heading" color={option.destructive ? Colors.error : Colors.text}>
+            <AppText
+              variant="heading"
+              color={
+                option.destructive ? Colors.error : option.selected ? Colors.accent : Colors.text
+              }
+            >
               {option.label}
             </AppText>
           </Pressable>
         ))}
         <Pressable onPress={onClose} style={styles.cancel} accessibilityRole="button">
-          <AppText variant="label">Cancel</AppText>
+          <AppText variant="heading" color={Colors.muted}>
+            Cancel
+          </AppText>
         </Pressable>
       </View>
     </Modal>
@@ -65,34 +73,39 @@ const styles = StyleSheet.create({
   },
   sheet: {
     position: "absolute",
-    left: Spacing.sm,
-    right: Spacing.sm,
-    bottom: Spacing.sm,
-    padding: Spacing.md,
-    gap: 6,
-    backgroundColor: Colors.surface,
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
-    borderRadius: Radii.card + 4,
-    boxShadow: Shadow.hardLg,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.sm,
+    gap: 2,
+    backgroundColor: Colors.surfaceRaised,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+  },
+  grabber: {
+    alignSelf: "center",
+    width: 36,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: Colors.faint,
+    marginBottom: Spacing.md,
   },
   title: {
-    paddingHorizontal: Spacing.sm,
-    paddingBottom: 4,
+    paddingHorizontal: Spacing.md,
+    paddingBottom: 6,
   },
   option: {
-    paddingVertical: 13,
+    paddingVertical: 14,
     paddingHorizontal: Spacing.md,
-    borderRadius: Radii.chip,
+    borderRadius: Radii.md,
   },
   selected: {
     backgroundColor: Colors.accentSoft,
   },
   cancel: {
     alignItems: "center",
-    paddingVertical: 12,
+    paddingVertical: 14,
     marginTop: 4,
-    borderTopWidth: BorderWidth.hair,
-    borderTopColor: Colors.border,
   },
 });

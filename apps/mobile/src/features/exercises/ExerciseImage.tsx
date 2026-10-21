@@ -47,8 +47,8 @@ export function ExerciseImage({ images, name, animated = false, style }: Exercis
   if (!first) {
     return (
       <View style={[styles.placeholder, style]} accessibilityLabel={name}>
-        <AppText variant="title" color={Colors.muted}>
-          {name.slice(0, 1)}
+        <AppText variant="title" color={Colors.faint}>
+          {name.slice(0, 1).toUpperCase()}
         </AppText>
       </View>
     );
@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceAlt,
   },
   placeholder: {
+    overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: Colors.surfaceAlt,

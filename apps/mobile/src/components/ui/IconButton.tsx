@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react-native";
 import { Pressable, StyleSheet } from "react-native";
 
-import { BorderWidth, Colors, Radii } from "@/constants/theme";
+import { Colors, Radii } from "@/constants/theme";
 
 type IconButtonProps = {
   icon: LucideIcon;
@@ -20,7 +20,6 @@ export function IconButton({
   size = 40,
   testID,
 }: IconButtonProps) {
-  const plain = tone === "plain";
   return (
     <Pressable
       testID={testID}
@@ -31,16 +30,15 @@ export function IconButton({
       style={({ pressed }) => [
         styles.base,
         { width: size, height: size },
-        !plain && styles.framed,
         tone === "accent" && { backgroundColor: Colors.accent },
-        tone === "surface" && { backgroundColor: Colors.surface },
+        tone === "surface" && { backgroundColor: Colors.surfaceRaised },
         pressed && { opacity: 0.6 },
       ]}
     >
       <Icon
         color={tone === "accent" ? Colors.accentInk : Colors.text}
-        size={Math.round(size * 0.5)}
-        strokeWidth={2.5}
+        size={Math.round(size * 0.48)}
+        strokeWidth={2}
       />
     </Pressable>
   );
@@ -50,10 +48,6 @@ const styles = StyleSheet.create({
   base: {
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: Radii.card,
-  },
-  framed: {
-    borderWidth: BorderWidth.thick,
-    borderColor: Colors.border,
+    borderRadius: Radii.pill,
   },
 });

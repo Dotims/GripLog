@@ -14,7 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { useShallow } from "zustand/react/shallow";
 
 import { Button, Card, EmptyState, IconButton, Stat } from "@/components/ui";
-import { BorderWidth, Colors, Fonts, Spacing } from "@/constants/theme";
+import { Colors, Fonts, Spacing } from "@/constants/theme";
 import { useDatabase } from "@/db/DatabaseProvider";
 import { nowIso } from "@/db/ids";
 import {
@@ -73,8 +73,9 @@ export default function ActiveWorkoutScreen() {
     const save = () => {
       try {
         saveWorkout(db, toWorkoutInput(workout, nowIso()));
-        useActiveWorkout.getState().discard();
+        // Leave the screen first; clearing the draft while it is still visible flashes the empty state.
         router.replace({ pathname: "/workout/summary", params: { id: workout.id } });
+        setTimeout(() => useActiveWorkout.getState().discard(), 400);
       } catch (error) {
         notify(
           "Could not save the workout",
@@ -111,7 +112,7 @@ export default function ActiveWorkoutScreen() {
     <SafeAreaView edges={["top"]} style={styles.root}>
       <View style={styles.topBar}>
         <IconButton icon={ChevronDown} label="Minimise workout" onPress={() => router.back()} />
-        <ElapsedTime startedAt={startedAt} />
+        <ElapsedTime startedAt={startedAt} variant="title" />
         <Button label="Finish" size="sm" onPress={finish} testID="finish-workout" />
       </View>
 
@@ -131,6 +132,7 @@ export default function ActiveWorkoutScreen() {
             placeholder="Workout title"
             placeholderTextColor={Colors.faint}
             selectionColor={Colors.accent}
+            keyboardAppearance="dark"
             accessibilityLabel="Workout title"
           />
           <TextInput
@@ -140,6 +142,7 @@ export default function ActiveWorkoutScreen() {
             placeholder="How did it feel?"
             placeholderTextColor={Colors.faint}
             selectionColor={Colors.accent}
+            keyboardAppearance="dark"
             multiline
           />
 
@@ -202,9 +205,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
-    borderBottomWidth: BorderWidth.thick,
-    borderBottomColor: Colors.border,
-    backgroundColor: Colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.hairline,
+    backgroundColor: Colors.background,
   },
   content: {
     padding: Spacing.lg,
@@ -212,16 +215,15 @@ const styles = StyleSheet.create({
   },
   title: {
     color: Colors.text,
-    fontFamily: Fonts.display,
+    fontFamily: Fonts.heavy,
     fontSize: 30,
-    letterSpacing: -1,
-    textTransform: "uppercase",
+    letterSpacing: -0.9,
     paddingVertical: 0,
   },
   notes: {
     marginTop: -Spacing.sm,
     color: Colors.text,
-    fontFamily: Fonts.body,
+    fontFamily: Fonts.regular,
     fontSize: 15,
     paddingVertical: 0,
   },

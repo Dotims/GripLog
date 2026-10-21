@@ -20,6 +20,7 @@ import {
 import { Colors, Spacing } from "@/constants/theme";
 import { useActiveWorkout } from "@/features/active-workout/use-active-workout";
 import { useStartWorkout } from "@/features/active-workout/use-start-workout";
+import { useProfile } from "@/features/profile/hooks";
 import { usePreferences } from "@/features/profile/PreferencesProvider";
 import { FollowingFeed } from "@/features/social/FollowingFeed";
 import { useWorkouts } from "@/features/workouts/hooks";
@@ -32,6 +33,14 @@ const CHART_WEEKS = 8;
 
 type Tab = "you" | "following";
 
+function greeting(now: Date = new Date()): string {
+  const hour = now.getHours();
+  if (hour < 5) return "Hey";
+  if (hour < 12) return "Morning";
+  if (hour < 18) return "Afternoon";
+  return "Evening";
+}
+
 const TABS = [
   { value: "you", label: "You" },
   { value: "following", label: "Following" },
@@ -40,13 +49,14 @@ const TABS = [
 export default function FeedScreen() {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("you");
+  const profile = useProfile();
 
   // The same header sits on top of both lists.
   const header = (
     <View style={styles.header}>
       <ScreenHeader
         eyebrow={todayLabel()}
-        title="GripLog"
+        title={profile?.firstName ? `${greeting()}, ${profile.firstName}` : "GripLog"}
         right={
           <IconButton icon={Settings} label="Settings" onPress={() => router.push("/settings")} />
         }
@@ -95,30 +105,25 @@ function MyFeed({ header }: { header: ReactElement }) {
         <View style={styles.header}>
           {header}
 
-          <Card tone="dark" style={styles.week}>
+          <Card style={styles.week}>
+            <AppText variant="caption" color={Colors.muted}>
+              Last 8 weeks
+            </AppText>
             <View style={styles.weekStats}>
               <Stat
-                inverted
                 label="This week"
                 value={String(thisWeek?.workouts ?? 0)}
                 unit={thisWeek?.workouts === 1 ? "workout" : "workouts"}
               />
               <Stat
-                inverted
                 label="Volume"
                 value={formatNumber(toDisplayWeight(thisWeek?.volumeKg ?? 0, unit), 0)}
                 unit={unit}
               />
-              <Stat
-                inverted
-                label="Streak"
-                value={String(streak)}
-                unit={streak === 1 ? "week" : "weeks"}
-              />
+              <Stat label="Streak" value={String(streak)} unit={streak === 1 ? "week" : "weeks"} />
             </View>
             <BarChart
-              inverted
-              height={84}
+              height={96}
               highlightKey={thisWeek?.weekStart.toISOString()}
               data={weeks.map((week) => ({
                 key: week.weekStart.toISOString(),
@@ -141,7 +146,15 @@ function MyFeed({ header }: { header: ReactElement }) {
           )}
 
           {workouts.length > 0 ? (
-            <SectionLabel>{`Your workouts · ${workouts.length}`}</SectionLabel>
+            <SectionLabel
+              right={
+                <AppText variant="label" color={Colors.muted}>
+                  {workouts.length} total
+                </AppText>
+              }
+            >
+              Your workouts
+            </SectionLabel>
           ) : null}
         </View>
       }
@@ -171,7 +184,7 @@ function MyFeed({ header }: { header: ReactElement }) {
       }
       ListFooterComponent={
         visible < summaries.length ? (
-          <AppText variant="label" color={Colors.muted} align="center">
+          <AppText variant="label" color={Colors.faint} align="center">
             Loading more…
           </AppText>
         ) : null

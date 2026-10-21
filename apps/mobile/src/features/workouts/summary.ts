@@ -5,7 +5,7 @@ import { durationSeconds } from "@/lib/dates";
 type SummarisableWorkout = {
   startedAt: string;
   endedAt: string;
-  exercises: { exercise: { name: string }; sets: SetLike[] }[];
+  exercises: { exercise: { name: string; images?: string[] }; sets: SetLike[] }[];
   records: unknown[];
 };
 
@@ -14,7 +14,7 @@ export type WorkoutSummary = {
   volumeKg: number;
   sets: number;
   records: number;
-  exercises: { name: string; sets: number }[];
+  exercises: { name: string; sets: number; images?: string[] }[];
 };
 
 export function summariseWorkout(workout: SummarisableWorkout): WorkoutSummary {
@@ -24,6 +24,10 @@ export function summariseWorkout(workout: SummarisableWorkout): WorkoutSummary {
     volumeKg: totalVolume(allSets),
     sets: workingSetCount(allSets),
     records: workout.records.length,
-    exercises: workout.exercises.map((e) => ({ name: e.exercise.name, sets: e.sets.length })),
+    exercises: workout.exercises.map((e) => ({
+      name: e.exercise.name,
+      sets: e.sets.length,
+      images: e.exercise.images,
+    })),
   };
 }

@@ -1,12 +1,12 @@
 import {
-  Archivo_500Medium,
-  Archivo_700Bold,
-  Archivo_800ExtraBold,
-  Archivo_900Black,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_800ExtraBold,
   useFonts,
-} from "@expo-google-fonts/archivo";
-import { JetBrainsMono_500Medium, JetBrainsMono_700Bold } from "@expo-google-fonts/jetbrains-mono";
-import { DefaultTheme, Stack, ThemeProvider } from "expo-router";
+} from "@expo-google-fonts/inter";
+import { DarkTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
@@ -25,14 +25,14 @@ import { queryClient } from "@/lib/query-client";
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 const GripLogTheme = {
-  ...DefaultTheme,
+  ...DarkTheme,
   colors: {
-    ...DefaultTheme.colors,
+    ...DarkTheme.colors,
     primary: Colors.accent,
     background: Colors.background,
     card: Colors.background,
     text: Colors.text,
-    border: Colors.border,
+    border: Colors.hairline,
     notification: Colors.accent,
   },
 };
@@ -44,7 +44,7 @@ const detailHeader = {
   headerStyle: { backgroundColor: Colors.background },
   headerTintColor: Colors.text,
   headerBackButtonDisplayMode: "minimal",
-  headerTitleStyle: { fontFamily: Fonts.heading },
+  headerTitleStyle: { fontFamily: Fonts.semibold },
 } as const;
 
 function RootStack() {
@@ -84,24 +84,23 @@ function RootStack() {
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
-    Archivo_500Medium,
-    Archivo_700Bold,
-    Archivo_800ExtraBold,
-    Archivo_900Black,
-    JetBrainsMono_500Medium,
-    JetBrainsMono_700Bold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Inter_800ExtraBold,
   });
 
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: Colors.background }}>
       <QueryClientProvider client={queryClient}>
         <DatabaseProvider>
           <SessionProvider>
             <PreferencesProvider>
               <ThemeProvider value={GripLogTheme}>
-                <StatusBar style="dark" />
+                <StatusBar style="light" />
                 <AutoSync />
                 <RootStack />
               </ThemeProvider>

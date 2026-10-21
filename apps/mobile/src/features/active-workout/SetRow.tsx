@@ -6,7 +6,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 
 import { AppText, NumberInput, OptionsSheet } from "@/components/ui";
-import { BorderWidth, Colors, Radii } from "@/constants/theme";
+import { Colors, Radii } from "@/constants/theme";
 import type { PreviousSet } from "@/features/exercises/repository";
 
 import { columnsFor, formatPrevious } from "./columns";
@@ -14,9 +14,9 @@ import { useActiveWorkout } from "./use-active-workout";
 
 const TYPE_STYLES = {
   normal: { background: Colors.surfaceAlt, ink: Colors.text },
-  warmup: { background: Colors.highlight, ink: Colors.text },
-  dropset: { background: Colors.text, ink: Colors.surface },
-  failure: { background: Colors.accent, ink: Colors.accentInk },
+  warmup: { background: Colors.goldSoft, ink: Colors.gold },
+  dropset: { background: "rgba(140, 120, 255, 0.16)", ink: "#A99BFF" },
+  failure: { background: Colors.accentSoft, ink: Colors.accent },
 } as const;
 
 const RPE_VALUES = [6, 7, 7.5, 8, 8.5, 9, 9.5, 10];
@@ -75,7 +75,7 @@ export function SetRow({
           accessibilityRole="button"
           accessibilityLabel="Delete set"
         >
-          <Trash2 color={Colors.accentInk} size={18} strokeWidth={2.5} />
+          <Trash2 color={Colors.accentInk} size={18} strokeWidth={2} />
         </Pressable>
       )}
     >
@@ -86,7 +86,7 @@ export function SetRow({
           accessibilityLabel={`Set ${setLabel(set.type, workingIndex)} options`}
           style={[styles.label, { backgroundColor: typeStyle.background }]}
         >
-          <AppText variant="label" color={typeStyle.ink} style={styles.labelText}>
+          <AppText variant="bold" color={typeStyle.ink} style={styles.labelText}>
             {setLabel(set.type, workingIndex)}
           </AppText>
         </Pressable>
@@ -192,8 +192,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     backgroundColor: Colors.surface,
   },
   completed: {
@@ -204,12 +204,10 @@ const styles = StyleSheet.create({
     height: 30,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: BorderWidth.hair,
-    borderColor: Colors.border,
-    borderRadius: Radii.chip,
+    borderRadius: Radii.sm,
   },
   labelText: {
-    fontSize: 13,
+    fontSize: 14,
   },
   previous: {
     flex: 1,
@@ -219,7 +217,7 @@ const styles = StyleSheet.create({
     width: SET_ROW_COLUMNS.input,
   },
   inputCompleted: {
-    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    backgroundColor: "transparent",
   },
   check: {
     width: SET_ROW_COLUMNS.check,
@@ -227,15 +225,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: Colors.surfaceAlt,
-    borderWidth: BorderWidth.hair,
-    borderColor: Colors.border,
-    borderRadius: Radii.chip,
+    borderRadius: Radii.sm,
   },
   checkDone: {
     backgroundColor: Colors.success,
   },
   delete: {
-    width: 72,
+    width: 76,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: Colors.error,

@@ -5,7 +5,7 @@ import { StyleSheet, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Button, IconButton, ScreenHeader } from "@/components/ui";
-import { BorderWidth, Colors, Spacing } from "@/constants/theme";
+import { Colors, Spacing } from "@/constants/theme";
 import { useDatabase } from "@/db/DatabaseProvider";
 import { newDraftExercise } from "@/features/active-workout/draft";
 import { useActiveWorkout } from "@/features/active-workout/use-active-workout";
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.md,
     backgroundColor: Colors.background,
-    borderTopWidth: BorderWidth.thick,
-    borderTopColor: Colors.border,
+    borderTopWidth: 1,
+    borderTopColor: Colors.hairline,
   },
 });

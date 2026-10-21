@@ -210,7 +210,7 @@ export function workoutListQuery(db: Db, limit?: number) {
         orderBy: asc(workoutExercises.position),
         columns: { id: true, exerciseId: true },
         with: {
-          exercise: { columns: { name: true } },
+          exercise: { columns: { name: true, images: true } },
           sets: { columns: { type: true, weightKg: true, reps: true } },
         },
       },

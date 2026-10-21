@@ -1,11 +1,11 @@
 import { formatDuration, formatNumber, toDisplayWeight } from "@griplog/core";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Trophy } from "lucide-react-native";
+import { Check, Trophy } from "lucide-react-native";
 import { StyleSheet, View } from "react-native";
 import Animated, { FadeInDown, ZoomIn } from "react-native-reanimated";
 
 import { AppText, Button, Card, Screen, SectionLabel, Stat } from "@/components/ui";
-import { Colors, Spacing } from "@/constants/theme";
+import { Colors, Spacing, tabular } from "@/constants/theme";
 import { useDatabase } from "@/db/DatabaseProvider";
 import { usePreferences } from "@/features/profile/PreferencesProvider";
 import { useWorkout } from "@/features/workouts/hooks";
@@ -27,20 +27,22 @@ export default function WorkoutSummaryScreen() {
 
   return (
     <Screen scroll edges={["top", "bottom"]}>
-      <Animated.View entering={ZoomIn.springify().damping(12)} style={styles.stampWrapper}>
-        <Card tone="accent" shadow="hardLg" style={styles.stamp}>
-          <AppText variant="label" color={Colors.accentInk}>
-            Workout #{workoutCount(db)}
-          </AppText>
-          <AppText variant="display" color={Colors.accentInk} align="center">
-            Done.
-          </AppText>
-        </Card>
+      <Animated.View entering={ZoomIn.springify().damping(14)} style={styles.badgeWrapper}>
+        <View style={styles.badgeHalo}>
+          <View style={styles.badge}>
+            <Check color={Colors.accentInk} size={40} strokeWidth={3} />
+          </View>
+        </View>
       </Animated.View>
 
-      <AppText variant="title" align="center">
-        {workout.title}
-      </AppText>
+      <Animated.View entering={FadeInDown.delay(120)} style={styles.heading}>
+        <AppText variant="caption" color={Colors.accent} align="center">
+          Workout #{workoutCount(db)} complete
+        </AppText>
+        <AppText variant="display" align="center">
+          {workout.title}
+        </AppText>
+      </Animated.View>
 
       <Card style={styles.stats}>
         <Stat label="Time" value={formatDuration(summary.durationSeconds)} />
@@ -54,18 +56,22 @@ export default function WorkoutSummaryScreen() {
 
       {workout.records.length > 0 ? (
         <View style={styles.records}>
-          <SectionLabel>{`New records · ${workout.records.length}`}</SectionLabel>
+          <SectionLabel>{`New personal records · ${workout.records.length}`}</SectionLabel>
           {workout.records.map((record, index) => (
             <Animated.View key={record.id} entering={FadeInDown.delay(250 + index * 90)}>
-              <Card tone="highlight" style={styles.record}>
-                <Trophy color={Colors.text} size={22} strokeWidth={2.5} />
+              <Card tone="gold" style={styles.record}>
+                <View style={styles.trophy}>
+                  <Trophy color={Colors.gold} size={20} strokeWidth={2.2} />
+                </View>
                 <View style={styles.flex}>
                   <AppText variant="bold" numberOfLines={1}>
                     {names.get(record.exerciseId)}
                   </AppText>
-                  <AppText variant="label">{recordLabel(record.kind)}</AppText>
+                  <AppText variant="label" color={Colors.gold}>
+                    {recordLabel(record.kind)}
+                  </AppText>
                 </View>
-                <AppText variant="number" style={styles.recordValue}>
+                <AppText variant="heading" style={tabular}>
                   {formatRecordValue(record.kind, record.value, unit)}
                 </AppText>
               </Card>
@@ -78,26 +84,43 @@ export default function WorkoutSummaryScreen() {
         </AppText>
       )}
 
-      <Button label="Done" size="lg" onPress={() => router.dismissTo("/")} testID="summary-done" />
-      <Button
-        label="View workout"
-        variant="ghost"
-        onPress={() => router.replace(`/workouts/${workout.id}`)}
-      />
+      <View style={styles.actions}>
+        <Button
+          label="Done"
+          size="lg"
+          onPress={() => router.dismissTo("/")}
+          testID="summary-done"
+        />
+        <Button
+          label="View workout"
+          variant="ghost"
+          onPress={() => router.replace(`/workouts/${workout.id}`)}
+        />
+      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  stampWrapper: {
+  badgeWrapper: {
     alignItems: "center",
-    marginTop: Spacing.xl,
+    marginTop: Spacing.xxl,
   },
-  stamp: {
+  badgeHalo: {
+    padding: 14,
+    borderRadius: 999,
+    backgroundColor: Colors.accentSoft,
+  },
+  badge: {
+    width: 84,
+    height: 84,
     alignItems: "center",
-    paddingHorizontal: Spacing.xxl,
-    paddingVertical: Spacing.lg,
-    transform: [{ rotate: "-3deg" }],
+    justifyContent: "center",
+    borderRadius: 999,
+    backgroundColor: Colors.accent,
+  },
+  heading: {
+    gap: 6,
   },
   stats: {
     flexDirection: "row",
@@ -105,7 +128,7 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   records: {
-    gap: Spacing.md,
+    gap: Spacing.sm,
   },
   record: {
     flexDirection: "row",
@@ -113,10 +136,19 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
     padding: Spacing.lg,
   },
-  recordValue: {
-    fontSize: 17,
+  trophy: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 999,
+    backgroundColor: "rgba(245, 196, 81, 0.16)",
   },
   flex: {
     flex: 1,
+  },
+  actions: {
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
   },
 });
