@@ -1,4 +1,4 @@
-import { formatDuration, formatWeight, type WeightUnit } from "@griplog/core";
+import { formatDuration, formatNumber, toDisplayWeight, type WeightUnit } from "@griplog/core";
 import { Trophy } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -67,7 +67,10 @@ export function WorkoutCard({
 
       <View style={styles.stats}>
         <Metric label="Time" value={formatDuration(summary.durationSeconds)} />
-        <Metric label="Volume" value={formatWeight(summary.volumeKg, unit)} />
+        <Metric
+          label="Volume"
+          value={`${formatNumber(toDisplayWeight(summary.volumeKg, unit), 0)} ${unit}`}
+        />
         <Metric label="Sets" value={String(summary.sets)} />
       </View>
 

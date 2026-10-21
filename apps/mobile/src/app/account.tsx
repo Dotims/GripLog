@@ -20,6 +20,7 @@ import { syncOutbox } from "@/db/schema";
 import { useSession } from "@/features/account/SessionProvider";
 import { blockedChanges, pendingChangeCount } from "@/features/sync/outbox";
 import { runSync, useSyncState } from "@/features/sync/sync-state";
+import { readableError } from "@/lib/api";
 import { formatTime } from "@/lib/dates";
 import { queryClient } from "@/lib/query-client";
 
@@ -83,7 +84,7 @@ function SignInForm() {
         secureTextEntry
         autoComplete="password"
       />
-      {submit.error ? <AppText color={Colors.error}>{submit.error.message}</AppText> : null}
+      {submit.error ? <AppText color={Colors.error}>{readableError(submit.error)}</AppText> : null}
       <Button
         label={mode === "signIn" ? "Sign in" : "Create account"}
         size="lg"

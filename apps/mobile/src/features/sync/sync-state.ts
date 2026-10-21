@@ -2,7 +2,9 @@ import { create } from "zustand";
 
 import type { Db } from "@/db/types";
 import { authHeaders } from "@/features/account/auth-client";
-import { API_URL } from "@/lib/api";
+import { feedKey } from "@/features/social/api";
+import { API_URL, readableError } from "@/lib/api";
+import { queryClient } from "@/lib/query-client";
 
 import { httpTransport, syncOnce, type SyncResult } from "./engine";
 
@@ -29,11 +31,15 @@ export function runSync(db: Db): Promise<SyncResult> {
     try {
       const result = await syncOnce(db, transport);
       useSyncState.setState({ status: "idle", lastSyncedAt: Date.now(), lastError: null });
+      // The feed shows synced workouts, so a sync that moved data makes it stale.
+      if (result.pushed > 0 || result.pulled > 0) {
+        void queryClient.invalidateQueries({ queryKey: feedKey });
+      }
       return result;
     } catch (error) {
       useSyncState.setState({
         status: "error",
-        lastError: error instanceof Error ? error.message : String(error),
+        lastError: readableError(error),
       });
       throw error;
     } finally {

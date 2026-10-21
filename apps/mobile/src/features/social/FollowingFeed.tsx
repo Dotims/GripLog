@@ -16,6 +16,7 @@ import { useSession } from "@/features/account/SessionProvider";
 import { initials } from "@/features/profile/avatar";
 import { usePreferences } from "@/features/profile/PreferencesProvider";
 import { WorkoutCard } from "@/features/workouts/WorkoutCard";
+import { readableError } from "@/lib/api";
 
 import { useFeed, useToggleLike, type FeedWorkout } from "./api";
 
@@ -104,7 +105,7 @@ export function FollowingFeed({ header }: { header: ReactElement }) {
         ) : feed.isPending ? (
           <ActivityIndicator color={Colors.accent} />
         ) : feed.error ? (
-          <AppText color={Colors.error}>{feed.error.message}</AppText>
+          <AppText color={Colors.error}>{readableError(feed.error)}</AppText>
         ) : (
           <EmptyState
             icon={Users}

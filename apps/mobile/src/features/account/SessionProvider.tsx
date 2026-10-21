@@ -1,5 +1,7 @@
 import { createContext, use, type ReactNode } from "react";
 
+import { readableError } from "@/lib/api";
+
 import { authClient } from "./auth-client";
 
 type SessionUser = { id: string; name: string; email: string };
@@ -28,11 +30,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     // Both return an error message, or null on success.
     signIn: async (email, password) => {
       const { error } = await authClient.signIn.email({ email, password });
-      return error ? (error.message ?? "Could not sign in") : null;
+      return error ? readableError(error.message, "Could not sign in") : null;
     },
     signUp: async (name, email, password) => {
       const { error } = await authClient.signUp.email({ name, email, password });
-      return error ? (error.message ?? "Could not create the account") : null;
+      return error ? readableError(error.message, "Could not create the account") : null;
     },
     signOut: async () => {
       await authClient.signOut();

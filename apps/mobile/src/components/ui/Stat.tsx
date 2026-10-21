@@ -19,11 +19,11 @@ export function Stat({ label, value, unit }: StatProps) {
         {label}
       </AppText>
       <View style={styles.valueRow}>
-        <AppText variant="number" numberOfLines={1} adjustsFontSizeToFit>
+        <AppText variant="number" numberOfLines={1} adjustsFontSizeToFit style={styles.value}>
           {value}
         </AppText>
         {unit ? (
-          <AppText variant="label" color={Colors.muted}>
+          <AppText variant="label" color={Colors.muted} numberOfLines={1} style={styles.unit}>
             {unit}
           </AppText>
         ) : null}
@@ -41,5 +41,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "baseline",
     gap: 4,
+  },
+  // The number shrinks first so the unit is never cut to "wee".
+  value: {
+    flexShrink: 1,
+  },
+  unit: {
+    flexShrink: 0,
   },
 });

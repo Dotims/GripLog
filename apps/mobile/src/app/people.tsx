@@ -7,6 +7,7 @@ import { Colors, Spacing } from "@/constants/theme";
 import { Avatar } from "@/features/profile/Avatar";
 import { initials } from "@/features/profile/avatar";
 import { useSearchPeople, useToggleFollow } from "@/features/social/api";
+import { readableError } from "@/lib/api";
 
 export default function PeopleScreen() {
   const [query, setQuery] = useState("");
@@ -24,7 +25,7 @@ export default function PeopleScreen() {
         autoFocus
       />
       {people.isFetching ? <ActivityIndicator color={Colors.accent} /> : null}
-      {people.error ? <AppText color={Colors.error}>{people.error.message}</AppText> : null}
+      {people.error ? <AppText color={Colors.error}>{readableError(people.error)}</AppText> : null}
       {people.data?.length === 0 ? (
         <AppText color={Colors.muted}>Nobody by that name yet.</AppText>
       ) : null}
