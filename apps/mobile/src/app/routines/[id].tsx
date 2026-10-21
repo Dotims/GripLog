@@ -91,7 +91,7 @@ export default function RoutineDetailScreen() {
         <Card key={exercise.id} style={styles.exercise}>
           <ExerciseImage
             exerciseId={exercise.exerciseId}
-            images={exercise.exercise.images}
+            trackingType={exercise.exercise.trackingType}
             name={exercise.exercise.name}
             style={styles.thumb}
           />

@@ -5,9 +5,11 @@ import { FlatList, Pressable, ScrollView, StyleSheet, TextInput, View } from "re
 import { AppText, Chip } from "@/components/ui";
 import { Colors, Fonts, Radii, Spacing } from "@/constants/theme";
 
-import { MUSCLE_GROUPS } from "./catalogue";
+import { COMMON_EXERCISE_IDS } from "@/features/import/hevy-exercise-map";
+
+import { animationUrl, MUSCLE_GROUPS } from "./catalogue";
 import { ExerciseCard } from "./ExerciseCard";
-import { filterExercises, sortByUsage } from "./filter";
+import { filterExercises, libraryExercises, sortByUsage } from "./filter";
 import { useExercises, useExerciseUsage } from "./hooks";
 import type { ExerciseListItem } from "./repository";
 
@@ -24,8 +26,13 @@ export function ExerciseBrowser({
   header,
   bottomInset = 0,
 }: ExerciseBrowserProps) {
-  const exercises = useExercises();
   const usage = useExerciseUsage();
+  const exercises = libraryExercises(
+    useExercises(),
+    usage,
+    (id) => animationUrl(id) !== undefined,
+    COMMON_EXERCISE_IDS,
+  );
   const [query, setQuery] = useState("");
   const [muscle, setMuscle] = useState<string | null>(null);
   // Typing stays responsive; filtering 900 rows catches up a frame later.

@@ -40,7 +40,7 @@ export default function NewExerciseScreen() {
   };
 
   return (
-    <Screen scroll>
+    <Screen scroll sheet>
       <ScreenHeader
         eyebrow="Custom"
         title="New exercise"

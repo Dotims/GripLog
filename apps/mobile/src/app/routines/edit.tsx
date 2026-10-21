@@ -34,7 +34,7 @@ export default function RoutineEditorScreen() {
 
   if (!draft) {
     return (
-      <Screen>
+      <Screen sheet>
         <Button label="Close" variant="secondary" onPress={() => router.back()} />
       </Screen>
     );
@@ -46,7 +46,7 @@ export default function RoutineEditorScreen() {
   };
 
   return (
-    <Screen scroll>
+    <Screen scroll sheet>
       <ScreenHeader
         eyebrow="Routine"
         title={draft.isNew ? "New routine" : "Edit routine"}

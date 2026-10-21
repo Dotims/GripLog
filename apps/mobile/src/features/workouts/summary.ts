@@ -1,4 +1,4 @@
-import { totalVolume, workingSetCount, type SetLike } from "@griplog/core";
+import { totalVolume, workingSetCount, type SetLike, type TrackingType } from "@griplog/core";
 
 import { durationSeconds } from "@/lib/dates";
 
@@ -7,7 +7,7 @@ type SummarisableWorkout = {
   endedAt: string;
   exercises: {
     exerciseId?: string;
-    exercise: { name: string; images?: string[] };
+    exercise: { name: string; trackingType?: TrackingType };
     sets: SetLike[];
   }[];
   records: unknown[];
@@ -18,7 +18,7 @@ export type WorkoutSummary = {
   volumeKg: number;
   sets: number;
   records: number;
-  exercises: { exerciseId?: string; name: string; sets: number; images?: string[] }[];
+  exercises: { exerciseId?: string; name: string; sets: number; trackingType?: TrackingType }[];
 };
 
 export function summariseWorkout(workout: SummarisableWorkout): WorkoutSummary {
@@ -32,7 +32,7 @@ export function summariseWorkout(workout: SummarisableWorkout): WorkoutSummary {
       exerciseId: e.exerciseId,
       name: e.exercise.name,
       sets: e.sets.length,
-      images: e.exercise.images,
+      trackingType: e.exercise.trackingType,
     })),
   };
 }

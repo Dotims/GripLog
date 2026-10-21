@@ -23,3 +23,19 @@ export function sortByUsage(
     (a, b) => (usage.get(b.id) ?? 0) - (usage.get(a.id) ?? 0) || a.name.localeCompare(b.name),
   );
 }
+
+/**
+ * The library lists exercises that have an animation, so every row looks alike.
+ * Your own exercises, the ones you have logged and the common lifts stay even
+ * without one.
+ */
+export function libraryExercises(
+  exercises: readonly ExerciseListItem[],
+  usage: ReadonlyMap<string, number>,
+  hasAnimation: (id: string) => boolean,
+  common: ReadonlySet<string>,
+): ExerciseListItem[] {
+  return exercises.filter(
+    (e) => hasAnimation(e.id) || e.isCustom || usage.has(e.id) || common.has(e.id),
+  );
+}

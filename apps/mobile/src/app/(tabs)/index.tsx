@@ -3,7 +3,6 @@ import { useRouter } from "expo-router";
 import { Dumbbell, Play, Settings, Upload } from "lucide-react-native";
 import { useState, type ReactElement } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import { BarChart } from "@/components/charts/BarChart";
 import {
@@ -12,6 +11,7 @@ import {
   Card,
   EmptyState,
   IconButton,
+  Screen,
   ScreenHeader,
   SectionLabel,
   SegmentedControl,
@@ -66,9 +66,9 @@ export default function FeedScreen() {
   );
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.root}>
+    <Screen>
       {tab === "you" ? <MyFeed header={header} /> : <FollowingFeed header={header} />}
-    </SafeAreaView>
+    </Screen>
   );
 }
 
@@ -194,10 +194,6 @@ function MyFeed({ header }: { header: ReactElement }) {
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
   content: {
     padding: Spacing.lg,
     paddingBottom: Spacing.xxl,

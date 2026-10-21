@@ -46,7 +46,7 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
         >
           <ExerciseImage
             exerciseId={exercise.exerciseId}
-            images={[]}
+            trackingType={exercise.trackingType}
             name={exercise.name}
             style={styles.thumb}
           />

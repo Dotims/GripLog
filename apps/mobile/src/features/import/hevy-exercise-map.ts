@@ -100,3 +100,6 @@ export const HEVY_EXERCISE_MAP: Readonly<Record<string, string>> = {
   Cycling: "Bicycling",
   "Stair Machine (Floors)": "Stairmaster",
 };
+
+/** The lifts people log most; the library keeps them even without an animation. */
+export const COMMON_EXERCISE_IDS: ReadonlySet<string> = new Set(Object.values(HEVY_EXERCISE_MAP));

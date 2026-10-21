@@ -74,7 +74,7 @@ export default function ImportScreen() {
   };
 
   return (
-    <Screen scroll>
+    <Screen scroll sheet>
       <ScreenHeader
         eyebrow="Import"
         title="From Hevy"

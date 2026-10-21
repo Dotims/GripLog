@@ -1,19 +1,20 @@
 import { formatNumber, toDisplayWeight } from "@griplog/core";
 import { useRouter } from "expo-router";
 import { ChevronDown, Dumbbell, Plus, Trash2 } from "lucide-react-native";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from "react-native";
+import { Platform, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import Animated, { FadeInDown, LinearTransition } from "react-native-reanimated";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useShallow } from "zustand/react/shallow";
 
-import { Button, Card, EmptyState, IconButton, Stat } from "@/components/ui";
+import {
+  Button,
+  Card,
+  EmptyState,
+  IconButton,
+  KeyboardToolbar,
+  Screen,
+  Stat,
+} from "@/components/ui";
 import { Colors, Fonts, Spacing } from "@/constants/theme";
 import { useDatabase } from "@/db/DatabaseProvider";
 import { nowIso } from "@/db/ids";
@@ -52,14 +53,16 @@ export default function ActiveWorkoutScreen() {
 
   if (title === undefined || !startedAt) {
     return (
-      <SafeAreaView style={styles.empty}>
-        <EmptyState
-          icon={Dumbbell}
-          title="No workout running"
-          message="Start one from the Workout tab."
-          action={<Button label="Close" variant="secondary" onPress={() => router.back()} />}
-        />
-      </SafeAreaView>
+      <Screen edges={["top", "bottom"]}>
+        <View style={styles.empty}>
+          <EmptyState
+            icon={Dumbbell}
+            title="No workout running"
+            message="Start one from the Workout tab."
+            action={<Button label="Close" variant="secondary" onPress={() => router.back()} />}
+          />
+        </View>
+      </Screen>
     );
   }
 
@@ -109,79 +112,77 @@ export default function ActiveWorkoutScreen() {
     });
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.root}>
-      <View style={styles.topBar}>
+    <View style={styles.root}>
+      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
         <IconButton icon={ChevronDown} label="Minimise workout" onPress={() => router.back()} />
         <ElapsedTime startedAt={startedAt} variant="title" />
         <Button label="Finish" size="sm" onPress={finish} testID="finish-workout" />
       </View>
 
-      <KeyboardAvoidingView
+      <ScrollView
         style={styles.flex}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 140 }]}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+        automaticallyAdjustKeyboardInsets
       >
-        <ScrollView
-          contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 140 }]}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="interactive"
-        >
-          <TextInput
-            value={title}
-            onChangeText={rename}
-            style={styles.title}
-            placeholder="Workout title"
-            placeholderTextColor={Colors.faint}
-            selectionColor={Colors.accent}
-            keyboardAppearance="dark"
-            accessibilityLabel="Workout title"
-          />
-          <TextInput
-            value={notes ?? ""}
-            onChangeText={setNotes}
-            style={styles.notes}
-            placeholder="How did it feel?"
-            placeholderTextColor={Colors.faint}
-            selectionColor={Colors.accent}
-            keyboardAppearance="dark"
-            multiline
-          />
+        <TextInput
+          value={title}
+          onChangeText={rename}
+          style={styles.title}
+          placeholder="Workout title"
+          placeholderTextColor={Colors.faint}
+          selectionColor={Colors.accent}
+          keyboardAppearance="dark"
+          accessibilityLabel="Workout title"
+        />
+        <TextInput
+          value={notes ?? ""}
+          onChangeText={setNotes}
+          style={styles.notes}
+          placeholder="How did it feel?"
+          placeholderTextColor={Colors.faint}
+          selectionColor={Colors.accent}
+          keyboardAppearance="dark"
+          multiline
+        />
 
-          <Card style={styles.stats}>
-            <Stat
-              label="Volume"
-              value={formatNumber(toDisplayWeight(totals.volumeKg, unit), 0)}
+        <Card style={styles.stats}>
+          <Stat
+            label="Volume"
+            value={formatNumber(toDisplayWeight(totals.volumeKg, unit), 0)}
+            unit={unit}
+          />
+          <Stat label="Sets done" value={String(totals.sets)} />
+          <Stat label="Exercises" value={String(exerciseIds.length)} />
+        </Card>
+
+        {exerciseIds.map((id, index) => (
+          <Animated.View key={id} entering={FadeInDown.duration(250)} layout={LinearTransition}>
+            <ExerciseBlock
+              exerciseId={id}
               unit={unit}
+              isFirst={index === 0}
+              isLast={index === exerciseIds.length - 1}
             />
-            <Stat label="Sets done" value={String(totals.sets)} />
-            <Stat label="Exercises" value={String(exerciseIds.length)} />
-          </Card>
+          </Animated.View>
+        ))}
 
-          {exerciseIds.map((id, index) => (
-            <Animated.View key={id} entering={FadeInDown.duration(250)} layout={LinearTransition}>
-              <ExerciseBlock
-                exerciseId={id}
-                unit={unit}
-                isFirst={index === 0}
-                isLast={index === exerciseIds.length - 1}
-              />
-            </Animated.View>
-          ))}
-
-          <Button
-            label="Add exercise"
-            icon={Plus}
-            size="lg"
-            onPress={() =>
-              router.push({ pathname: "/workout/pick-exercise", params: { target: "workout" } })
-            }
-            testID="add-exercise"
-          />
-          <Button label="Discard workout" icon={Trash2} variant="danger" onPress={discard} />
-        </ScrollView>
-      </KeyboardAvoidingView>
+        <Button
+          label="Add exercise"
+          icon={Plus}
+          size="lg"
+          onPress={() =>
+            router.push({ pathname: "/workout/pick-exercise", params: { target: "workout" } })
+          }
+          testID="add-exercise"
+        />
+        <Button label="Discard workout" icon={Trash2} variant="danger" onPress={discard} />
+      </ScrollView>
 
       <RestTimerBar bottomInset={insets.bottom} />
-    </SafeAreaView>
+      <KeyboardToolbar />
+    </View>
   );
 }
 
@@ -215,7 +216,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: Colors.text,
-    fontFamily: Fonts.heavy,
+    fontFamily: Fonts.bold,
     fontSize: 30,
     letterSpacing: -0.9,
     paddingVertical: 0,

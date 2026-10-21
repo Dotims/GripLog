@@ -1,59 +1,51 @@
+import type { TrackingType } from "@griplog/core";
 import { Image } from "expo-image";
-import { useEffect, useState } from "react";
-import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
-import Animated, {
-  cancelAnimation,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withRepeat,
-  withSequence,
-  withTiming,
-} from "react-native-reanimated";
+import { Activity, Dumbbell, Timer, type LucideIcon } from "lucide-react-native";
+import { useState } from "react";
+import {
+  StyleSheet,
+  View,
+  type LayoutChangeEvent,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
 
-import { AppText } from "@/components/ui";
 import { Colors } from "@/constants/theme";
 
-import { animationUrl, exerciseImageUrl } from "./catalogue";
+import { animationUrl } from "./catalogue";
 
-const AnimatedImage = Animated.createAnimatedComponent(Image);
+const ICONS: Record<TrackingType, LucideIcon> = {
+  weight_reps: Dumbbell,
+  reps: Dumbbell,
+  duration: Timer,
+  distance_duration: Activity,
+};
 
 type ExerciseImageProps = {
-  /** Catalogue id; exercises linked to ExerciseDB show its animation instead of photos. */
+  /** Catalogue id; linked exercises show their ExerciseDB animation. */
   exerciseId?: string;
-  images: readonly string[];
   name: string;
-  /** Play the animation, or crossfade the start and end photo when there is none. */
+  trackingType?: TrackingType;
+  /** Play the animation; lists show its first frame, the start position. */
   animated?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
+/**
+ * One visual language for every exercise: the 3D animation when there is one,
+ * otherwise a quiet tile with an icon. Never photos, so lists never mix styles.
+ */
 export function ExerciseImage({
   exerciseId,
-  images,
   name,
+  trackingType = "weight_reps",
   animated = false,
   style,
 }: ExerciseImageProps) {
-  const [first, second] = images;
-  const opacity = useSharedValue(0);
-  // A GIF that fails to load (offline, never cached) falls back to the photos.
-  const [gifFailed, setGifFailed] = useState(false);
-  const gif = exerciseId && !gifFailed ? animationUrl(exerciseId) : undefined;
-
-  useEffect(() => {
-    if (gif || !animated || !second) return;
-    opacity.value = withRepeat(
-      withSequence(
-        withDelay(700, withTiming(1, { duration: 450 })),
-        withDelay(700, withTiming(0, { duration: 450 })),
-      ),
-      -1,
-    );
-    return () => cancelAnimation(opacity);
-  }, [animated, gif, opacity, second]);
-
-  const topStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  // A GIF that fails to load (offline, never cached) falls back to the tile.
+  const [failed, setFailed] = useState(false);
+  const [side, setSide] = useState(0);
+  const gif = exerciseId && !failed ? animationUrl(exerciseId) : undefined;
 
   if (gif) {
     return (
@@ -67,41 +59,29 @@ export function ExerciseImage({
           style={StyleSheet.absoluteFill}
           contentFit="contain"
           cachePolicy="disk"
-          // Lists show the start position; the detail screen plays the movement.
           autoplay={animated}
-          transition={150}
-          onError={() => setGifFailed(true)}
+          transition={200}
+          onError={() => setFailed(true)}
         />
       </View>
     );
   }
 
-  if (!first) {
-    return (
-      <View style={[styles.placeholder, style]} accessibilityLabel={name}>
-        <AppText variant="title" color={Colors.faint}>
-          {name.slice(0, 1).toUpperCase()}
-        </AppText>
-      </View>
-    );
-  }
+  const Icon = ICONS[trackingType];
+  const onLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    setSide(Math.min(width, height));
+  };
 
   return (
-    <View style={[styles.frame, style]} accessibilityLabel={name} accessibilityRole="image">
-      <Image
-        source={{ uri: exerciseImageUrl(first) }}
-        style={StyleSheet.absoluteFill}
-        contentFit="cover"
-        cachePolicy="disk"
-        transition={150}
-      />
-      {animated && second ? (
-        <AnimatedImage
-          source={{ uri: exerciseImageUrl(second) }}
-          style={[StyleSheet.absoluteFill, topStyle]}
-          contentFit="cover"
-          cachePolicy="disk"
-        />
+    <View
+      style={[styles.frame, styles.tile, style]}
+      onLayout={onLayout}
+      accessibilityLabel={name}
+      accessibilityRole="image"
+    >
+      {side > 0 ? (
+        <Icon color={Colors.faint} size={Math.round(side * 0.4)} strokeWidth={1.6} />
       ) : null}
     </View>
   );
@@ -110,14 +90,13 @@ export function ExerciseImage({
 const styles = StyleSheet.create({
   frame: {
     overflow: "hidden",
-    backgroundColor: Colors.surfaceAlt,
+    borderCurve: "continuous",
   },
   // The animations are drawn on white, so the frame matches instead of showing a seam.
   animation: {
     backgroundColor: Colors.media,
   },
-  placeholder: {
-    overflow: "hidden",
+  tile: {
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: Colors.surfaceAlt,

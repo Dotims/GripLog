@@ -95,7 +95,7 @@ export default function ExerciseDetailScreen() {
       <Card style={styles.imageCard}>
         <ExerciseImage
           exerciseId={exercise.id}
-          images={exercise.images}
+          trackingType={exercise.trackingType}
           name={exercise.name}
           animated
           style={styles.image}

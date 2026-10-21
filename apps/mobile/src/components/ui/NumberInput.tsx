@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { StyleSheet, TextInput, type StyleProp, type TextStyle } from "react-native";
+import { Platform, StyleSheet, TextInput, type StyleProp, type TextStyle } from "react-native";
 
 import { Colors, Fonts, Radii, tabular } from "@/constants/theme";
+
+import { KEYBOARD_TOOLBAR_ID } from "./KeyboardToolbar";
 
 type NumberInputProps = {
   value: number | null;
@@ -50,6 +52,7 @@ export function NumberInput({
       keyboardAppearance="dark"
       keyboardType={decimals ? "decimal-pad" : "number-pad"}
       returnKeyType="done"
+      inputAccessoryViewID={Platform.OS === "ios" ? KEYBOARD_TOOLBAR_ID : undefined}
       selectTextOnFocus
       maxLength={7}
       onChangeText={(next) => {

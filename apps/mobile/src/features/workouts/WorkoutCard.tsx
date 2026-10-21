@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText, Card } from "@/components/ui";
-import { Colors, Radii, Spacing, tabular } from "@/constants/theme";
+import { Colors, Fonts, Radii, Spacing, tabular } from "@/constants/theme";
 import { ExerciseImage } from "@/features/exercises/ExerciseImage";
 import { formatRelativeDay, formatTime } from "@/lib/dates";
 
@@ -77,11 +77,11 @@ export function WorkoutCard({
       <View style={styles.exercises}>
         {summary.exercises.slice(0, VISIBLE_EXERCISES).map((exercise, index) => (
           <View key={`${exercise.name}-${index}`} style={styles.exerciseRow}>
-            {exercise.images ? (
+            {exercise.exerciseId ? (
               <ExerciseImage
                 exerciseId={exercise.exerciseId}
-                images={exercise.images}
                 name={exercise.name}
+                trackingType={exercise.trackingType}
                 style={styles.thumb}
               />
             ) : null}
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     borderRadius: Radii.pill,
   },
   avatarText: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: Fonts.semibold,
   },
   flex: {
     flex: 1,
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     borderRadius: Radii.pill,
   },
   recordsText: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: Fonts.semibold,
   },
   stats: {
     flexDirection: "row",

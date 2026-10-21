@@ -27,13 +27,12 @@ export const Colors = {
   media: "#FFFFFF",
 } as const;
 
-/** Inter, loaded in the root layout. */
+/** Onest in four weights, loaded in the root layout. */
 export const Fonts = {
-  regular: "Inter_400Regular",
-  medium: "Inter_500Medium",
-  semibold: "Inter_600SemiBold",
-  bold: "Inter_700Bold",
-  heavy: "Inter_800ExtraBold",
+  regular: "Onest_400Regular",
+  medium: "Onest_500Medium",
+  semibold: "Onest_600SemiBold",
+  bold: "Onest_700Bold",
 } as const;
 
 export const Spacing = {

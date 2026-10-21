@@ -1,17 +1,14 @@
 import { useRouter } from "expo-router";
 import { Plus } from "lucide-react-native";
-import { StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
-import { IconButton, ScreenHeader } from "@/components/ui";
-import { Colors } from "@/constants/theme";
+import { IconButton, Screen, ScreenHeader } from "@/components/ui";
 import { ExerciseBrowser } from "@/features/exercises/ExerciseBrowser";
 
 export default function ExercisesScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.root}>
+    <Screen>
       <ExerciseBrowser
         onSelect={(exercise) => router.push(`/exercises/${encodeURIComponent(exercise.id)}`)}
         header={
@@ -29,13 +26,6 @@ export default function ExercisesScreen() {
           />
         }
       />
-    </SafeAreaView>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-});

@@ -74,7 +74,6 @@ export function listExercisesQuery(db: Db) {
       trackingType: exercises.trackingType,
       equipment: exercises.equipment,
       primaryMuscles: exercises.primaryMuscles,
-      images: exercises.images,
       isCustom: exercises.isCustom,
     })
     .from(exercises)

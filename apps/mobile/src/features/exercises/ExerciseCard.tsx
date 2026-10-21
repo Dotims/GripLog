@@ -15,7 +15,7 @@ type ExerciseCardProps = {
 };
 
 export function ExerciseCard({ exercise, onPress, selected = false, uses }: ExerciseCardProps) {
-  const { name, images, equipment, primaryMuscles, isCustom } = exercise;
+  const { name, equipment, primaryMuscles, isCustom, trackingType } = exercise;
   const meta = [primaryMuscles[0], equipment, isCustom ? "custom" : null]
     .filter(Boolean)
     .join(" · ");
@@ -27,7 +27,12 @@ export function ExerciseCard({ exercise, onPress, selected = false, uses }: Exer
       accessibilityLabel={name}
       testID={`exercise-${exercise.id}`}
     >
-      <ExerciseImage exerciseId={exercise.id} images={images} name={name} style={styles.thumb} />
+      <ExerciseImage
+        exerciseId={exercise.id}
+        name={name}
+        trackingType={trackingType}
+        style={styles.thumb}
+      />
       <View style={styles.body}>
         <AppText variant="bold" numberOfLines={2}>
           {name}

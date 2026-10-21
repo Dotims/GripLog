@@ -1,10 +1,4 @@
-import { IMAGE_BASE_URL } from "@griplog/catalogue";
-
 export { animationUrl, catalogue, CATALOGUE_VERSION } from "@griplog/catalogue";
-
-export function exerciseImageUrl(path: string): string {
-  return path.startsWith("http") || path.startsWith("file:") ? path : `${IMAGE_BASE_URL}${path}`;
-}
 
 export const MUSCLE_GROUPS = [
   "chest",

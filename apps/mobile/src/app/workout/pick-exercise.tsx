@@ -2,9 +2,9 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Plus, X } from "lucide-react-native";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Button, IconButton, ScreenHeader } from "@/components/ui";
+import { Button, IconButton, Screen, ScreenHeader } from "@/components/ui";
 import { Colors, Spacing } from "@/constants/theme";
 import { useDatabase } from "@/db/DatabaseProvider";
 import { newDraftExercise } from "@/features/active-workout/draft";
@@ -50,7 +50,7 @@ export default function PickExerciseScreen() {
   };
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.root}>
+    <Screen sheet>
       <ExerciseBrowser
         onSelect={toggle}
         selectedIds={new Set(selected.map((e) => e.id))}
@@ -73,15 +73,11 @@ export default function PickExerciseScreen() {
           testID="confirm-exercises"
         />
       </View>
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
   footer: {
     position: "absolute",
     left: 0,
