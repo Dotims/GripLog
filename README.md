@@ -208,7 +208,7 @@ npm test            # API tests expect the Postgres from docker compose
 ## Credits
 
 - Exercise data and photos: [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain).
-- Fonts: Archivo and JetBrains Mono (SIL Open Font License).
+- Font: [Inter](https://rsms.me/inter/) (SIL Open Font License).
 
 ## License
 
