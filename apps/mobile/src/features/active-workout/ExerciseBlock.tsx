@@ -5,7 +5,8 @@ import { useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 
 import { AppText, Card, OptionsSheet } from "@/components/ui";
-import { Colors, Fonts, Spacing } from "@/constants/theme";
+import { Colors, Fonts, Radii, Spacing } from "@/constants/theme";
+import { ExerciseImage } from "@/features/exercises/ExerciseImage";
 import { confirm } from "@/lib/dialog";
 
 import { columnsFor } from "./columns";
@@ -41,8 +42,15 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
           style={styles.titleArea}
           onPress={() => router.push(`/exercises/${encodeURIComponent(exercise.exerciseId)}`)}
           accessibilityRole="link"
+          accessibilityLabel={exercise.name}
         >
-          <AppText variant="heading" color={Colors.accent} numberOfLines={2}>
+          <ExerciseImage
+            exerciseId={exercise.exerciseId}
+            images={[]}
+            name={exercise.name}
+            style={styles.thumb}
+          />
+          <AppText variant="heading" color={Colors.accent} numberOfLines={2} style={styles.flex}>
             {exercise.name}
           </AppText>
         </Pressable>
@@ -178,9 +186,17 @@ const styles = StyleSheet.create({
   },
   titleArea: {
     flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+  },
+  thumb: {
+    width: 44,
+    height: 44,
+    borderRadius: Radii.sm,
   },
   menuButton: {
-    paddingTop: 2,
+    paddingTop: 12,
   },
   notes: {
     marginHorizontal: Spacing.lg,
