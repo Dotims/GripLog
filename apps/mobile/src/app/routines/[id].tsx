@@ -4,15 +4,17 @@ import { Pencil, Play, Trash2 } from "lucide-react-native";
 import { StyleSheet, View } from "react-native";
 
 import { AppText, Button, Card, Screen } from "@/components/ui";
-import { Colors, Spacing } from "@/constants/theme";
+import { Colors, Spacing, supersetColor } from "@/constants/theme";
 import { useDatabase } from "@/db/DatabaseProvider";
 import { ExerciseImage } from "@/features/exercises/ExerciseImage";
+import { SupersetBadge } from "@/features/active-workout/SupersetBadge";
+import { supersetLetters } from "@/features/active-workout/supersets";
 import { useStartWorkout } from "@/features/active-workout/use-start-workout";
 import { usePreferences } from "@/features/profile/PreferencesProvider";
 import { useRoutine } from "@/features/routines/hooks";
 import { deleteRoutine } from "@/features/routines/repository";
 import { useRoutineDraft } from "@/features/routines/routine-draft";
-import { formatSetValue } from "@/features/workouts/format-set";
+import { formatTarget } from "@/features/workouts/format-set";
 import { confirm } from "@/lib/dialog";
 
 export default function RoutineDetailScreen() {
@@ -32,6 +34,8 @@ export default function RoutineDetailScreen() {
       </Screen>
     );
   }
+
+  const letters = supersetLetters(routine.exercises);
 
   const edit = () => {
     useRoutineDraft.getState().open({
@@ -107,18 +111,24 @@ export default function RoutineDetailScreen() {
               {exercise.sets.length} sets · rest{" "}
               {formatClock(exercise.restSeconds ?? defaultRestSeconds)}
             </AppText>
-            {exercise.sets.some((s) => s.weightKg !== null || s.reps !== null) ? (
+            {exercise.sets.some(
+              (s) =>
+                s.weightKg !== null ||
+                s.reps !== null ||
+                s.durationSeconds !== null ||
+                s.distanceMeters !== null,
+            ) ? (
               <AppText variant="mono" color={Colors.muted} numberOfLines={2}>
                 {exercise.sets
-                  .map((s) =>
-                    formatSetValue(
-                      { ...s, durationSeconds: null, distanceMeters: null },
-                      exercise.exercise.trackingType,
-                      unit,
-                    ),
-                  )
+                  .map((s) => formatTarget(s, exercise.exercise.trackingType, unit))
                   .join(", ")}
               </AppText>
+            ) : null}
+            {exercise.supersetId !== null && letters.has(exercise.supersetId) ? (
+              <SupersetBadge
+                letter={letters.get(exercise.supersetId)!}
+                color={supersetColor([...letters.keys()].indexOf(exercise.supersetId))}
+              />
             ) : null}
           </View>
         </Card>

@@ -1,4 +1,5 @@
 import {
+  formatClock,
   formatDuration,
   formatNumber,
   toDisplayWeight,
@@ -33,6 +34,35 @@ export function formatSetValue(
       const parts = [
         set.distanceMeters === null ? null : `${formatNumber(set.distanceMeters / 1000, 2)} km`,
         set.durationSeconds === null ? null : formatDuration(set.durationSeconds),
+      ].filter(Boolean);
+      return parts.join(" · ") || "-";
+    }
+  }
+}
+
+type TargetValues = SetValues & { repsMax: number | null };
+
+/** A routine target: "60 kg × 8-12", "6-10 reps", "0:45", "5 km · 30:00", or "-" when empty. */
+export function formatTarget(
+  set: TargetValues,
+  trackingType: TrackingType,
+  unit: WeightUnit,
+): string {
+  const reps =
+    set.reps === null ? null : set.repsMax !== null ? `${set.reps}-${set.repsMax}` : `${set.reps}`;
+  const weight =
+    set.weightKg === null ? null : `${formatNumber(toDisplayWeight(set.weightKg, unit))} ${unit}`;
+  switch (trackingType) {
+    case "weight_reps":
+    case "reps":
+      if (weight && reps) return `${weight} × ${reps}`;
+      return reps ? `${reps} reps` : (weight ?? "-");
+    case "duration":
+      return set.durationSeconds === null ? "-" : formatClock(set.durationSeconds);
+    case "distance_duration": {
+      const parts = [
+        set.distanceMeters === null ? null : `${formatNumber(set.distanceMeters / 1000, 2)} km`,
+        set.durationSeconds === null ? null : formatClock(set.durationSeconds),
       ].filter(Boolean);
       return parts.join(" · ") || "-";
     }

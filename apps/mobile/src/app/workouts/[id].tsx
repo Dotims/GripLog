@@ -11,10 +11,13 @@ import { ClipboardPlus, Repeat, Trash2, Trophy } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText, Button, Card, Screen, Stat } from "@/components/ui";
-import { Colors, Radii, Spacing } from "@/constants/theme";
+import { Colors, Radii, Spacing, supersetColor } from "@/constants/theme";
 import { useDatabase } from "@/db/DatabaseProvider";
 import { toRoutineInput } from "@/features/active-workout/draft";
+import { SupersetBadge } from "@/features/active-workout/SupersetBadge";
+import { supersetLetters } from "@/features/active-workout/supersets";
 import { useStartWorkout } from "@/features/active-workout/use-start-workout";
+import { ExerciseImage } from "@/features/exercises/ExerciseImage";
 import { usePreferences } from "@/features/profile/PreferencesProvider";
 import { saveRoutine } from "@/features/routines/repository";
 import { formatSetValue } from "@/features/workouts/format-set";
@@ -43,6 +46,7 @@ export default function WorkoutDetailScreen() {
   }
 
   const summary = summariseWorkout(workout);
+  const letters = supersetLetters(workout.exercises);
   const recordSets = new Set(workout.records.map((r) => r.setId));
 
   const saveAsRoutine = () => {
@@ -104,11 +108,26 @@ export default function WorkoutDetailScreen() {
               onPress={() => router.push(`/exercises/${encodeURIComponent(block.exerciseId)}`)}
               style={styles.blockHeader}
               accessibilityRole="link"
+              accessibilityLabel={block.exercise.name}
             >
-              <AppText variant="heading" color={Colors.accent}>
-                {block.exercise.name}
-              </AppText>
-              {block.notes ? <AppText color={Colors.muted}>{block.notes}</AppText> : null}
+              <ExerciseImage
+                exerciseId={block.exerciseId}
+                name={block.exercise.name}
+                trackingType={block.exercise.trackingType}
+                style={styles.thumb}
+              />
+              <View style={styles.flexColumn}>
+                <AppText variant="heading" color={Colors.accent}>
+                  {block.exercise.name}
+                </AppText>
+                {block.supersetId !== null && letters.has(block.supersetId) ? (
+                  <SupersetBadge
+                    letter={letters.get(block.supersetId)!}
+                    color={supersetColor([...letters.keys()].indexOf(block.supersetId))}
+                  />
+                ) : null}
+                {block.notes ? <AppText color={Colors.muted}>{block.notes}</AppText> : null}
+              </View>
             </Pressable>
             {block.sets.map((set, index) => {
               const estimate = weighted ? estimateOneRepMax(set.weightKg, set.reps) : null;
@@ -169,9 +188,20 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   blockHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
     padding: Spacing.lg,
     paddingBottom: Spacing.sm,
-    gap: 2,
+  },
+  thumb: {
+    width: 44,
+    height: 44,
+    borderRadius: Radii.sm,
+  },
+  flexColumn: {
+    flex: 1,
+    gap: 4,
   },
   setRow: {
     flexDirection: "row",

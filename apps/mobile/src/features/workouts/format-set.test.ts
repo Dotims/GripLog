@@ -1,4 +1,4 @@
-import { formatSetValue } from "./format-set";
+import { formatSetValue, formatTarget } from "./format-set";
 
 const set = { weightKg: 80, reps: 8, durationSeconds: 900, distanceMeters: 2500 };
 
@@ -12,5 +12,24 @@ describe("formatSetValue", () => {
 
   it("shows added weight on bodyweight exercises", () => {
     expect(formatSetValue({ ...set, weightKg: 10 }, "reps", "kg")).toBe("+10 kg × 8");
+  });
+});
+
+describe("formatTarget", () => {
+  const empty = {
+    weightKg: null,
+    reps: null,
+    repsMax: null,
+    durationSeconds: null,
+    distanceMeters: null,
+  };
+
+  it("shows rep ranges, clocks and empty targets", () => {
+    expect(
+      formatTarget({ ...empty, weightKg: 60, reps: 8, repsMax: 12 }, "weight_reps", "kg"),
+    ).toBe("60 kg × 8-12");
+    expect(formatTarget({ ...empty, reps: 6, repsMax: 10 }, "reps", "kg")).toBe("6-10 reps");
+    expect(formatTarget({ ...empty, durationSeconds: 45 }, "duration", "kg")).toBe("0:45");
+    expect(formatTarget(empty, "weight_reps", "kg")).toBe("-");
   });
 });
