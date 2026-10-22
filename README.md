@@ -12,7 +12,7 @@
 ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-ff3b47.svg)](LICENSE)
 
-<img src="docs/media/demo.gif" width="360" alt="GripLog on Android with a real training history: the feed, friends' workouts, following a friend, building a routine with a rep range, swiping a set away, and logging the routine with the rest timer" />
+<img src="docs/media/demo.gif" width="360" alt="GripLog on Android with a real training history: the weekly goal on the feed, the profile cover made from training days with a lift goal ring, a workout with the muscles it trained, and logging a routine that ends in confetti" />
 
 </div>
 
@@ -20,7 +20,7 @@
 
 GripLog is the app I actually log my gym sessions in. It started as a Hevy replacement and grew into a full stack project: a React Native app that works with zero signal on the gym floor, a Postgres backed API that syncs it, a GraphQL feed for training with friends, a web dashboard for progress charts, and an MCP server that lets an assistant like Claude review your training using numbers computed by tested code instead of guesses.
 
-My own history (144 workouts and 2 600+ sets exported from Hevy) imports in about a second, and the recording and screenshots show that real data: your feed and your friends' workouts, following someone new, a routine built with a rep range, a set swiped away and a session logged from the routine. Both were captured from the app running in Expo Go on an Android emulator, with demo friends from a local API.
+My own history (144 workouts and 2 600+ sets exported from Hevy) imports in about a second, and the recording and screenshots show that real data: the week against my goal, a profile cover drawn from my training days with a ring for my lift goal, a past workout with the muscles it trained, and a session logged from a routine that ends in confetti. Both were captured from the app running in Expo Go on an Android emulator.
 
 The interface is dark and quiet on purpose: you look at it between sets, often in a dim gym. Colour carries meaning only: red for actions and progress, green for completed sets, gold for personal records, and one colour per superset. Type is Onest in four weights with tabular figures, so timers and weights never jitter. Motion is Reanimated on the UI thread: spring press feedback, a sliding segmented control, sheets that rise and settle, a set that washes green when ticked, a rest line that drains continuously and a summary that counts its numbers up.
 

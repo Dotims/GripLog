@@ -84,6 +84,14 @@ describe("forecastGoal", () => {
     expect(days).toBeLessThan(110);
   });
 
+  it("does not count weeks off as progress", () => {
+    // The same sessions, looked at a week later with no training since.
+    const later = new Date(2026, 9, 22, 12, 0);
+    const soon = forecastGoal(points, 100, now).expectedAt!.getTime() - now.getTime();
+    const afterBreak = forecastGoal(points, 100, later).expectedAt!.getTime() - later.getTime();
+    expect(afterBreak).toBe(soon);
+  });
+
   it("makes no promise from a flat or falling trend", () => {
     const flat = points.map((p) => ({ ...p, oneRepMaxKg: 80 }));
     expect(forecastGoal(flat, 100, now).expectedAt).toBeNull();

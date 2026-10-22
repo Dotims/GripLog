@@ -21,7 +21,7 @@ import { useLiftGoal } from "@/features/goals/hooks";
 import { LiftGoalCard } from "@/features/goals/LiftGoalCard";
 import { usePreferences } from "@/features/profile/PreferencesProvider";
 
-const CHOICES = 6;
+const CHOICES = 10;
 
 /** A round number a little above the current best, so the suggested target is reachable. */
 function suggestTarget(bestKg: number): number {
@@ -46,7 +46,7 @@ export default function GoalsScreen() {
           />
           <View style={styles.stepperValue}>
             <AppText variant="display">{weeklyGoal}</AppText>
-            <AppText variant="label" color={Colors.muted}>
+            <AppText variant="label" color={Colors.muted} align="center" style={styles.stretch}>
               {weeklyGoal === 1 ? "workout a week" : "workouts a week"}
             </AppText>
           </View>
@@ -166,7 +166,7 @@ function LiftGoalEditor({
             <AppText variant="bold">Target 1RM</AppText>
             <AppText variant="label" color={Colors.muted}>
               {best > 0
-                ? `Your best estimate lately: ${Math.round(toDisplayWeight(best, unit))} ${unit}`
+                ? `Your best estimated 1RM so far: ${Math.round(toDisplayWeight(best, unit))} ${unit}`
                 : "No sets with a weight yet"}
             </AppText>
           </View>
@@ -205,7 +205,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   stepperValue: {
+    flex: 1,
     alignItems: "center",
+  },
+  // Android measures this label short and clips it unless it spans the column.
+  stretch: {
+    alignSelf: "stretch",
   },
   actions: {
     flexDirection: "row",

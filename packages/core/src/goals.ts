@@ -142,8 +142,11 @@ export function forecastGoal(
   const slope = den === 0 ? 0 : num / den;
   if (slope <= 0) return { ...base, expectedAt: null };
 
-  const today = meanY - slope * meanX;
-  const days = Math.max(0, (targetKg - today) / slope);
+  // The trend only moves while you train: count from the last session, never from
+  // a gap of weeks off, and never promise a date in the past.
+  const lastX = Math.max(...xs);
+  const atLast = meanY + slope * (lastX - meanX);
+  const days = Math.max(1, (targetKg - Math.max(atLast, currentKg)) / slope);
   if (days > MAX_FORECAST_DAYS) return { ...base, expectedAt: null };
   return { ...base, expectedAt: new Date(now.getTime() + Math.ceil(days) * DAY_MS) };
 }

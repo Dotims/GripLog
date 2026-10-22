@@ -25,7 +25,11 @@ type MuscleMapProps = {
 export function MuscleMap({ muscles, height, sides = "both", style }: MuscleMapProps) {
   const scale = height / BASE_HEIGHT;
   const views = sides === "both" ? (["front", "back"] as const) : [bestSide(muscles)];
-  const data = muscles.map(({ slug, intensity }) => ({ slug, intensity }));
+  // The head is drawn in its own light colour; keep the whole figure one tone.
+  const data = [
+    { slug: "head" as const, styles: { fill: BODY } },
+    ...muscles.map(({ slug, intensity }) => ({ slug, intensity })),
+  ];
 
   return (
     <View style={[styles.row, style]} pointerEvents="none" accessible={false}>

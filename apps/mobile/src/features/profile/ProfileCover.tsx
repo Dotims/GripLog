@@ -7,8 +7,7 @@ import Animated, { FadeIn } from "react-native-reanimated";
 
 import { Colors } from "@/constants/theme";
 
-const CELL = 13;
-const GAP = 3;
+const GAP = 4;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 type CoverPhoto = { id: string; uri: string; workoutId: string };
@@ -42,12 +41,18 @@ export function ProfileCover({
       {photos.length > 0 ? (
         <PhotoMosaic photos={photos.slice(0, 3)} onOpenWorkout={onOpenWorkout} />
       ) : (
-        <TrainingMap startedAt={startedAt} top={topInset + 12} />
+        <TrainingMap startedAt={startedAt} top={topInset + 10} height={height} />
       )}
       <LinearGradient
         pointerEvents="none"
-        colors={["rgba(10, 10, 11, 0.55)", "transparent", "transparent", Colors.background]}
-        locations={[0, 0.3, 0.55, 1]}
+        // Photos need a darker top for the status bar; the map only a soft fade at the bottom.
+        colors={[
+          photos.length > 0 ? "rgba(10, 10, 11, 0.55)" : "transparent",
+          "transparent",
+          "transparent",
+          Colors.background,
+        ]}
+        locations={photos.length > 0 ? [0, 0.3, 0.55, 1] : [0, 0.2, 0.72, 1]}
         style={StyleSheet.absoluteFill}
       />
       {actions ? <View style={[styles.actions, { top: topInset + 8 }]}>{actions}</View> : null}
@@ -88,9 +93,19 @@ function PhotoMosaic({
 }
 
 /** A grid of days, one column per week, newest on the right: brighter means trained. */
-function TrainingMap({ startedAt, top }: { startedAt: readonly string[]; top: number }) {
+function TrainingMap({
+  startedAt,
+  top,
+  height,
+}: {
+  startedAt: readonly string[];
+  top: number;
+  height: number;
+}) {
   const { width } = useWindowDimensions();
-  const weeks = Math.ceil(width / (CELL + GAP)) + 1;
+  // Seven rows fill the banner; the last one fades into the page.
+  const cell = Math.floor((height - top - GAP * 6) / 7);
+  const weeks = Math.ceil(width / (cell + GAP)) + 1;
   const today = new Date();
   const firstWeek = startOfWeek(new Date(today.getTime() - (weeks - 1) * 7 * DAY_MS));
 
@@ -118,16 +133,17 @@ function TrainingMap({ startedAt, top }: { startedAt: readonly string[]; top: nu
     >
       {columns.map((column, index) => (
         <View key={index} style={styles.mapColumn}>
-          {column.map((cell) => (
+          {column.map((day) => (
             <View
-              key={cell.key}
+              key={day.key}
               style={[
                 styles.cell,
-                cell.future
+                { width: cell, height: cell },
+                day.future
                   ? styles.cellFuture
-                  : cell.count > 1
+                  : day.count > 1
                     ? styles.cellMany
-                    : cell.count === 1
+                    : day.count === 1
                       ? styles.cellOne
                       : null,
               ]}
@@ -171,10 +187,8 @@ const styles = StyleSheet.create({
     gap: GAP,
   },
   cell: {
-    width: CELL,
-    height: CELL,
-    borderRadius: 4,
-    backgroundColor: "#1B1B1F",
+    borderRadius: 5,
+    backgroundColor: "#1F1F24",
   },
   cellFuture: {
     backgroundColor: "transparent",
