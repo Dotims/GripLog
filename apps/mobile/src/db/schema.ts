@@ -167,6 +167,21 @@ export const personalRecords = sqliteTable(
   ],
 );
 
+/** Photos stay on the phone: they are not part of the sync contract. */
+export const workoutPhotos = sqliteTable(
+  "workout_photos",
+  {
+    id: text("id").primaryKey(),
+    workoutId: text("workout_id")
+      .notNull()
+      .references(() => workouts.id, { onDelete: "cascade" }),
+    uri: text("uri").notNull(),
+    position: integer("position").notNull().default(0),
+    createdAt: text("created_at").notNull(),
+  },
+  (t) => [index("workout_photos_workout_idx").on(t.workoutId)],
+);
+
 /** Single row (id = 1) with the owner's profile and preferences. */
 export const profile = sqliteTable("profile", {
   id: integer("id").primaryKey(),
@@ -178,6 +193,11 @@ export const profile = sqliteTable("profile", {
     .notNull()
     .default("kg"),
   defaultRestSeconds: integer("default_rest_seconds").notNull().default(120),
+  weeklyGoal: integer("weekly_goal").notNull().default(3),
+  // A lift to chase, like a 100 kg bench: catalogue or custom exercise id and the target.
+  goalExerciseId: text("goal_exercise_id"),
+  goalWeightKg: real("goal_weight_kg"),
+  soundsEnabled: integer("sounds_enabled", { mode: "boolean" }).notNull().default(true),
   updatedAt: text("updated_at").notNull(),
 });
 
@@ -226,6 +246,11 @@ export const routineSetsRelations = relations(routineSets, ({ one }) => ({
 export const workoutsRelations = relations(workouts, ({ many }) => ({
   exercises: many(workoutExercises),
   records: many(personalRecords),
+  photos: many(workoutPhotos),
+}));
+
+export const workoutPhotosRelations = relations(workoutPhotos, ({ one }) => ({
+  workout: one(workouts, { fields: [workoutPhotos.workoutId], references: [workouts.id] }),
 }));
 
 export const workoutExercisesRelations = relations(workoutExercises, ({ one, many }) => ({

@@ -50,7 +50,15 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "GripLog uses your photos to set a profile picture."
+          "photosPermission": "GripLog uses your photos for your profile picture and the photos you add to workouts.",
+          "cameraPermission": "GripLog uses the camera when you take a photo for a workout."
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false
         }
       ]
     ],

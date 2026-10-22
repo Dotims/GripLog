@@ -15,6 +15,7 @@ import Animated, {
 import { AppText, DurationInput, NumberInput, OptionsSheet, SwipeToDelete } from "@/components/ui";
 import { Colors, Radii } from "@/constants/theme";
 import type { PreviousSet } from "@/features/exercises/repository";
+import { playSound } from "@/lib/sounds";
 
 import { columnsFor, formatPrevious, type SetColumn } from "./columns";
 import type { DraftSet } from "./store";
@@ -105,6 +106,7 @@ export function SetRow({
   const onCheck = () => {
     if (!set.completed) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      playSound("tick");
       checkScale.set(
         withSequence(
           withTiming(0.82, { duration: 80 }),

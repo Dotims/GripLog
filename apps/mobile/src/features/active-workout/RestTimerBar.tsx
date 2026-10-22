@@ -14,6 +14,7 @@ import Animated, {
 import { AppText } from "@/components/ui";
 import { Colors, Radii, Spacing } from "@/constants/theme";
 import { useNow } from "@/lib/use-now";
+import { playSound } from "@/lib/sounds";
 
 import { useActiveWorkout } from "./use-active-workout";
 
@@ -41,6 +42,7 @@ export function RestTimerBar({ bottomInset }: { bottomInset: number }) {
   useEffect(() => {
     if (!finished) return;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    playSound("rest");
     skipRest();
   }, [finished, skipRest]);
 

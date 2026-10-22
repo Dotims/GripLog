@@ -1,8 +1,9 @@
 import { formatDuration, formatNumber, toDisplayWeight, weeklyBuckets } from "@griplog/core";
 import { useRouter } from "expo-router";
-import { Camera, Settings, Upload } from "lucide-react-native";
+import { Camera, ChevronRight, Settings, Upload } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BarChart } from "@/components/charts/BarChart";
 import {
@@ -11,20 +12,27 @@ import {
   Card,
   IconButton,
   Screen,
-  ScreenHeader,
   SectionLabel,
   SegmentedControl,
   Stat,
 } from "@/components/ui";
 import { Colors, Spacing } from "@/constants/theme";
 import { useDatabase } from "@/db/DatabaseProvider";
+import { workoutPhotos, workouts as workoutsTable } from "@/db/schema";
+import { useLiveQuery } from "@/db/use-live-query";
+import { useLiftGoal } from "@/features/goals/hooks";
+import { LiftGoalCard, NoLiftGoalCard } from "@/features/goals/LiftGoalCard";
+import { musclesWorked } from "@/features/muscles/muscles";
 import { Avatar } from "@/features/profile/Avatar";
 import { initials, pickAvatar } from "@/features/profile/avatar";
+import { ProfileCover } from "@/features/profile/ProfileCover";
 import { useProfile } from "@/features/profile/hooks";
 import { usePreferences } from "@/features/profile/PreferencesProvider";
 import { updateProfile } from "@/features/profile/repository";
 import { useWorkouts } from "@/features/workouts/hooks";
+import { recentPhotosQuery } from "@/features/workouts/photos";
 import { summariseWorkout } from "@/features/workouts/summary";
+import { WorkoutThumb } from "@/features/workouts/WorkoutThumb";
 import { formatRelativeDay, formatShortDate } from "@/lib/dates";
 
 type Metric = "volume" | "workouts" | "duration";
@@ -37,13 +45,18 @@ const METRICS = [
 
 const CHART_WEEKS = 12;
 const RECENT = 8;
+const COVER_HEIGHT = 170;
+const AVATAR = 92;
 
 export default function ProfileScreen() {
   const router = useRouter();
   const db = useDatabase();
+  const { top } = useSafeAreaInsets();
   const profile = useProfile();
   const { unit } = usePreferences();
   const workouts = useWorkouts();
+  const goal = useLiftGoal();
+  const photos = useLiveQuery(() => recentPhotosQuery(db, 3).all(), [workoutPhotos, workoutsTable]);
   const [metric, setMetric] = useState<Metric>("volume");
 
   const summaries = workouts.map((workout) => ({ workout, summary: summariseWorkout(workout) }));
@@ -73,41 +86,51 @@ export default function ProfileScreen() {
   };
 
   return (
-    <Screen scroll>
-      <ScreenHeader
-        eyebrow="Profile"
-        title={name}
-        right={
-          <IconButton icon={Settings} label="Settings" onPress={() => router.push("/settings")} />
-        }
-      />
+    <Screen scroll edges={[]}>
+      <View style={styles.coverBleed}>
+        <ProfileCover
+          height={COVER_HEIGHT + top}
+          topInset={top}
+          photos={photos ?? []}
+          startedAt={workouts.map((w) => w.startedAt)}
+          onOpenWorkout={(id) => router.push(`/workouts/${id}`)}
+          actions={
+            <IconButton icon={Settings} label="Settings" onPress={() => router.push("/settings")} />
+          }
+        />
+      </View>
 
       <View style={styles.identity}>
         <Pressable
           onPress={changeAvatar}
           accessibilityRole="button"
           accessibilityLabel="Change profile photo"
+          style={styles.avatarRing}
         >
           <Avatar
             uri={profile?.avatarUri ?? null}
             initials={initials(firstName, lastName)}
-            size={84}
+            size={AVATAR}
           />
           <View style={styles.camera}>
             <Camera color={Colors.text} size={13} strokeWidth={2} />
           </View>
         </Pressable>
-        <View style={styles.bio}>
-          <AppText color={profile?.bio ? Colors.text : Colors.muted} numberOfLines={3}>
-            {profile?.bio || "Add a short bio and your name in settings."}
-          </AppText>
-          <Button
-            label="Edit profile"
-            size="sm"
-            variant="secondary"
-            onPress={() => router.push("/settings")}
-          />
-        </View>
+        <Button
+          label="Edit profile"
+          size="sm"
+          variant="secondary"
+          onPress={() => router.push("/settings")}
+        />
+      </View>
+
+      <View style={styles.bio}>
+        <AppText variant="display" numberOfLines={1} adjustsFontSizeToFit>
+          {name}
+        </AppText>
+        <AppText color={profile?.bio ? Colors.text : Colors.muted} numberOfLines={3}>
+          {profile?.bio || "Add a short bio and your name in settings."}
+        </AppText>
       </View>
 
       <Card style={styles.totals}>
@@ -115,6 +138,23 @@ export default function ProfileScreen() {
         <Stat label="Hours" value={formatNumber(totals.seconds / 3600, 0)} />
         <Stat label="Records" value={String(totals.records)} />
       </Card>
+
+      <SectionLabel
+        right={
+          <Pressable onPress={() => router.push("/goals")} hitSlop={8} accessibilityRole="link">
+            <AppText variant="label" color={Colors.accent}>
+              Goals
+            </AppText>
+          </Pressable>
+        }
+      >
+        Chasing
+      </SectionLabel>
+      {goal ? (
+        <LiftGoalCard goal={goal} unit={unit} onPress={() => router.push("/goals")} />
+      ) : (
+        <NoLiftGoalCard onPress={() => router.push("/goals")} />
+      )}
 
       <SectionLabel>Last 12 weeks</SectionLabel>
       <Card style={styles.chartCard}>
@@ -162,12 +202,24 @@ export default function ProfileScreen() {
             <Pressable
               key={workout.id}
               onPress={() => router.push(`/workouts/${workout.id}`)}
+              accessibilityRole="button"
+              accessibilityLabel={`${workout.title}, ${formatRelativeDay(workout.startedAt)}`}
               style={({ pressed }) => [
                 styles.row,
                 index > 0 && styles.divider,
                 pressed && styles.pressed,
               ]}
             >
+              <WorkoutThumb
+                photoUri={workout.photos[0]?.uri}
+                muscles={musclesWorked(
+                  workout.exercises.map((e) => ({
+                    primaryMuscles: e.exercise.primaryMuscles,
+                    secondaryMuscles: e.exercise.secondaryMuscles,
+                    sets: e.sets.length,
+                  })),
+                )}
+              />
               <View style={styles.flex}>
                 <AppText variant="bold" numberOfLines={1}>
                   {workout.title}
@@ -175,10 +227,11 @@ export default function ProfileScreen() {
                 <AppText variant="label" color={Colors.muted}>
                   {formatRelativeDay(workout.startedAt)} · {formatDuration(summary.durationSeconds)}
                 </AppText>
+                <AppText variant="mono" color={Colors.muted}>
+                  {formatNumber(toDisplayWeight(summary.volumeKg, unit), 0)} {unit}
+                </AppText>
               </View>
-              <AppText variant="mono" color={Colors.muted}>
-                {formatNumber(toDisplayWeight(summary.volumeKg, unit), 0)} {unit}
-              </AppText>
+              <ChevronRight color={Colors.faint} size={18} strokeWidth={2} />
             </Pressable>
           ))}
         </Card>
@@ -188,15 +241,26 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
+  // The cover runs edge to edge and under the status bar.
+  coverBleed: {
+    marginTop: -Spacing.lg,
+    marginHorizontal: -Spacing.lg,
+  },
   identity: {
     flexDirection: "row",
-    gap: Spacing.lg,
-    alignItems: "center",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+    marginTop: -AVATAR / 2 - Spacing.xl,
+  },
+  avatarRing: {
+    padding: 4,
+    borderRadius: 999,
+    backgroundColor: Colors.background,
   },
   camera: {
     position: "absolute",
-    right: -2,
-    bottom: -2,
+    right: 2,
+    bottom: 2,
     padding: 6,
     backgroundColor: Colors.surfaceAlt,
     borderWidth: 3,
@@ -204,9 +268,8 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   bio: {
-    flex: 1,
-    gap: Spacing.sm,
-    alignItems: "flex-start",
+    gap: 4,
+    marginTop: -Spacing.sm,
   },
   totals: {
     flexDirection: "row",

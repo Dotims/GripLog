@@ -1,4 +1,4 @@
-import { formatNumber, toDisplayWeight, weekStreak, weeklyBuckets } from "@griplog/core";
+import { formatNumber, toDisplayWeight, weeklyBuckets } from "@griplog/core";
 import { useRouter } from "expo-router";
 import { Dumbbell, Play, Settings, Upload, UserPlus } from "lucide-react-native";
 import { useState, type ReactElement } from "react";
@@ -21,6 +21,8 @@ import {
 import { Colors, Spacing } from "@/constants/theme";
 import { useActiveWorkout } from "@/features/active-workout/use-active-workout";
 import { useStartWorkout } from "@/features/active-workout/use-start-workout";
+import { useWeeklyGoal } from "@/features/goals/hooks";
+import { WeekCard } from "@/features/goals/WeekCard";
 import { useProfile } from "@/features/profile/hooks";
 import { usePreferences } from "@/features/profile/PreferencesProvider";
 import { FollowingFeed } from "@/features/social/FollowingFeed";
@@ -99,7 +101,8 @@ function MyFeed({ header }: { header: ReactElement }) {
     CHART_WEEKS,
   );
   const thisWeek = weeks.at(-1);
-  const streak = weekStreak(workouts.map((w) => w.startedAt));
+  const average = weeks.reduce((sum, week) => sum + week.volumeKg, 0) / weeks.length;
+  const goal = useWeeklyGoal(workouts.map((w) => w.startedAt));
 
   return (
     <FlatList
@@ -113,22 +116,23 @@ function MyFeed({ header }: { header: ReactElement }) {
         <View style={styles.header}>
           {header}
 
+          <WeekCard goal={goal} onPress={() => router.push("/goals")} />
+
           <Card style={styles.week}>
             <AppText variant="caption" color={Colors.muted}>
-              Last 8 weeks
+              Volume, last 8 weeks
             </AppText>
             <View style={styles.weekStats}>
               <Stat
                 label="This week"
-                value={String(thisWeek?.workouts ?? 0)}
-                unit={thisWeek?.workouts === 1 ? "workout" : "workouts"}
-              />
-              <Stat
-                label="Volume"
                 value={formatNumber(toDisplayWeight(thisWeek?.volumeKg ?? 0, unit), 0)}
                 unit={unit}
               />
-              <Stat label="Streak" value={String(streak)} unit={streak === 1 ? "week" : "weeks"} />
+              <Stat
+                label="Weekly average"
+                value={formatNumber(toDisplayWeight(average, unit), 0)}
+                unit={unit}
+              />
             </View>
             <BarChart
               height={96}

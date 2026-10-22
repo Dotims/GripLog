@@ -10,7 +10,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ClipboardPlus, Repeat, Trash2, Trophy } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { AppText, Button, Card, Screen, Stat } from "@/components/ui";
+import { AppText, Button, Card, Screen, SectionLabel, Stat } from "@/components/ui";
 import { Colors, Radii, Spacing, supersetColor } from "@/constants/theme";
 import { useDatabase } from "@/db/DatabaseProvider";
 import { toRoutineInput } from "@/features/active-workout/draft";
@@ -18,12 +18,16 @@ import { SupersetBadge } from "@/features/active-workout/SupersetBadge";
 import { supersetLetters } from "@/features/active-workout/supersets";
 import { useStartWorkout } from "@/features/active-workout/use-start-workout";
 import { ExerciseImage } from "@/features/exercises/ExerciseImage";
+import { MuscleMap } from "@/features/muscles/MuscleMap";
+import { musclesWorked } from "@/features/muscles/muscles";
 import { usePreferences } from "@/features/profile/PreferencesProvider";
 import { saveRoutine } from "@/features/routines/repository";
 import { formatSetValue } from "@/features/workouts/format-set";
 import { useWorkout } from "@/features/workouts/hooks";
+import { discardPhotoFiles } from "@/features/workouts/photos";
 import { deleteWorkout } from "@/features/workouts/repository";
 import { summariseWorkout } from "@/features/workouts/summary";
+import { WorkoutPhotos } from "@/features/workouts/WorkoutPhotos";
 import { formatRelativeDay, formatTime } from "@/lib/dates";
 import { confirm, notify } from "@/lib/dialog";
 
@@ -48,6 +52,13 @@ export default function WorkoutDetailScreen() {
   const summary = summariseWorkout(workout);
   const letters = supersetLetters(workout.exercises);
   const recordSets = new Set(workout.records.map((r) => r.setId));
+  const muscles = musclesWorked(
+    workout.exercises.map((e) => ({
+      primaryMuscles: e.exercise.primaryMuscles,
+      secondaryMuscles: e.exercise.secondaryMuscles,
+      sets: e.sets.length,
+    })),
+  );
 
   const saveAsRoutine = () => {
     saveRoutine(
@@ -73,7 +84,7 @@ export default function WorkoutDetailScreen() {
       confirmLabel: "Delete",
       destructive: true,
       onConfirm: () => {
-        deleteWorkout(db, workout.id);
+        discardPhotoFiles(deleteWorkout(db, workout.id));
         router.back();
       },
     });
@@ -98,6 +109,18 @@ export default function WorkoutDetailScreen() {
         />
         <Stat label="Records" value={String(summary.records)} />
       </Card>
+
+      {muscles.length > 0 ? (
+        <Card style={styles.muscles}>
+          <MuscleMap muscles={muscles} height={150} />
+          <AppText variant="label" color={Colors.muted} align="center">
+            Main work in red, helpers in a lighter shade
+          </AppText>
+        </Card>
+      ) : null}
+
+      <SectionLabel>Photos</SectionLabel>
+      <WorkoutPhotos workoutId={workout.id} />
 
       {workout.exercises.map((block) => {
         const numbers = setNumbers(block.sets);
@@ -183,6 +206,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: Spacing.lg,
     gap: Spacing.md,
+  },
+  muscles: {
+    paddingVertical: Spacing.lg,
+    gap: Spacing.sm,
   },
   block: {
     overflow: "hidden",

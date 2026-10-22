@@ -23,6 +23,10 @@ export type ProfilePatch = Partial<{
   avatarUri: string | null;
   unit: WeightUnit;
   defaultRestSeconds: number;
+  weeklyGoal: number;
+  goalExerciseId: string | null;
+  goalWeightKg: number | null;
+  soundsEnabled: boolean;
 }>;
 
 /** Name and bio sync to the account; the avatar and preferences stay on the device. */

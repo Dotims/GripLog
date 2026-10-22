@@ -81,6 +81,7 @@ function RootStack() {
       <Stack.Screen name="import" options={{ presentation: "modal" }} />
       <Stack.Screen name="account" options={{ ...detailHeader, headerTitle: "Account" }} />
       <Stack.Screen name="people" options={{ ...detailHeader, headerTitle: "Find friends" }} />
+      <Stack.Screen name="goals" options={{ ...detailHeader, headerTitle: "Goals" }} />
     </Stack>
   );
 }

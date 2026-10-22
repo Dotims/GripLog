@@ -1,9 +1,9 @@
 import { formatClock, type WeightUnit } from "@griplog/core";
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
-import { Cloud, Minus, Plus, Upload } from "lucide-react-native";
+import { Cloud, Minus, Plus, Target, Upload } from "lucide-react-native";
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Switch, View } from "react-native";
 
 import {
   AppText,
@@ -32,7 +32,14 @@ export default function SettingsScreen() {
   const router = useRouter();
   const db = useDatabase();
   const profile = useProfile();
-  const { unit, setUnit, defaultRestSeconds, setDefaultRestSeconds } = usePreferences();
+  const {
+    unit,
+    setUnit,
+    defaultRestSeconds,
+    setDefaultRestSeconds,
+    soundsEnabled,
+    setSoundsEnabled,
+  } = usePreferences();
   const [firstName, setFirstName] = useState(profile?.firstName ?? "");
   const [lastName, setLastName] = useState(profile?.lastName ?? "");
   const [bio, setBio] = useState(profile?.bio ?? "");
@@ -103,6 +110,32 @@ export default function SettingsScreen() {
         />
       </Card>
 
+      <SectionLabel>Sounds</SectionLabel>
+      <Card style={styles.toggle}>
+        <View style={styles.flex}>
+          <AppText variant="bold">Sound effects</AppText>
+          <AppText variant="label" color={Colors.muted}>
+            A tick for each set, a chime when rest is over, a fanfare for records. Quiet when the
+            phone is on silent.
+          </AppText>
+        </View>
+        <Switch
+          value={soundsEnabled}
+          onValueChange={setSoundsEnabled}
+          trackColor={{ false: Colors.surfaceAlt, true: Colors.accent }}
+          thumbColor={Colors.text}
+          accessibilityLabel="Sound effects"
+        />
+      </Card>
+
+      <SectionLabel>Goals</SectionLabel>
+      <Button
+        label="Weekly goal and lift goal"
+        icon={Target}
+        variant="secondary"
+        onPress={() => router.push("/goals")}
+      />
+
       <SectionLabel>Account</SectionLabel>
       <Button
         label="Account and sync"
@@ -139,6 +172,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     padding: Spacing.md,
+  },
+  toggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+    padding: Spacing.lg,
   },
   version: {
     marginTop: Spacing.xl,

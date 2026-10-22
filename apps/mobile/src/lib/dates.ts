@@ -43,3 +43,15 @@ export function workoutTitleForNow(now: Date = new Date()): string {
 export function durationSeconds(startIso: string, endIso: string): number {
   return Math.max(0, (new Date(endIso).getTime() - new Date(startIso).getTime()) / 1000);
 }
+
+/** "in about 3 weeks · Nov 2026" for a forecast; days under two weeks are named as days. */
+export function formatForecast(date: Date, now: Date = new Date()): string {
+  const days = Math.max(1, Math.round((startOfDay(date) - startOfDay(now)) / DAY_MS));
+  const span =
+    days < 14
+      ? `${days} ${days === 1 ? "day" : "days"}`
+      : days < 70
+        ? `${Math.round(days / 7)} weeks`
+        : `${Math.round(days / 30.4)} months`;
+  return `in about ${span} · ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+}

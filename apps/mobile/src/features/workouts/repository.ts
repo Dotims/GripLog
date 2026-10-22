@@ -2,7 +2,7 @@ import { findNewRecords, mergeBests, type ExerciseBests, type SetType } from "@g
 import { and, asc, count, desc, eq, inArray, isNull } from "drizzle-orm";
 
 import { newId, nowIso } from "@/db/ids";
-import { personalRecords, sets, workoutExercises, workouts } from "@/db/schema";
+import { personalRecords, sets, workoutExercises, workoutPhotos, workouts } from "@/db/schema";
 import type { Db } from "@/db/types";
 import { enqueueChange } from "@/features/sync/outbox";
 
@@ -184,10 +184,20 @@ export function saveWorkout(db: Db, input: WorkoutInput) {
   });
 }
 
-/** Soft delete: the row stays as a tombstone so the deletion can sync. */
-export function deleteWorkout(db: Db, workoutId: string): void {
+/**
+ * Soft delete: the row stays as a tombstone so the deletion can sync. Its
+ * photos never sync, so they go for good; returns their files to remove.
+ */
+export function deleteWorkout(db: Db, workoutId: string): string[] {
   const timestamp = nowIso();
-  db.transaction((tx) => {
+  return db.transaction((tx) => {
+    const photos = tx
+      .select({ uri: workoutPhotos.uri })
+      .from(workoutPhotos)
+      .where(eq(workoutPhotos.workoutId, workoutId))
+      .all()
+      .map((row) => row.uri);
+    tx.delete(workoutPhotos).where(eq(workoutPhotos.workoutId, workoutId)).run();
     tx.update(workouts)
       .set({ deletedAt: timestamp, updatedAt: timestamp })
       .where(eq(workouts.id, workoutId))
@@ -200,6 +210,7 @@ export function deleteWorkout(db: Db, workoutId: string): void {
       .map((row) => row.exerciseId);
     rebuildRecords(tx, exerciseIds);
     enqueueChange(tx, "workout", workoutId);
+    return photos;
   });
 }
 
@@ -212,11 +223,19 @@ export function workoutListQuery(db: Db, limit?: number) {
         orderBy: asc(workoutExercises.position),
         columns: { id: true, exerciseId: true },
         with: {
-          exercise: { columns: { name: true, trackingType: true } },
+          exercise: {
+            columns: {
+              name: true,
+              trackingType: true,
+              primaryMuscles: true,
+              secondaryMuscles: true,
+            },
+          },
           sets: { columns: { type: true, weightKg: true, reps: true } },
         },
       },
       records: { columns: { id: true } },
+      photos: { columns: { uri: true }, orderBy: asc(workoutPhotos.position), limit: 1 },
     },
     ...(limit ? { limit } : {}),
   });

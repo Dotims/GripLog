@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 
-import { personalRecords, sets, syncOutbox, workouts } from "@/db/schema";
+import { personalRecords, sets, syncOutbox, workoutPhotos, workouts } from "@/db/schema";
 import type { Db } from "@/db/types";
 import { createTestDb } from "@/test/test-db";
 import { insertExercise, workoutInput } from "@/test/factories";
@@ -78,6 +78,37 @@ describe("saveWorkout", () => {
     expect(
       db.select().from(workouts).where(eq(workouts.id, newer.id)).get()?.deletedAt,
     ).not.toBeNull();
+  });
+
+  it("drops a deleted workout's photos and hands back their files", () => {
+    const input = workoutInput("2026-10-01T10:00:00.000Z", [
+      { exerciseId: "bench", sets: [[80, 8]] },
+    ]);
+    saveWorkout(db, input);
+    db.insert(workoutPhotos)
+      .values({
+        id: "photo",
+        workoutId: input.id,
+        uri: "file:///photo.jpg",
+        createdAt: "2026-10-01T11:00:00.000Z",
+      })
+      .run();
+
+    expect(deleteWorkout(db, input.id)).toEqual(["file:///photo.jpg"]);
+    expect(db.select().from(workoutPhotos).all()).toEqual([]);
+  });
+
+  it("keeps photos when a workout is edited", () => {
+    const input = workoutInput("2026-10-01T10:00:00.000Z", [
+      { exerciseId: "bench", sets: [[80, 8]] },
+    ]);
+    saveWorkout(db, input);
+    db.insert(workoutPhotos)
+      .values({ id: "photo", workoutId: input.id, uri: "file:///p.jpg", createdAt: "x" })
+      .run();
+    saveWorkout(db, { ...input, title: "Renamed" });
+
+    expect(db.select().from(workoutPhotos).all()).toHaveLength(1);
   });
 
   it("replaces sets when an existing workout is edited", () => {
