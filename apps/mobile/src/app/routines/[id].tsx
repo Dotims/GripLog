@@ -109,7 +109,7 @@ export default function RoutineDetailScreen() {
           <View style={styles.flex}>
             <AppText variant="heading">{exercise.exercise.name}</AppText>
             <AppText variant="label" color={Colors.muted}>
-              {exercise.sets.length} sets ·{" "}
+              {exercise.sets.length} {exercise.sets.length === 1 ? "set" : "sets"} ·{" "}
               {restsAfter(routine.exercises, exercise.id)
                 ? `rest ${formatClock(exercise.restSeconds ?? defaultRestSeconds)}`
                 : "no rest, straight to the next"}
