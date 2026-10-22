@@ -12,7 +12,7 @@
 ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-ff3b47.svg)](LICENSE)
 
-<img src="docs/media/demo.gif" width="320" alt="GripLog on Android with a real training history: the feed, an animated exercise demo, building a routine with a rep range and a superset, logging it with the rest timer, and the summary with new personal records" />
+<img src="docs/media/demo.gif" width="360" alt="GripLog on Android with a real training history: the feed, friends' workouts, following a friend, building a routine with a rep range, swiping a set away, and logging the routine with the rest timer" />
 
 </div>
 
@@ -20,7 +20,7 @@
 
 GripLog is the app I actually log my gym sessions in. It started as a Hevy replacement and grew into a full stack project: a React Native app that works with zero signal on the gym floor, a Postgres backed API that syncs it, a GraphQL feed for training with friends, a web dashboard for progress charts, and an MCP server that lets an assistant like Claude review your training using numbers computed by tested code instead of guesses.
 
-My own history (144 workouts and 2 600+ sets exported from Hevy) imports in about a second, and the recording and screenshots show that real data: the feed, an exercise demo, a new routine with a rep range and a superset, a session logged from it and the records it set. Both were captured from the app running in Expo Go on an Android emulator.
+My own history (144 workouts and 2 600+ sets exported from Hevy) imports in about a second, and the recording and screenshots show that real data: your feed and your friends' workouts, following someone new, a routine built with a rep range, a set swiped away and a session logged from the routine. Both were captured from the app running in Expo Go on an Android emulator, with demo friends from a local API.
 
 The interface is dark and quiet on purpose: you look at it between sets, often in a dim gym. Colour carries meaning only: red for actions and progress, green for completed sets, gold for personal records, and one colour per superset. Type is Onest in four weights with tabular figures, so timers and weights never jitter. Motion is Reanimated on the UI thread: spring press feedback, a sliding segmented control, sheets that rise and settle, a set that washes green when ticked, a rest line that drains continuously and a summary that counts its numbers up.
 
@@ -32,11 +32,11 @@ The interface is dark and quiet on purpose: you look at it between sets, often i
 
 **In the gym (fully offline)**
 
-- Log sets with weight, reps and RPE, as normal, warm-up, drop or failure sets. Exercises without a load take reps only, timed ones (plank, carries) take a stopwatch-style time, cardio takes distance and time. Swipe a set to delete it.
+- Log sets with weight, reps and RPE, as normal, warm-up, drop or failure sets. Exercises without a load take reps only, timed ones (plank, carries) take a stopwatch-style time, cardio takes distance and time. A short swipe on a set reveals delete; a long one deletes it straight away.
 - The "previous" column shows what you lifted last time; ticking an empty set fills it in.
 - Rest timer that survives the app being killed and buzzes the locked phone with a local notification.
 - 400+ exercises, each with an animated 3D demo of the movement with the working muscles highlighted, plus search, muscle filters, your own custom exercises and the lifts you have logged before. The library is sorted by how often you do each lift.
-- Routines with targets per set: a fixed weight and reps, a rep range like 8-12, or a time. A range is the hint you aim for while logging.
+- Routines, built on their own page, with targets per set: a fixed weight and reps, a rep range like 8-12, or a time. A range is the hint you aim for while logging. A new exercise starts with one set; more are a tap away.
 - Supersets: link neighbouring exercises in a routine or mid-workout; the rest timer waits until the last exercise of each round.
 - "Repeat this workout" and "save as routine".
 - Personal records (heaviest weight, estimated 1RM, best set volume, most reps) recomputed on every save, edit and delete.
@@ -46,7 +46,7 @@ The interface is dark and quiet on purpose: you look at it between sets, often i
 **With an account**
 
 - Background sync across devices. The phone stays the source of truth while you train.
-- Follow friends, see their workouts in a feed and like them.
+- Find friends by name or from suggestions (the most active people you do not follow yet), follow them, see their workouts in the Friends feed and like them.
 - A web dashboard with the feed and progress charts for every exercise.
 - An MCP server, so Claude (or any MCP client) can answer "how is my bench going?" from your actual history.
 
@@ -156,6 +156,7 @@ npm install
 docker compose up -d                      # Postgres on localhost:5440
 cp apps/api/.env.example apps/api/.env    # set BETTER_AUTH_SECRET
 npm run dev -w @griplog/api               # API on http://localhost:3000
+npm run db:seed-demo -w @griplog/api      # optional: three demo friends with recent workouts
 ```
 
 **Mobile.** Install Expo Go (SDK 57) on your phone, then:

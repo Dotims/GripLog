@@ -35,4 +35,4 @@ appId: com.dotims.griplog
 - assertVisible: "Done."
 - tapOn:
     id: "summary-done"
-- assertVisible: "Your workouts · 1"
+- assertVisible: "1 total"
