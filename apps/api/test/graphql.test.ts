@@ -149,6 +149,25 @@ describe("GraphQL feed", () => {
     );
     expect(data.searchUsers.map((u) => u.name)).toEqual(["Ola Radecka"]);
   });
+
+  it("suggests people I do not follow yet, the most active first", async () => {
+    const me = await signUp("suggest@example.com", "Radek");
+    const busy = await signUp("busy@example.com", "Kuba");
+    const quiet = await signUp("quiet@example.com", "Ania");
+    const followed = await signUp("followed@example.com", "Ola");
+    await pushWorkouts(busy.headers, ["One", "Two"]);
+    await pushWorkouts(followed.headers, ["Three", "Four", "Five"]);
+    await gql(me.headers, `mutation($id: ID!) { follow(userId: $id) { id } }`, {
+      id: followed.userId,
+    });
+
+    const { data } = await gql<{ suggestedUsers: { id: string; name: string }[] }>(
+      me.headers,
+      `{ suggestedUsers { id name } }`,
+    );
+    expect(data.suggestedUsers.map((u) => u.name)).toEqual(["Kuba", "Ania"]);
+    expect(data.suggestedUsers[1]!.id).toBe(quiet.userId);
+  });
 });
 
 describe("GraphQL progress", () => {

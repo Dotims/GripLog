@@ -8,7 +8,21 @@ import {
   workingSetCount,
   type Suggestion,
 } from "@griplog/core";
-import { and, count, desc, eq, ilike, inArray, isNull, ne, or, sql, type SQL } from "drizzle-orm";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  getTableColumns,
+  ilike,
+  inArray,
+  isNull,
+  ne,
+  notInArray,
+  or,
+  sql,
+  type SQL,
+} from "drizzle-orm";
 
 import type { Database } from "../db/client";
 import type { sets, workoutExercises } from "../db/schema";
@@ -292,6 +306,30 @@ builder.queryType({
           args.first,
           args.after,
         );
+      },
+    }),
+    /** People you do not follow yet, the most active first. */
+    suggestedUsers: t.field({
+      type: [UserRef],
+      args: { first: t.arg.int() },
+      resolve: (_root, args, { db, viewer }) => {
+        const followees = db
+          .select({ id: follows.followeeId })
+          .from(follows)
+          .where(eq(follows.followerId, viewer.id));
+        const activity = db
+          .select({ userId: workouts.userId, total: count().as("total") })
+          .from(workouts)
+          .where(isNull(workouts.deletedAt))
+          .groupBy(workouts.userId)
+          .as("activity");
+        return db
+          .select(getTableColumns(user))
+          .from(user)
+          .leftJoin(activity, eq(activity.userId, user.id))
+          .where(and(ne(user.id, viewer.id), notInArray(user.id, followees)))
+          .orderBy(desc(sql`coalesce(${activity.total}, 0)`), user.name)
+          .limit(Math.min(Math.max(args.first ?? 10, 1), 20));
       },
     }),
     searchUsers: t.field({
