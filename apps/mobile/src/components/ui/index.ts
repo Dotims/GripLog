@@ -10,6 +10,7 @@ export { ScreenHeader } from "./ScreenHeader";
 export { SectionLabel } from "./SectionLabel";
 export { SegmentedControl } from "./SegmentedControl";
 export { Stat } from "./Stat";
+export { SwipeToDelete } from "./SwipeToDelete";
 export { TabIcon } from "./TabIcon";
 export { TextField } from "./TextField";
 export { KeyboardToolbar, KEYBOARD_TOOLBAR_ID } from "./KeyboardToolbar";

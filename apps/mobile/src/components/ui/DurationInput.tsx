@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Platform, TextInput, type StyleProp, type TextStyle } from "react-native";
+import { Platform, type StyleProp, type TextStyle } from "react-native";
 
 import { Colors } from "@/constants/theme";
 
 import { KEYBOARD_TOOLBAR_ID } from "./KeyboardToolbar";
+import { RowInput } from "./RowInput";
 import { fieldStyles } from "./NumberInput";
 
 type DurationInputProps = {
@@ -49,7 +50,7 @@ export function DurationInput({
   }
 
   return (
-    <TextInput
+    <RowInput
       testID={testID}
       accessibilityLabel={accessibilityLabel}
       value={toText(digits)}

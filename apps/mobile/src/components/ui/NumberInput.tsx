@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Platform, StyleSheet, TextInput, type StyleProp, type TextStyle } from "react-native";
+import { Platform, StyleSheet, type StyleProp, type TextStyle } from "react-native";
 
 import { Colors, Fonts, Radii, tabular } from "@/constants/theme";
 
 import { KEYBOARD_TOOLBAR_ID } from "./KeyboardToolbar";
+import { RowInput } from "./RowInput";
 
 type NumberInputProps = {
   value: number | null;
@@ -42,7 +43,7 @@ export function NumberInput({
   }
 
   return (
-    <TextInput
+    <RowInput
       testID={testID}
       accessibilityLabel={accessibilityLabel}
       value={text}

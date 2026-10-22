@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { MoreHorizontal, Timer } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
-import Animated, { FadeOut } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { useShallow } from "zustand/react/shallow";
 
 import { AppText, Card, OptionsSheet } from "@/components/ui";
@@ -140,7 +140,7 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
       </View>
 
       {exercise.sets.map((set, index) => (
-        <Animated.View key={set.id} exiting={FadeOut}>
+        <Animated.View key={set.id} entering={FadeIn.duration(220)}>
           <SetRow
             exerciseId={exerciseId}
             setId={set.id}

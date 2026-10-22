@@ -1,9 +1,8 @@
 import { formatClock, setLabel, setNumbers, type WeightUnit } from "@griplog/core";
-import { MoreHorizontal, Timer, Trash2 } from "lucide-react-native";
+import { MoreHorizontal, Timer } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
-import Animated, { FadeOut } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { useShallow } from "zustand/react/shallow";
 
 import {
@@ -13,6 +12,7 @@ import {
   NumberInput,
   OptionsSheet,
   RepRangeInput,
+  SwipeToDelete,
 } from "@/components/ui";
 import { Colors, Radii, Spacing, supersetColor } from "@/constants/theme";
 import { columnsFor, type SetColumn } from "@/features/active-workout/columns";
@@ -123,21 +123,10 @@ export function RoutineExerciseCard({
       </View>
 
       {exercise.sets.map((set, index) => (
-        <Animated.View key={set.id} exiting={FadeOut}>
-          <ReanimatedSwipeable
-            friction={2}
-            rightThreshold={40}
-            overshootRight={false}
-            renderRightActions={() => (
-              <Pressable
-                onPress={() => actions.removeSet(exerciseId, set.id)}
-                style={styles.delete}
-                accessibilityRole="button"
-                accessibilityLabel="Delete set"
-              >
-                <Trash2 color={Colors.accentInk} size={18} strokeWidth={2} />
-              </Pressable>
-            )}
+        <Animated.View key={set.id} entering={FadeIn.duration(220)}>
+          <SwipeToDelete
+            onDelete={() => actions.removeSet(exerciseId, set.id)}
+            accessibilityLabel="Delete set"
           >
             <View style={styles.setRow}>
               <Pressable
@@ -160,7 +149,7 @@ export function RoutineExerciseCard({
                 />
               ))}
             </View>
-          </ReanimatedSwipeable>
+          </SwipeToDelete>
         </Animated.View>
       ))}
 
@@ -369,12 +358,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: Radii.sm,
     borderCurve: "continuous",
-  },
-  delete: {
-    width: 76,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.error,
   },
   addSetLabel: {
     alignSelf: "stretch",

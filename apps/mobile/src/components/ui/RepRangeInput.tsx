@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Platform, TextInput, type StyleProp, type TextStyle } from "react-native";
+import { Platform, type StyleProp, type TextStyle } from "react-native";
 
 import { Colors } from "@/constants/theme";
 
 import { KEYBOARD_TOOLBAR_ID } from "./KeyboardToolbar";
+import { RowInput } from "./RowInput";
 import { fieldStyles } from "./NumberInput";
 
 export type RepRange = { reps: number | null; repsMax: number | null };
@@ -45,7 +46,7 @@ export function RepRangeInput({
   }
 
   return (
-    <TextInput
+    <RowInput
       accessibilityLabel={accessibilityLabel}
       value={text}
       placeholder={placeholder}

@@ -1,9 +1,8 @@
 import { formatClock, setLabel, type TrackingType, type WeightUnit } from "@griplog/core";
 import * as Haptics from "expo-haptics";
-import { Check, Trash2 } from "lucide-react-native";
+import { Check } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet } from "react-native";
-import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -13,7 +12,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { AppText, DurationInput, NumberInput, OptionsSheet } from "@/components/ui";
+import { AppText, DurationInput, NumberInput, OptionsSheet, SwipeToDelete } from "@/components/ui";
 import { Colors, Radii } from "@/constants/theme";
 import type { PreviousSet } from "@/features/exercises/repository";
 
@@ -117,91 +116,79 @@ export function SetRow({
   };
 
   return (
-    <ReanimatedSwipeable
-      friction={2}
-      rightThreshold={40}
-      overshootRight={false}
-      renderRightActions={() => (
-        <Pressable
-          onPress={() => removeSet(exerciseId, setId)}
-          style={styles.delete}
-          accessibilityRole="button"
-          accessibilityLabel="Delete set"
-        >
-          <Trash2 color={Colors.accentInk} size={18} strokeWidth={2} />
-        </Pressable>
-      )}
-    >
-      <Animated.View style={[styles.row, rowStyle]} testID={`set-row-${setId}`}>
-        <Pressable
-          onPress={() => setMenu("type")}
-          accessibilityRole="button"
-          accessibilityLabel={`Set ${setLabel(set.type, workingIndex)} options`}
-          hitSlop={4}
-          style={[styles.label, { backgroundColor: typeStyle.background }]}
-        >
-          <AppText variant="bold" color={typeStyle.ink} style={styles.labelText}>
-            {setLabel(set.type, workingIndex)}
-          </AppText>
-        </Pressable>
-
-        <Pressable
-          onPress={fillFromPrevious}
-          style={styles.previous}
-          accessibilityLabel="Use previous values"
-        >
-          <AppText variant="mono" color={Colors.muted} numberOfLines={1}>
-            {formatPrevious(previous, trackingType, unit)}
-          </AppText>
-          {set.rpe !== null ? (
-            <AppText variant="label" color={Colors.accent}>
-              @{set.rpe}
+    <>
+      <SwipeToDelete onDelete={() => removeSet(exerciseId, setId)} accessibilityLabel="Delete set">
+        <Animated.View style={[styles.row, rowStyle]} testID={`set-row-${setId}`}>
+          <Pressable
+            onPress={() => setMenu("type")}
+            accessibilityRole="button"
+            accessibilityLabel={`Set ${setLabel(set.type, workingIndex)} options`}
+            hitSlop={4}
+            style={[styles.label, { backgroundColor: typeStyle.background }]}
+          >
+            <AppText variant="bold" color={typeStyle.ink} style={styles.labelText}>
+              {setLabel(set.type, workingIndex)}
             </AppText>
-          ) : null}
-        </Pressable>
+          </Pressable>
 
-        {columns.map((column) =>
-          column.kind === "duration" ? (
-            <DurationInput
-              key={column.key}
-              value={column.read(set)}
-              onChange={(value) => updateSet(exerciseId, setId, column.write(value))}
-              placeholder={hintFor(column, set, previous)}
-              accessibilityLabel={column.label}
-              testID={`input-${column.key}-${setId}`}
-              style={[styles.input, set.completed && styles.inputCompleted]}
-            />
-          ) : (
-            <NumberInput
-              key={column.key}
-              value={column.read(set)}
-              onChange={(value) => updateSet(exerciseId, setId, column.write(value))}
-              placeholder={hintFor(column, set, previous)}
-              decimals={column.decimals}
-              accessibilityLabel={column.label}
-              testID={`input-${column.key}-${setId}`}
-              style={[styles.input, set.completed && styles.inputCompleted]}
-            />
-          ),
-        )}
+          <Pressable
+            onPress={fillFromPrevious}
+            style={styles.previous}
+            accessibilityLabel="Use previous values"
+          >
+            <AppText variant="mono" color={Colors.muted} numberOfLines={1}>
+              {formatPrevious(previous, trackingType, unit)}
+            </AppText>
+            {set.rpe !== null ? (
+              <AppText variant="label" color={Colors.accent}>
+                @{set.rpe}
+              </AppText>
+            ) : null}
+          </Pressable>
 
-        <Pressable
-          onPress={onCheck}
-          accessibilityRole="checkbox"
-          accessibilityState={{ checked: set.completed }}
-          accessibilityLabel="Complete set"
-          testID={`complete-${setId}`}
-          hitSlop={6}
-        >
-          <Animated.View style={[styles.check, checkStyle]}>
-            <Check
-              color={set.completed ? Colors.background : Colors.faint}
-              size={18}
-              strokeWidth={3.5}
-            />
-          </Animated.View>
-        </Pressable>
-      </Animated.View>
+          {columns.map((column) =>
+            column.kind === "duration" ? (
+              <DurationInput
+                key={column.key}
+                value={column.read(set)}
+                onChange={(value) => updateSet(exerciseId, setId, column.write(value))}
+                placeholder={hintFor(column, set, previous)}
+                accessibilityLabel={column.label}
+                testID={`input-${column.key}-${setId}`}
+                style={[styles.input, set.completed && styles.inputCompleted]}
+              />
+            ) : (
+              <NumberInput
+                key={column.key}
+                value={column.read(set)}
+                onChange={(value) => updateSet(exerciseId, setId, column.write(value))}
+                placeholder={hintFor(column, set, previous)}
+                decimals={column.decimals}
+                accessibilityLabel={column.label}
+                testID={`input-${column.key}-${setId}`}
+                style={[styles.input, set.completed && styles.inputCompleted]}
+              />
+            ),
+          )}
+
+          <Pressable
+            onPress={onCheck}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: set.completed }}
+            accessibilityLabel="Complete set"
+            testID={`complete-${setId}`}
+            hitSlop={6}
+          >
+            <Animated.View style={[styles.check, checkStyle]}>
+              <Check
+                color={set.completed ? Colors.background : Colors.faint}
+                size={18}
+                strokeWidth={3.5}
+              />
+            </Animated.View>
+          </Pressable>
+        </Animated.View>
+      </SwipeToDelete>
 
       <OptionsSheet
         visible={menu === "type"}
@@ -233,7 +220,7 @@ export function SetRow({
           { label: "Clear RPE", onPress: () => updateSet(exerciseId, setId, { rpe: null }) },
         ]}
       />
-    </ReanimatedSwipeable>
+    </>
   );
 }
 
@@ -279,11 +266,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: Radii.sm,
     borderCurve: "continuous",
-  },
-  delete: {
-    width: 76,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.error,
   },
 });
