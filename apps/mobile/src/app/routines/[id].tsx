@@ -83,7 +83,8 @@ export default function RoutineDetailScreen() {
     <Screen scroll edges={[]}>
       <View style={styles.heading}>
         <AppText variant="label" color={Colors.muted}>
-          Routine · {routine.exercises.length} exercises
+          Routine · {routine.exercises.length}{" "}
+          {routine.exercises.length === 1 ? "exercise" : "exercises"}
         </AppText>
         <AppText variant="display">{routine.name}</AppText>
         {routine.notes ? <AppText color={Colors.muted}>{routine.notes}</AppText> : null}

@@ -1,7 +1,7 @@
 import * as Haptics from "expo-haptics";
 import { Trash2 } from "lucide-react-native";
 import { useState, type ReactNode } from "react";
-import { Keyboard, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   Easing,
@@ -59,8 +59,6 @@ export function SwipeToDelete({
   const buzz = () => Haptics.selectionAsync().catch(() => {});
   const [self] = useState(() => ({ close: () => offset.set(withSpring(0, SETTLE)) }));
   const claim = () => claimRow(self);
-  // A swipe that starts on a field must not leave it focused with the keyboard up.
-  const settleFocus = () => setTimeout(() => Keyboard.dismiss(), 60);
 
   // The row slides out while the red fades with it, then the empty gap closes.
   const remove = () => {
@@ -97,7 +95,6 @@ export function SwipeToDelete({
       }
     })
     .onEnd((event) => {
-      scheduleOnRN(settleFocus);
       const travelled = -offset.get();
       if (travelled > width.get() * DELETE_AT || (event.velocityX < -1800 && travelled > ACTION)) {
         remove();
