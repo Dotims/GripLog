@@ -19,7 +19,7 @@ export type FeedWorkout = {
   likeCount: number;
   likedByMe: boolean;
   user: { id: string; name: string; isMe: boolean };
-  exercises: { name: string; sets: { id: string }[] }[];
+  exercises: { exerciseId: string; name: string; sets: { id: string }[] }[];
 };
 
 type FeedPage = { feed: { items: FeedWorkout[]; nextCursor: string | null } };
@@ -51,6 +51,7 @@ const FEED_QUERY = /* GraphQL */ `
           isMe
         }
         exercises {
+          exerciseId
           name
           sets {
             id
@@ -72,7 +73,19 @@ const SEARCH_QUERY = /* GraphQL */ `
   }
 `;
 
+const SUGGESTED_QUERY = /* GraphQL */ `
+  query SuggestedUsers {
+    suggestedUsers(first: 12) {
+      id
+      name
+      followedByMe
+      workoutCount
+    }
+  }
+`;
+
 export const feedKey = ["feed"] as const;
+const peopleKey = ["people"] as const;
 
 export function useFeed() {
   const { user } = useSession();
@@ -132,7 +145,7 @@ export function useToggleLike() {
 export function useSearchPeople(query: string) {
   const trimmed = query.trim();
   return useQuery({
-    queryKey: ["people", trimmed],
+    queryKey: [...peopleKey, "search", trimmed],
     queryFn: () =>
       graphql<{ searchUsers: PersonResult[] }, { query: string }>(SEARCH_QUERY, { query: trimmed }),
     enabled: trimmed.length >= 2,
@@ -140,6 +153,32 @@ export function useSearchPeople(query: string) {
   });
 }
 
+/** People to follow, the most active first; follows stay in the list until you leave. */
+export function useSuggestedPeople() {
+  const { user } = useSession();
+  return useQuery({
+    queryKey: [...peopleKey, "suggested"],
+    queryFn: () => graphql<{ suggestedUsers: PersonResult[] }>(SUGGESTED_QUERY),
+    enabled: user !== null,
+    select: (data) => data.suggestedUsers,
+    staleTime: 0,
+  });
+}
+
+type PeopleData = { searchUsers?: PersonResult[]; suggestedUsers?: PersonResult[] };
+
+function markFollowed(data: PeopleData | undefined, id: string, followedByMe: boolean) {
+  if (!data) return data;
+  const mark = (list?: PersonResult[]) =>
+    list?.map((person) => (person.id === id ? { ...person, followedByMe } : person));
+  return {
+    ...data,
+    ...(data.searchUsers && { searchUsers: mark(data.searchUsers) }),
+    ...(data.suggestedUsers && { suggestedUsers: mark(data.suggestedUsers) }),
+  };
+}
+
+/** Follow flips at once in every list of people and rolls back if the server says no. */
 export function useToggleFollow() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -150,9 +189,17 @@ export function useToggleFollow() {
           : `mutation($id: ID!) { follow(userId: $id) { id } }`,
         { id },
       ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["people"] });
-      queryClient.invalidateQueries({ queryKey: feedKey });
+    onMutate: async ({ id, following }) => {
+      await queryClient.cancelQueries({ queryKey: peopleKey });
+      const previous = queryClient.getQueriesData<PeopleData>({ queryKey: peopleKey });
+      queryClient.setQueriesData<PeopleData>({ queryKey: peopleKey }, (data) =>
+        markFollowed(data, id, !following),
+      );
+      return { previous };
     },
+    onError: (_error, _variables, context) => {
+      context?.previous.forEach(([key, data]) => queryClient.setQueryData(key, data));
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: feedKey }),
   });
 }

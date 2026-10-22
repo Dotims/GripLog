@@ -1,6 +1,6 @@
 import { formatNumber, toDisplayWeight, weekStreak, weeklyBuckets } from "@griplog/core";
 import { useRouter } from "expo-router";
-import { Dumbbell, Play, Settings, Upload } from "lucide-react-native";
+import { Dumbbell, Play, Settings, Upload, UserPlus } from "lucide-react-native";
 import { useState, type ReactElement } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 
@@ -44,7 +44,7 @@ function greeting(now: Date = new Date()): string {
 
 const TABS = [
   { value: "you", label: "You" },
-  { value: "following", label: "Following" },
+  { value: "following", label: "Friends" },
 ] as const;
 
 export default function FeedScreen() {
@@ -59,7 +59,14 @@ export default function FeedScreen() {
         eyebrow={todayLabel()}
         title={profile?.firstName ? `${greeting()}, ${profile.firstName}` : "GripLog"}
         right={
-          <IconButton icon={Settings} label="Settings" onPress={() => router.push("/settings")} />
+          <>
+            <IconButton
+              icon={UserPlus}
+              label="Find friends"
+              onPress={() => router.push("/people")}
+            />
+            <IconButton icon={Settings} label="Settings" onPress={() => router.push("/settings")} />
+          </>
         }
       />
       <SegmentedControl options={TABS} value={tab} onChange={setTab} />

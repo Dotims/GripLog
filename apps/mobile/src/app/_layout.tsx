@@ -80,7 +80,7 @@ function RootStack() {
       <Stack.Screen name="settings" options={{ ...detailHeader, headerTitle: "Settings" }} />
       <Stack.Screen name="import" options={{ presentation: "modal" }} />
       <Stack.Screen name="account" options={{ ...detailHeader, headerTitle: "Account" }} />
-      <Stack.Screen name="people" options={{ ...detailHeader, headerTitle: "Find people" }} />
+      <Stack.Screen name="people" options={{ ...detailHeader, headerTitle: "Find friends" }} />
     </Stack>
   );
 }

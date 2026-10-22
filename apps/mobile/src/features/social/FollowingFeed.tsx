@@ -13,7 +13,7 @@ import {
 import { AppText, Button, EmptyState } from "@/components/ui";
 import { Colors, Spacing } from "@/constants/theme";
 import { useSession } from "@/features/account/SessionProvider";
-import { initials } from "@/features/profile/avatar";
+import { nameInitials } from "@/features/profile/avatar";
 import { usePreferences } from "@/features/profile/PreferencesProvider";
 import { WorkoutCard } from "@/features/workouts/WorkoutCard";
 import { readableError } from "@/lib/api";
@@ -63,9 +63,9 @@ export function FollowingFeed({ header }: { header: ReactElement }) {
       ListHeaderComponent={
         <View style={styles.header}>
           {header}
-          {user ? (
+          {user && items.length > 0 ? (
             <Button
-              label="Find people"
+              label="Find friends"
               icon={UserPlus}
               variant="secondary"
               onPress={() => router.push("/people")}
@@ -80,14 +80,18 @@ export function FollowingFeed({ header }: { header: ReactElement }) {
           unit={unit}
           author={{
             name: item.user.isMe ? "You" : item.user.name,
-            initials: initials(item.user.name, ""),
+            initials: nameInitials(item.user.name),
           }}
           summary={{
             durationSeconds: item.durationSeconds,
             volumeKg: item.volumeKg,
             sets: item.setCount,
             records: 0,
-            exercises: item.exercises.map((e) => ({ name: e.name, sets: e.sets.length })),
+            exercises: item.exercises.map((e) => ({
+              exerciseId: e.exerciseId,
+              name: e.name,
+              sets: e.sets.length,
+            })),
           }}
           // Other people's workouts live on the server only; your own open locally.
           onPress={item.user.isMe ? () => router.push(`/workouts/${item.id}`) : undefined}
@@ -110,7 +114,10 @@ export function FollowingFeed({ header }: { header: ReactElement }) {
           <EmptyState
             icon={Users}
             title="Quiet here"
-            message="Follow people to see their workouts next to yours."
+            message="Follow friends to see their workouts next to yours."
+            action={
+              <Button label="Find friends" icon={UserPlus} onPress={() => router.push("/people")} />
+            }
           />
         )
       }

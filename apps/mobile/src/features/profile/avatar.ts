@@ -28,3 +28,9 @@ export function initials(firstName: string, lastName: string): string {
   const letters = `${firstName.trim().charAt(0)}${lastName.trim().charAt(0)}`.toUpperCase();
   return letters || "GL";
 }
+
+/** Initials from a full display name, "Kuba Nowak" to "KN". */
+export function nameInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return initials(parts[0] ?? "", parts.length > 1 ? (parts.at(-1) ?? "") : "");
+}
