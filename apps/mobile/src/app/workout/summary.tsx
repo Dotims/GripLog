@@ -13,7 +13,6 @@ import Animated, {
   ZoomIn,
 } from "react-native-reanimated";
 
-import { Confetti } from "@/components/Confetti";
 import { AppText, Button, Card, Screen, SectionLabel, Stat } from "@/components/ui";
 import { Colors, Spacing, tabular } from "@/constants/theme";
 import { useDatabase } from "@/db/DatabaseProvider";
@@ -76,102 +75,99 @@ export default function WorkoutSummaryScreen() {
     liftGoal !== null && workout.exercises.some((e) => e.exerciseId === liftGoal.exerciseId);
 
   return (
-    <>
-      <Screen scroll edges={["top", "bottom"]} contentContainerStyle={styles.content}>
-        <Animated.View entering={ZoomIn.springify().damping(14)} style={styles.badgeWrapper}>
-          <Animated.View style={[styles.ripple, rippleStyle]} />
-          <View style={styles.badgeHalo}>
-            <View style={styles.badge}>
-              <Check color={Colors.accentInk} size={40} strokeWidth={3} />
-            </View>
+    <Screen scroll edges={["top", "bottom"]} contentContainerStyle={styles.content}>
+      <Animated.View entering={ZoomIn.springify().damping(14)} style={styles.badgeWrapper}>
+        <Animated.View style={[styles.ripple, rippleStyle]} />
+        <View style={styles.badgeHalo}>
+          <View style={styles.badge}>
+            <Check color={Colors.accentInk} size={40} strokeWidth={3} />
           </View>
-        </Animated.View>
+        </View>
+      </Animated.View>
 
-        <Animated.View entering={FadeInDown.delay(120)} style={styles.heading}>
-          <AppText variant="caption" color={Colors.accent} align="center">
-            Workout #{workoutCount(db)} complete
-          </AppText>
-          <AppText variant="display" align="center">
-            {workout.title}
-          </AppText>
-        </Animated.View>
+      <Animated.View entering={FadeInDown.delay(120)} style={styles.heading}>
+        <AppText variant="caption" color={Colors.accent} align="center">
+          Workout #{workoutCount(db)} complete
+        </AppText>
+        <AppText variant="display" align="center">
+          {workout.title}
+        </AppText>
+      </Animated.View>
 
-        <Animated.View entering={FadeInDown.delay(180)}>
-          <Card style={styles.stats}>
-            <Stat label="Time" value={formatDuration(summary.durationSeconds)} />
-            <Stat label="Volume" value={formatNumber(volume, 0)} unit={unit} />
-            <Stat label="Sets" value={String(Math.round(sets))} />
+      <Animated.View entering={FadeInDown.delay(180)}>
+        <Card style={styles.stats}>
+          <Stat label="Time" value={formatDuration(summary.durationSeconds)} />
+          <Stat label="Volume" value={formatNumber(volume, 0)} unit={unit} />
+          <Stat label="Sets" value={String(Math.round(sets))} />
+        </Card>
+      </Animated.View>
+
+      <Animated.View entering={FadeInDown.delay(220)}>
+        <WeekCard goal={week} />
+      </Animated.View>
+
+      {workout.records.length > 0 ? (
+        <View style={styles.records}>
+          <SectionLabel>{`New personal records · ${workout.records.length}`}</SectionLabel>
+          {workout.records.map((record, index) => (
+            <Animated.View key={record.id} entering={FadeInDown.delay(250 + index * 90)}>
+              <Card tone="gold" style={styles.record}>
+                <View style={styles.trophy}>
+                  <Trophy color={Colors.gold} size={20} strokeWidth={2.2} />
+                </View>
+                <View style={styles.flex}>
+                  <AppText variant="bold" numberOfLines={1}>
+                    {names.get(record.exerciseId)}
+                  </AppText>
+                  <AppText variant="label" color={Colors.gold}>
+                    {recordLabel(record.kind)}
+                  </AppText>
+                </View>
+                <AppText variant="heading" style={tabular}>
+                  {formatRecordValue(record.kind, record.value, unit)}
+                </AppText>
+              </Card>
+            </Animated.View>
+          ))}
+        </View>
+      ) : (
+        <AppText color={Colors.muted} align="center">
+          No new records this time. Consistency is what moves them.
+        </AppText>
+      )}
+
+      {muscles.length > 0 ? (
+        <Animated.View entering={FadeInDown.delay(300)}>
+          <Card style={styles.muscles}>
+            <AppText variant="caption" color={Colors.muted} align="center">
+              Muscles worked
+            </AppText>
+            <MuscleMap muscles={muscles} height={170} />
           </Card>
         </Animated.View>
+      ) : null}
 
-        <Animated.View entering={FadeInDown.delay(220)}>
-          <WeekCard goal={week} />
-        </Animated.View>
+      {trainedGoalLift && liftGoal ? <LiftGoalCard goal={liftGoal} unit={unit} /> : null}
 
-        {workout.records.length > 0 ? (
-          <View style={styles.records}>
-            <SectionLabel>{`New personal records · ${workout.records.length}`}</SectionLabel>
-            {workout.records.map((record, index) => (
-              <Animated.View key={record.id} entering={FadeInDown.delay(250 + index * 90)}>
-                <Card tone="gold" style={styles.record}>
-                  <View style={styles.trophy}>
-                    <Trophy color={Colors.gold} size={20} strokeWidth={2.2} />
-                  </View>
-                  <View style={styles.flex}>
-                    <AppText variant="bold" numberOfLines={1}>
-                      {names.get(record.exerciseId)}
-                    </AppText>
-                    <AppText variant="label" color={Colors.gold}>
-                      {recordLabel(record.kind)}
-                    </AppText>
-                  </View>
-                  <AppText variant="heading" style={tabular}>
-                    {formatRecordValue(record.kind, record.value, unit)}
-                  </AppText>
-                </Card>
-              </Animated.View>
-            ))}
-          </View>
-        ) : (
-          <AppText color={Colors.muted} align="center">
-            No new records this time. Consistency is what moves them.
-          </AppText>
-        )}
+      <View style={styles.photos}>
+        <SectionLabel>Remember today</SectionLabel>
+        <WorkoutPhotos workoutId={workout.id} />
+      </View>
 
-        {muscles.length > 0 ? (
-          <Animated.View entering={FadeInDown.delay(300)}>
-            <Card style={styles.muscles}>
-              <AppText variant="caption" color={Colors.muted} align="center">
-                Muscles worked
-              </AppText>
-              <MuscleMap muscles={muscles} height={170} />
-            </Card>
-          </Animated.View>
-        ) : null}
-
-        {trainedGoalLift && liftGoal ? <LiftGoalCard goal={liftGoal} unit={unit} /> : null}
-
-        <View style={styles.photos}>
-          <SectionLabel>Remember today</SectionLabel>
-          <WorkoutPhotos workoutId={workout.id} />
-        </View>
-
-        <View style={styles.actions}>
-          <Button
-            label="Done"
-            size="lg"
-            onPress={() => router.dismissTo("/")}
-            testID="summary-done"
-          />
-          <Button
-            label="View workout"
-            variant="ghost"
-            onPress={() => router.replace(`/workouts/${workout.id}`)}
-          />
-        </View>
-      </Screen>
-      <Confetti gold={records > 0} />
-    </>
+      <View style={styles.actions}>
+        <Button
+          label="Done"
+          size="lg"
+          onPress={() => router.dismissTo("/")}
+          testID="summary-done"
+        />
+        <Button
+          label="View workout"
+          variant="ghost"
+          onPress={() => router.replace(`/workouts/${workout.id}`)}
+        />
+      </View>
+    </Screen>
   );
 }
 

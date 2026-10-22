@@ -12,7 +12,7 @@
 ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-ff3b47.svg)](LICENSE)
 
-<img src="docs/media/demo.gif" width="360" alt="GripLog on Android with a real training history: the weekly goal on the feed, the profile cover made from training days with a lift goal ring, a workout with the muscles it trained, and logging a routine that ends in confetti" />
+<img src="docs/media/demo.gif" width="360" alt="GripLog on Android with a real training history: the weekly goal on the feed, the profile cover made from training days with a lift goal ring, a workout with the muscles it trained, and logging a routine through to its summary" />
 
 </div>
 
@@ -20,11 +20,11 @@
 
 GripLog is the app I actually log my gym sessions in. It started as a Hevy replacement and grew into a full stack project: a React Native app that works with zero signal on the gym floor, a Postgres backed API that syncs it, a GraphQL feed for training with friends, a web dashboard for progress charts, and an MCP server that lets an assistant like Claude review your training using numbers computed by tested code instead of guesses.
 
-My own history (144 workouts and 2 600+ sets exported from Hevy) imports in about a second, and the recording and screenshots show that real data: the week against my goal, a profile cover drawn from my training days with a ring for my lift goal, a past workout with the muscles it trained, and a session logged from a routine that ends in confetti. Both were captured from the app running in Expo Go on an Android emulator.
+My own history (144 workouts and 2 600+ sets exported from Hevy) imports in about a second, and the recording and screenshots show that real data: the week against my goal, a profile cover drawn from my training days with a ring for my lift goal, a past workout with the muscles it trained, and a session logged from a routine through to its summary. Both were captured from the app running in Expo Go on an Android emulator.
 
 The interface is dark and quiet on purpose: you look at it between sets, often in a dim gym. Colour carries meaning only: red for actions and progress, green for completed sets, gold for personal records, and one colour per superset. Type is Onest in four weights with tabular figures, so timers and weights never jitter. Motion is Reanimated on the UI thread: spring press feedback, a sliding segmented control, sheets that rise and settle, a set that washes green when ticked, a rest line that drains continuously and a summary that counts its numbers up.
 
-Small rewards keep it pleasant to come back to, the way Duolingo does it: a weekly goal with a streak, confetti and a short chime when a workout is saved (a brighter fanfare for a personal record), a soft tick for each set and a bell when rest is over. The sounds are generated for the app, mix with your music and stay quiet when the phone is on silent.
+Small rewards keep it pleasant to come back to, the way Duolingo does it: a weekly goal with a streak, a short chime when a workout is saved (a brighter fanfare for a personal record), a soft tick for each set and a bell when rest is over. The sounds are generated for the app, mix with your music and stay quiet when the phone is on silent.
 
 <p align="center">
   <img src="docs/media/screens.png" alt="Feed, exercise detail with a next-session suggestion, an active workout with the rest timer, and the profile" />
@@ -44,7 +44,7 @@ Small rewards keep it pleasant to come back to, the way Duolingo does it: a week
 - Personal records (heaviest weight, estimated 1RM, best set volume, most reps) recomputed on every save, edit and delete.
 - A weekly goal (say three workouts) with a streak of weeks on goal. Every four weeks on goal earn a freeze that covers one missed week, for a cold or a holiday.
 - A lift goal, like a 100 kg bench: a ring shows your best recent estimated 1RM against the target, and a trend line over the last twelve weeks forecasts when you will get there.
-- A finish screen worth seeing: confetti, the week so far, a body map of the muscles you trained and a photo of the day.
+- A finish screen worth seeing: the week so far, a body map of the muscles you trained and a photo of the day.
 - Photos on workouts, from the camera or the library. They stay on the phone and build your profile cover; without photos the cover is a map of the days you trained.
 - Every workout shows the muscles it trained on a front and back body map, and your recent workouts use it as their thumbnail.
 - A next-session suggestion per lift: double progression, plus a deload after three sessions without progress.

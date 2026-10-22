@@ -50,6 +50,9 @@ export function Button({
 
   return (
     <PressableScale
+      // The pressed background is an animated style; a new variant gets a fresh one, so
+      // "Start" turning into "Resume" never shows red text on the old red fill.
+      key={variant}
       testID={testID}
       accessibilityRole="button"
       accessibilityLabel={label}
