@@ -82,7 +82,7 @@ export const useRoutineDraft = create<RoutineDraftState>()((set) => {
           restSeconds: null,
           notes: null,
           supersetId: null,
-          sets: [blankSet(), blankSet(), blankSet()],
+          sets: [blankSet()],
         })),
       ]),
     removeExercise: (id) =>

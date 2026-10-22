@@ -133,8 +133,8 @@ describe("newDraftExercise", () => {
     expect(draft.sets.map((s) => s.type)).toEqual(["warmup", "normal"]);
   });
 
-  it("starts with three empty sets for a new exercise", () => {
-    expect(newDraftExercise(bench, [], 90).sets).toHaveLength(3);
+  it("starts a new exercise with one empty set", () => {
+    expect(newDraftExercise(bench, [], 90).sets).toHaveLength(1);
   });
 });
 

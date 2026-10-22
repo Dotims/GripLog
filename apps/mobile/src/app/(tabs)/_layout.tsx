@@ -18,8 +18,6 @@ export default function TabsLayout() {
       )}
       screenOptions={{
         headerShown: false,
-        // A short cross-slide between tabs instead of a hard cut.
-        animation: "shift",
         tabBarActiveTintColor: Colors.accent,
         tabBarInactiveTintColor: Colors.muted,
         tabBarStyle: {

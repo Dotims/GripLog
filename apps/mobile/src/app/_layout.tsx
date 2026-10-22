@@ -74,8 +74,8 @@ function RootStack() {
       <Stack.Screen name="routines/[id]" options={detailHeader} />
       <Stack.Screen
         name="routines/edit"
-        // No swipe-to-dismiss: edits only leave through Save or Cancel.
-        options={{ presentation: "modal", gestureEnabled: false }}
+        // A full page; no edge swipe, so unsaved work only leaves through Back or Save.
+        options={{ gestureEnabled: false }}
       />
       <Stack.Screen name="settings" options={{ ...detailHeader, headerTitle: "Settings" }} />
       <Stack.Screen name="import" options={{ presentation: "modal" }} />

@@ -7,7 +7,8 @@ import type { WorkoutInput } from "@/features/workouts/repository";
 
 import { emptySet, type ActiveWorkout, type DraftExercise, type DraftSet } from "./store";
 
-export const DEFAULT_SET_COUNT = 3;
+/** A new exercise starts with one set; more are a tap away. */
+export const DEFAULT_SET_COUNT = 1;
 
 export type TemplateSet = Pick<DraftSet, "type" | "weightKg" | "reps"> &
   Partial<Pick<DraftSet, "durationSeconds" | "distanceMeters">> & {
