@@ -1,4 +1,5 @@
 import { formatDuration, formatNumber, toDisplayWeight, type WeightUnit } from "@griplog/core";
+import { Image } from "expo-image";
 import { Trophy } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -18,6 +19,8 @@ type WorkoutCardProps = {
   summary: WorkoutSummary;
   unit: WeightUnit;
   author?: { name: string; initials: string };
+  /** A photo added to the workout, shown above the title. */
+  photoUri?: string | null;
   /** Optional: other people's workouts in the social feed have no detail screen. */
   onPress?: () => void;
   /** Extra row under the exercises, for example the like button in the social feed. */
@@ -30,6 +33,7 @@ export function WorkoutCard({
   summary,
   unit,
   author,
+  photoUri,
   onPress,
   footer,
 }: WorkoutCardProps) {
@@ -60,6 +64,15 @@ export function WorkoutCard({
           </View>
         ) : null}
       </View>
+
+      {photoUri ? (
+        <Image
+          source={{ uri: photoUri }}
+          style={styles.photo}
+          contentFit="cover"
+          transition={200}
+        />
+      ) : null}
 
       <AppText variant="title" numberOfLines={2}>
         {title}
@@ -183,6 +196,13 @@ const styles = StyleSheet.create({
   },
   recordsText: {
     fontFamily: Fonts.semibold,
+  },
+  photo: {
+    width: "100%",
+    aspectRatio: 16 / 10,
+    borderRadius: Radii.md,
+    borderCurve: "continuous",
+    backgroundColor: Colors.surfaceRaised,
   },
   stats: {
     flexDirection: "row",

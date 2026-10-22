@@ -24,6 +24,8 @@ My own history (144 workouts and 2 600+ sets exported from Hevy) imports in abou
 
 The interface is dark and quiet on purpose: you look at it between sets, often in a dim gym. Colour carries meaning only: red for actions and progress, green for completed sets, gold for personal records, and one colour per superset. Type is Onest in four weights with tabular figures, so timers and weights never jitter. Motion is Reanimated on the UI thread: spring press feedback, a sliding segmented control, sheets that rise and settle, a set that washes green when ticked, a rest line that drains continuously and a summary that counts its numbers up.
 
+Small rewards keep it pleasant to come back to, the way Duolingo does it: a weekly goal with a streak, confetti and a short chime when a workout is saved (a brighter fanfare for a personal record), a soft tick for each set and a bell when rest is over. The sounds are generated for the app, mix with your music and stay quiet when the phone is on silent.
+
 <p align="center">
   <img src="docs/media/screens.png" alt="Feed, exercise detail with a next-session suggestion, an active workout with the rest timer, and the profile" />
 </p>
@@ -40,6 +42,11 @@ The interface is dark and quiet on purpose: you look at it between sets, often i
 - Supersets: link neighbouring exercises in a routine or mid-workout; the rest timer waits until the last exercise of each round.
 - "Repeat this workout" and "save as routine".
 - Personal records (heaviest weight, estimated 1RM, best set volume, most reps) recomputed on every save, edit and delete.
+- A weekly goal (say three workouts) with a streak of weeks on goal. Every four weeks on goal earn a freeze that covers one missed week, for a cold or a holiday.
+- A lift goal, like a 100 kg bench: a ring shows your best recent estimated 1RM against the target, and a trend line over the last twelve weeks forecasts when you will get there.
+- A finish screen worth seeing: confetti, the week so far, a body map of the muscles you trained and a photo of the day.
+- Photos on workouts, from the camera or the library. They stay on the phone and build your profile cover; without photos the cover is a map of the days you trained.
+- Every workout shows the muscles it trained on a front and back body map, and your recent workouts use it as their thumbnail.
 - A next-session suggestion per lift: double progression, plus a deload after three sessions without progress.
 - One-tap import of a Hevy CSV export, with a review step and safe re-runs.
 
@@ -206,6 +213,7 @@ npm test            # API tests expect the Postgres from docker compose
 - [x] Web dashboard
 - [x] MCP coach
 - [x] Supersets, rep ranges and timed targets in routines
+- [x] Weekly goal with streak freezes, a lift goal with a forecast, workout photos, sounds
 - [ ] iOS Live Activity for the rest timer and EAS builds
 - [ ] Hosted API and web deploy
 - [ ] In-app coach chat on top of the MCP tools
@@ -215,6 +223,7 @@ npm test            # API tests expect the Postgres from docker compose
 - Exercise data and photos: [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain).
 - Exercise animations: [ExerciseDB](https://github.com/ExerciseDB/exercisedb-api), © [Gym visual](https://gymvisual.com/). They are streamed from the ExerciseDB CDN and not stored in this repository; `packages/catalogue/data/animations.json` holds only the matched ids, built by `npm run animations -w @griplog/catalogue`.
 - Font: [Onest](https://fonts.google.com/specimen/Onest) (SIL Open Font License).
+- Body map: [react-native-body-highlighter](https://github.com/HichamELBSI/react-native-body-highlighter) (MIT).
 
 ## License
 

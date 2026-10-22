@@ -19,6 +19,8 @@ import { Colors, Radii, Spacing, tabular } from "@/constants/theme";
 import { animationUrl } from "@/features/exercises/catalogue";
 import { ExerciseImage } from "@/features/exercises/ExerciseImage";
 import { useExercise, useExerciseHistory, useExerciseRecords } from "@/features/exercises/hooks";
+import { MuscleMap } from "@/features/muscles/MuscleMap";
+import { musclesWorked } from "@/features/muscles/muscles";
 import { groupSessions, sessionScore, toProgressionSessions } from "@/features/exercises/sessions";
 import { usePreferences } from "@/features/profile/PreferencesProvider";
 import { formatSetValue } from "@/features/workouts/format-set";
@@ -197,6 +199,27 @@ export default function ExerciseDetailScreen() {
         )
       ) : null}
 
+      {tab === "howto" && exercise.primaryMuscles.length > 0 ? (
+        <Card style={styles.muscles}>
+          <MuscleMap
+            muscles={musclesWorked([
+              {
+                primaryMuscles: exercise.primaryMuscles,
+                secondaryMuscles: exercise.secondaryMuscles,
+                sets: 1,
+              },
+            ])}
+            height={150}
+          />
+          <AppText variant="label" color={Colors.muted} align="center">
+            Works {exercise.primaryMuscles.join(", ")}
+            {exercise.secondaryMuscles.length > 0
+              ? `, helped by ${exercise.secondaryMuscles.join(", ")}`
+              : ""}
+          </AppText>
+        </Card>
+      ) : null}
+
       {tab === "howto" ? (
         exercise.instructions.length === 0 ? (
           <AppText color={Colors.muted}>No instructions for this exercise.</AppText>
@@ -233,6 +256,10 @@ const styles = StyleSheet.create({
     aspectRatio: 4 / 3,
   },
   titleBlock: {
+    gap: Spacing.sm,
+  },
+  muscles: {
+    padding: Spacing.lg,
     gap: Spacing.sm,
   },
   chips: {

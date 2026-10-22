@@ -177,6 +177,7 @@ function MyFeed({ header }: { header: ReactElement }) {
             startedAt={item.workout.startedAt}
             summary={item.summary}
             unit={unit}
+            photoUri={item.workout.photos[0]?.uri}
             onPress={() => router.push(`/workouts/${item.workout.id}`)}
           />
         </Appear>
