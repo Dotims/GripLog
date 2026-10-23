@@ -27,7 +27,7 @@ The interface is dark and quiet on purpose: you look at it between sets, often i
 Small rewards keep it pleasant to come back to, the way Duolingo does it: a weekly goal with a streak, a short chime when a workout is saved (a brighter fanfare for a personal record), a soft tick for each set and a bell when rest is over. The sounds are generated for the app, mix with your music and stay quiet when the phone is on silent.
 
 <p align="center">
-  <img src="docs/media/screens.png" alt="Feed, exercise detail with a next-session suggestion, an active workout with the rest timer, and the profile" />
+  <img src="docs/media/screens.png" alt="Profile with the training map cover and lift goal ring, exercise detail with a next-session suggestion, an active workout with a superset and the rest timer, and a past workout with its muscle map" />
 </p>
 
 ## Features
