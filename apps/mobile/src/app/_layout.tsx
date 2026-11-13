@@ -49,7 +49,6 @@ const detailHeader = {
 function RootStack() {
   useEffect(() => {
     SplashScreen.hideAsync().catch(() => {});
-    // Restore a workout that was running when the app was closed.
     useActiveWorkout.persist.rehydrate();
     return startRestNotifications();
   }, []);
@@ -74,7 +73,7 @@ function RootStack() {
       <Stack.Screen name="routines/[id]" options={detailHeader} />
       <Stack.Screen
         name="routines/edit"
-        // A full page; no edge swipe, so unsaved work only leaves through Back or Save.
+        // No edge swipe: unsaved work leaves only through Back or Save.
         options={{ gestureEnabled: false }}
       />
       <Stack.Screen name="settings" options={{ ...detailHeader, headerTitle: "Settings" }} />

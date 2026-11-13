@@ -10,10 +10,6 @@ export type GraphQLContext = {
   loaders: Loaders;
 };
 
-/**
- * Pothos builds the schema from TypeScript, so resolvers and types cannot
- * drift apart the way a hand-written SDL file and its resolvers can.
- */
 export const builder = new SchemaBuilder<{
   Context: GraphQLContext;
   Scalars: { DateTime: { Input: Date; Output: Date } };

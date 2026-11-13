@@ -27,7 +27,7 @@ export function RestTimerBar({ bottomInset }: { bottomInset: number }) {
   const remaining = rest ? Math.max(0, (rest.endsAt - now) / 1000) : 0;
   const finished = rest !== null && remaining <= 0;
 
-  // The line drains continuously on the UI thread instead of stepping with the clock.
+  // Animated on the UI thread, not stepped by the clock.
   const progress = useSharedValue(1);
   const startedAt = rest?.startedAt;
   const endsAt = rest?.endsAt;

@@ -44,7 +44,6 @@ export default function WorkoutSummaryScreen() {
   const liftGoal = useLiftGoal();
   const records = workout?.records.length ?? 0;
 
-  // The moment the summary lands: a buzz and a chime, a brighter one for a record.
   const loaded = summary !== null;
   useEffect(() => {
     if (!loaded) return;
@@ -52,7 +51,6 @@ export default function WorkoutSummaryScreen() {
     playSound(records > 0 ? "record" : "complete");
   }, [loaded, records]);
 
-  // One ring ripples out of the badge as it lands.
   const ripple = useSharedValue(0);
   useEffect(() => {
     ripple.set(withDelay(250, withTiming(1, { duration: 900 })));
@@ -172,7 +170,6 @@ export default function WorkoutSummaryScreen() {
 }
 
 const styles = StyleSheet.create({
-  // Centred when it fits, scrolls when a long list of records does not.
   content: {
     flexGrow: 1,
     justifyContent: "center",

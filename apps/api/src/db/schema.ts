@@ -15,9 +15,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-// ---------------------------------------------------------------------------
 // Better Auth tables (names and columns follow its Drizzle adapter)
-// ---------------------------------------------------------------------------
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -77,20 +75,13 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-// ---------------------------------------------------------------------------
 // Training data
-// ---------------------------------------------------------------------------
 
 export const setType = pgEnum("set_type", SET_TYPES);
 export const trackingType = pgEnum("tracking_type", TRACKING_TYPES);
 export const workoutSource = pgEnum("workout_source", ["app", "hevy"]);
 
-/**
- * One global, ever-increasing counter. Every synced write stamps its row with
- * the next value, and a device pulls "everything with a version above the last
- * one I saw". Writes for one user are serialised (see sync/push.ts), so for a
- * single user versions are handed out in commit order and nothing is skipped.
- */
+/** Global sync counter; a device pulls every row above the last version it saw. */
 export const syncVersion = pgSequence("sync_version_seq");
 
 const version = () =>
@@ -237,20 +228,14 @@ export const profiles = pgTable("profiles", {
   version: version(),
 });
 
-/**
- * Idempotency log: the id of every change already handled. A phone that lost
- * the response and retries the same change gets "skipped" instead of a
- * second write.
- */
+/** Every handled change id, so a retried change is skipped. */
 export const appliedChanges = pgTable("applied_changes", {
   changeId: uuid("change_id").primaryKey(),
   userId: owner(),
   appliedAt: timestamp("applied_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-// ---------------------------------------------------------------------------
 // Social (read through GraphQL)
-// ---------------------------------------------------------------------------
 
 export const follows = pgTable(
   "follows",

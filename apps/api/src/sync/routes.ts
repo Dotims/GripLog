@@ -13,11 +13,6 @@ const pullQuery = z.object({
   limit: z.coerce.number().int().min(1).max(500).default(200),
 });
 
-/**
- * REST for sync: two endpoints with a fixed contract, plain HTTP caching rules
- * and status codes. Writes are commands ("apply these changes"), which is
- * where REST is simpler than GraphQL mutations.
- */
 export const syncRoutes = new Hono<AppEnv>()
   .use(requireUser)
   .post("/push", zValidator("json", syncPushRequestSchema), async (c) => {

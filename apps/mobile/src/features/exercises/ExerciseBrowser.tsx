@@ -35,7 +35,6 @@ export function ExerciseBrowser({
   );
   const [query, setQuery] = useState("");
   const [muscle, setMuscle] = useState<string | null>(null);
-  // Typing stays responsive; filtering 900 rows catches up a frame later.
   const deferredQuery = useDeferredValue(query);
 
   const visible = sortByUsage(filterExercises(exercises, deferredQuery, muscle), usage);

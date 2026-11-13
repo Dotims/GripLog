@@ -11,10 +11,7 @@ type Session = {
   prepareQuery: (...args: unknown[]) => PreparedQuery;
 };
 
-/**
- * drizzle-orm 0.45's sql.js session drops the result mapper that relational
- * queries (db.query.*) pass in, so they return raw rows. Pass it through.
- */
+/** drizzle-orm 0.45's sql.js session drops the relational query mapper; pass it through. */
 function patchRelationalQueries(db: object) {
   const session = (db as { session: Session }).session;
   const prepareQuery = session.prepareQuery.bind(session);
@@ -25,11 +22,7 @@ function patchRelationalQueries(db: object) {
   };
 }
 
-/**
- * A fresh in-memory SQLite database with the real migrations applied. sql.js
- * is SQLite compiled to WebAssembly, so tests exercise the same SQL engine,
- * constraints and transactions as the app, without a device.
- */
+/** In-memory sql.js database with the real migrations applied. */
 export async function createTestDb(): Promise<Db> {
   const SQL = await initSqlJs();
   const sqlite = new SQL.Database();

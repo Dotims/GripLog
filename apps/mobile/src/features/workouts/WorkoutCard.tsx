@@ -19,11 +19,9 @@ type WorkoutCardProps = {
   summary: WorkoutSummary;
   unit: WeightUnit;
   author?: { name: string; initials: string };
-  /** A photo added to the workout, shown above the title. */
   photoUri?: string | null;
   /** Optional: other people's workouts in the social feed have no detail screen. */
   onPress?: () => void;
-  /** Extra row under the exercises, for example the like button in the social feed. */
   footer?: ReactNode;
 };
 
@@ -123,7 +121,7 @@ export function WorkoutCard({
     );
   }
 
-  // A button inside a pressable card is a button inside a button; keep the footer outside the pressable part.
+  // The footer sits outside the pressable part: no button inside a button.
   return (
     <Card style={styles.card}>
       <Pressable

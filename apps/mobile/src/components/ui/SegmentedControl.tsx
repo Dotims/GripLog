@@ -28,7 +28,6 @@ export function SegmentedControl<T extends string>({
     options.findIndex((option) => option.value === value),
   );
 
-  // The highlight slides to the chosen segment instead of jumping.
   const thumbStyle = useAnimatedStyle(() => ({
     width: segment,
     transform: [{ translateX: withSpring(index * segment, SLIDE) }],

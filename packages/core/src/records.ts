@@ -37,10 +37,7 @@ function recordValue(kind: RecordKind, set: SetLike): number | null {
   }
 }
 
-/**
- * Compares one exercise's sets from a finished workout with its previous bests.
- * Returns at most one record per kind: the best set that beat the old value.
- */
+/** At most one record per kind: the best set that beat the previous best. */
 export function findNewRecords(previous: ExerciseBests, sets: readonly SetLike[]): NewRecord[] {
   const records: NewRecord[] = [];
   for (const kind of RECORD_KINDS) {

@@ -2,7 +2,6 @@ import type { LucideIcon } from "lucide-react-native";
 import type { ColorValue } from "react-native";
 import Animated, { useAnimatedStyle, withSpring } from "react-native-reanimated";
 
-/** A tab bar icon that lifts a little when its tab is chosen. */
 export function TabIcon({
   icon: Icon,
   color,

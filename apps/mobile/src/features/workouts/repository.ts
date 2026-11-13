@@ -40,10 +40,7 @@ export class EmptyWorkoutError extends Error {
   }
 }
 
-/**
- * Writes the workout rows only, without records or the outbox. Shared by
- * saveWorkout and the importer, which wrap it in their own transaction.
- */
+/** Workout rows only, without records or the outbox; callers wrap it in a transaction. */
 export function writeWorkoutRows(
   tx: Db,
   input: WorkoutInput,
@@ -100,11 +97,7 @@ export function writeWorkoutRows(
   });
 }
 
-/**
- * Recomputes personal records for the given exercises from their full history.
- * Rebuilding instead of patching keeps records correct after edits, deletes
- * and imports of older workouts.
- */
+/** Rebuilds records from the full history, so edits, deletes and older imports stay correct. */
 export function rebuildRecords(tx: Db, exerciseIds: readonly string[]): void {
   if (exerciseIds.length === 0) return;
   const unique = [...new Set(exerciseIds)];
@@ -127,8 +120,7 @@ export function rebuildRecords(tx: Db, exerciseIds: readonly string[]): void {
     .orderBy(asc(workouts.startedAt), asc(workoutExercises.position), asc(sets.position))
     .all();
 
-  // One group = one exercise inside one workout, all of its blocks together.
-  // Map keeps insertion order, and rows come oldest first, so groups do too.
+  // One group per exercise per workout; Map keeps insertion order, oldest first.
   const groups = new Map<string, typeof rows>();
   for (const row of rows) {
     const key = `${row.workoutId}:${row.exerciseId}`;
@@ -159,10 +151,7 @@ export function rebuildRecords(tx: Db, exerciseIds: readonly string[]): void {
   }
 }
 
-/**
- * Saves a workout with its exercises and sets, recomputes records and queues
- * the change for sync. One transaction: either all of it lands or none of it.
- */
+/** One transaction: the rows, the records and the outbox entry. */
 export function saveWorkout(db: Db, input: WorkoutInput) {
   const setCount = input.exercises.reduce((sum, e) => sum + e.sets.length, 0);
   if (setCount === 0) throw new EmptyWorkoutError();
@@ -184,10 +173,7 @@ export function saveWorkout(db: Db, input: WorkoutInput) {
   });
 }
 
-/**
- * Soft delete: the row stays as a tombstone so the deletion can sync. Its
- * photos never sync, so they go for good; returns their files to remove.
- */
+/** Soft delete for sync. Photos never sync, so their files are returned for removal. */
 export function deleteWorkout(db: Db, workoutId: string): string[] {
   const timestamp = nowIso();
   return db.transaction((tx) => {
@@ -262,7 +248,6 @@ export function workoutDetailQuery(db: Db, workoutId: string) {
 
 export type WorkoutDetail = NonNullable<Awaited<ReturnType<typeof workoutDetailQuery>>>;
 
-/** Loads a saved workout back into the input shape, for editing or syncing. */
 export function getWorkoutInput(db: Db, workoutId: string): WorkoutInput | null {
   const workout = workoutDetailQuery(db, workoutId).sync();
   if (!workout) return null;

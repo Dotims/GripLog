@@ -14,7 +14,6 @@ type SyncState = {
   lastError: string | null;
 };
 
-/** Sync progress for the UI. Zustand, because it changes often and is read in a few places. */
 export const useSyncState = create<SyncState>()(() => ({
   status: "idle",
   lastSyncedAt: null,

@@ -37,10 +37,7 @@ export type WorkoutSummary = {
 const day = (iso: string) => iso.slice(0, 10);
 const kg = (value: number) => `${formatNumber(value)} kg`;
 
-/**
- * Finds an exercise by id or by name. Exact matches win, then the shortest name
- * containing every word, so "bench" picks "Barbell Bench Press" over a variation.
- */
+/** Exact id or name first, then the shortest name containing every word of the query. */
 export function findExercise(
   exercises: readonly ExerciseSummary[],
   query: string,

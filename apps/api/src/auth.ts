@@ -21,8 +21,7 @@ export function createAuth(db: Database, env: Env) {
       },
     }),
     emailAndPassword: { enabled: true, minPasswordLength: 8 },
-    // expo(): cookie handling for the React Native client. bearer(): lets
-    // scripts and the MCP server send "Authorization: Bearer <session token>".
+    // bearer() lets scripts and the MCP server send a session token.
     plugins: [expo(), bearer()],
     trustedOrigins: [...env.CORS_ORIGINS, "griplog://", "exp://"],
   });

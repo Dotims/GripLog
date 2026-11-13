@@ -30,7 +30,6 @@ export function createApp({ db, auth, env, log = false }: Dependencies) {
 
   app.on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
-  // Resolve the session once per request; routes decide whether they need it.
   app.use("*", async (c, next) => {
     c.set("db", db);
     const session = await auth.api.getSession({ headers: c.req.raw.headers });

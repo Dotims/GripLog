@@ -3,11 +3,7 @@ export type GripLogClient = {
   query<T>(query: string, variables?: Record<string, unknown>): Promise<T>;
 };
 
-/**
- * Talks to the GripLog GraphQL API with a session token, the same way the app
- * does. The MCP server never touches the database directly, so it can run on
- * any machine and only ever sees what the signed-in user may see.
- */
+/** GraphQL client with a session token; the MCP server never reads the database directly. */
 export function createGripLogClient(apiUrl: string, token: string): GripLogClient {
   return {
     async query<T>(query: string, variables?: Record<string, unknown>): Promise<T> {

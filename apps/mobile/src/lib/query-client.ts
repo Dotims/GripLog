@@ -2,11 +2,7 @@ import { focusManager, onlineManager, QueryClient } from "@tanstack/react-query"
 import NetInfo from "@react-native-community/netinfo";
 import { AppState, Platform } from "react-native";
 
-/**
- * Server state lives in TanStack Query: it caches responses, dedupes requests
- * and refetches stale data. React Native has no window focus or online events,
- * so we wire AppState and NetInfo into Query's managers ourselves.
- */
+// React Native has no window focus or online events: wire AppState and NetInfo into Query.
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: { staleTime: 30_000, retry: 2 },

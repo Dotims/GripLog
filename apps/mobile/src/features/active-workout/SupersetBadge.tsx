@@ -4,7 +4,6 @@ import { StyleSheet, View } from "react-native";
 import { AppText } from "@/components/ui";
 import { Radii } from "@/constants/theme";
 
-/** "Superset A" in the group's colour, on the header of each linked exercise. */
 export function SupersetBadge({ letter, color }: { letter: string; color: string }) {
   return (
     <View style={[styles.badge, { backgroundColor: `${color}24` }]}>

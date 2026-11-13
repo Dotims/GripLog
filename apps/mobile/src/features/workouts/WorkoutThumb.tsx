@@ -8,7 +8,6 @@ import type { WorkedMuscle } from "@/features/muscles/muscles";
 const WIDTH = 56;
 const HEIGHT = 64;
 
-/** A workout at a glance: your photo when you added one, otherwise the muscles it trained. */
 export function WorkoutThumb({
   photoUri,
   muscles,

@@ -6,11 +6,6 @@ export class GraphQLRequestError extends Error {
   override name = "GraphQLRequestError";
 }
 
-/**
- * A tiny GraphQL client: POST the query, return `data`, throw on `errors`.
- * TanStack Query adds the caching, retries and pagination around it, so a
- * full client like Apollo would duplicate what we already have.
- */
 export async function graphql<
   TData,
   TVariables extends Record<string, unknown> = Record<string, never>,

@@ -15,7 +15,7 @@ export type BarDatum = { key: string; label: string; value: number };
 type BarChartProps = {
   data: readonly BarDatum[];
   height?: number;
-  /** Bar drawn in the accent colour, usually the current week. */
+  /** Key of the bar drawn in the accent colour. */
   highlightKey?: string;
 };
 
@@ -47,7 +47,6 @@ function Bar({
   );
 }
 
-/** Animated column chart. Bars are plain views, so it renders the same on every platform. */
 export function BarChart({ data, height = 120, highlightKey }: BarChartProps) {
   const max = Math.max(...data.map((d) => d.value), 0);
 

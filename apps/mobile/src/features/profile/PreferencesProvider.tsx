@@ -24,12 +24,6 @@ type Preferences = {
   setSoundsEnabled: (enabled: boolean) => void;
 };
 
-/**
- * Settings read all over the app but changed maybe once a month. That is the
- * case Context is good at: when the value changes every consumer re-renders,
- * which is fine at this frequency. Fast-changing state (the running workout)
- * lives in Zustand instead, where components subscribe to slices.
- */
 const PreferencesContext = createContext<Preferences | null>(null);
 
 export function PreferencesProvider({ children }: { children: ReactNode }) {

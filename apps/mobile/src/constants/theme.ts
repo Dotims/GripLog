@@ -1,8 +1,4 @@
-/**
- * GripLog design tokens: a dark, quiet interface where colour carries meaning.
- * Red is the one accent (actions, the current week, progress), green means
- * done, gold means a personal record. Everything else is greys.
- */
+// Red: actions and progress. Green: done. Gold: personal records. Everything else is grey.
 export const Colors = {
   background: "#0A0A0B",
   surface: "#141416",
@@ -18,18 +14,17 @@ export const Colors = {
   accentInk: "#FFFFFF",
   success: "#32D17A",
   successSoft: "rgba(50, 209, 122, 0.12)",
-  /** successSoft over a card, opaque so it can be animated to and from the surface. */
+  /** Opaque, so it can animate to and from the card surface. */
   successRow: "#182B22",
   gold: "#F5C451",
   goldSoft: "rgba(245, 196, 81, 0.14)",
   error: "#FF5A4F",
   overlay: "rgba(0, 0, 0, 0.6)",
   chartIdle: "#34343A",
-  /** Backdrop for exercise animations, which are drawn on white. */
+  /** Behind exercise animations, which have a white background. */
   media: "#FFFFFF",
 } as const;
 
-/** One colour per superset, so linked exercises read as a group at a glance. */
 export const SupersetColors = ["#60A5FA", "#34D3C0", "#F472B6", "#A3E635"] as const;
 
 export function supersetColor(index: number): string {
@@ -60,5 +55,5 @@ export const Radii = {
   pill: 999,
 } as const;
 
-/** Tabular figures keep weights and timers from jittering as digits change. */
+/** Digits keep their width, so timers do not jitter. */
 export const tabular = { fontVariant: ["tabular-nums" as const] };

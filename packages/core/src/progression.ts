@@ -37,10 +37,7 @@ export function bestOneRepMax(sets: readonly SetLike[]): number | null {
   return best;
 }
 
-/**
- * A lift is stalled when none of the last `window` sessions beat the best
- * estimated 1RM from before them. Needs at least window + 1 sessions.
- */
+/** Stalled: none of the last `window` sessions beat the best estimated 1RM before them. */
 export function isStalled(sessions: readonly ExerciseSession[], window = STALL_WINDOW): boolean {
   if (sessions.length < window + 1) return false;
   const before = sessions.slice(0, -window);
@@ -50,11 +47,7 @@ export function isStalled(sessions: readonly ExerciseSession[], window = STALL_W
   return recent.every((s) => (bestOneRepMax(s.sets) ?? 0) <= bestBefore);
 }
 
-/**
- * Double progression: stay at a weight until every top set reaches the top of
- * the rep range, then add weight and drop back to the bottom of the range.
- * Sessions are ordered oldest first.
- */
+/** Double progression: add weight once every top set reaches the top of the range. Oldest first. */
 export function suggestNextSession(
   sessions: readonly ExerciseSession[],
   repRange: RepRange = DEFAULT_REP_RANGE,

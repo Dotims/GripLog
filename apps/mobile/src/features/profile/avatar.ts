@@ -2,10 +2,7 @@ import { Directory, File, Paths } from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { Platform } from "react-native";
 
-/**
- * Lets the user pick a square photo and copies it into the app's documents,
- * because the picker's own file lives in a cache the OS may clear.
- */
+/** Copies the picked photo into documents; the picker's file sits in a cache the OS may clear. */
 export async function pickAvatar(): Promise<string | null> {
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ["images"],

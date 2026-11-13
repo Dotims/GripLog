@@ -21,11 +21,7 @@ type ScreenProps = {
   keyboardShouldPersistTaps?: ScrollViewProps["keyboardShouldPersistTaps"];
 };
 
-/**
- * Pads by the window's safe area from context. The native SafeAreaView measures
- * itself once, and inside an iOS modal that slides up it measures while still
- * off screen, so the top inset comes out as zero and content hits the island.
- */
+/** Insets from context: SafeAreaView in a sliding iOS modal measures a zero top inset. */
 export function useScreenInsets(edges: Edge[] = ["top"], sheet = false) {
   const insets = useSafeAreaInsets();
   return {
@@ -47,8 +43,7 @@ export function Screen({
   return (
     <View style={[styles.root, { paddingTop: top, paddingBottom: bottom }]}>
       {scroll ? (
-        // Edge-to-edge Android no longer shrinks the window for the keyboard, so the
-        // scroll view is padded instead; iOS insets the scroll view itself.
+        // Edge-to-edge Android does not resize for the keyboard, so the scroll view is padded.
         <KeyboardAvoidingView
           style={styles.root}
           behavior={Platform.OS === "android" ? "padding" : undefined}

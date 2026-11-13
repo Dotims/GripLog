@@ -25,7 +25,7 @@ const toDigits = (seconds: number | null) =>
 const toText = (digits: string) =>
   digits === "" ? "" : `${Number(digits.slice(0, -2) || 0)}:${digits.padStart(2, "0").slice(-2)}`;
 
-/** Digits fill from the right like a stopwatch: typing 1, 3, 0 reads 1:30. */
+/** Digits fill from the right: typing 1, 3, 0 reads 1:30. */
 export function parseDurationDigits(digits: string): number | null {
   if (digits === "") return null;
   const value = Number(digits);

@@ -9,10 +9,7 @@ import type { Db } from "@/db/types";
 
 export type PhotoSource = "camera" | "library";
 
-/**
- * Lets the user take or pick a photo and copies it into the app's documents,
- * because the picker's own file lives in a cache the OS may clear.
- */
+/** Copies the photo into documents; the picker's file sits in a cache the OS may clear. */
 export async function pickWorkoutPhoto(source: PhotoSource): Promise<string | null> {
   const options: ImagePicker.ImagePickerOptions = {
     mediaTypes: ["images"],
@@ -63,7 +60,6 @@ export function removeWorkoutPhoto(db: Db, photoId: string): void {
   discardPhotoFiles([row.uri]);
 }
 
-/** Deletes photo files from disk; a file that is already gone is fine. */
 export function discardPhotoFiles(uris: readonly string[]): void {
   if (Platform.OS === "web") return;
   for (const uri of uris) {
@@ -84,7 +80,6 @@ export function workoutPhotosQuery(db: Db, workoutId: string) {
     .orderBy(asc(workoutPhotos.position));
 }
 
-/** The newest photos across all workouts, for the profile cover. */
 export function recentPhotosQuery(db: Db, limit: number) {
   return db
     .select({

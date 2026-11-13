@@ -25,7 +25,6 @@ export type SetColumn = {
 
 const round = (value: number, digits = 2) => Math.round(value * 10 ** digits) / 10 ** digits;
 
-/** Which inputs a set row shows, in display units, for each way of measuring an exercise. */
 export function columnsFor(trackingType: TrackingType, unit: WeightUnit): SetColumn[] {
   const weight: SetColumn = {
     key: "weight",
@@ -74,7 +73,6 @@ export function columnsFor(trackingType: TrackingType, unit: WeightUnit): SetCol
   }
 }
 
-/** The grey hint in the "previous" column. */
 export function formatPrevious(
   previous: PreviousSet | undefined,
   trackingType: TrackingType,

@@ -14,14 +14,12 @@ const BASE_HEIGHT = 400;
 
 type MuscleMapProps = {
   muscles: readonly WorkedMuscle[];
-  /** Height of one figure in points. */
   height: number;
   /** Both views side by side, or only the one that shows the most work. */
   sides?: "both" | "best";
   style?: StyleProp<ViewStyle>;
 };
 
-/** A body with the trained muscles lit, front and back. Purely decorative, so it ignores touches. */
 export function MuscleMap({ muscles, height, sides = "both", style }: MuscleMapProps) {
   const scale = height / BASE_HEIGHT;
   const views = sides === "both" ? (["front", "back"] as const) : [bestSide(muscles)];

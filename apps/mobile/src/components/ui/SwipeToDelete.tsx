@@ -15,7 +15,6 @@ import { scheduleOnRN } from "react-native-worklets";
 
 import { Colors } from "@/constants/theme";
 
-/** Width of the revealed delete button. */
 const ACTION = 84;
 /** Past this share of the row's width, letting go deletes straight away. */
 const DELETE_AT = 0.5;
@@ -34,11 +33,6 @@ type SwipeToDeleteProps = {
   accessibilityLabel?: string;
 };
 
-/**
- * A row that slides left. A short swipe reveals a delete button, a long one
- * deletes. Deleting slides the row out, then folds its height and the red
- * behind it together, so nothing red is left hanging while the list closes up.
- */
 export function SwipeToDelete({
   children,
   onDelete,
@@ -60,7 +54,6 @@ export function SwipeToDelete({
   const [self] = useState(() => ({ close: () => offset.set(withSpring(0, SETTLE)) }));
   const claim = () => claimRow(self);
 
-  // The row slides out while the red fades with it, then the empty gap closes.
   const remove = () => {
     "worklet";
     const out = { duration: 180, easing: Easing.out(Easing.cubic) };
@@ -87,7 +80,6 @@ export function SwipeToDelete({
     .onUpdate((event) => {
       const next = Math.min(0, start.get() + event.translationX);
       offset.set(next);
-      // A tick when the row crosses the point where letting go deletes it.
       const past = -next > width.get() * DELETE_AT;
       if (past !== armed.get()) {
         armed.set(past);
@@ -116,7 +108,6 @@ export function SwipeToDelete({
     const reach = -offset.get();
     const w = width.get() || 1;
     return {
-      // The icon rides along once the swipe goes past the button.
       transform: [
         { translateX: Math.min(0, -(reach - ACTION)) },
         { scale: armed.get() ? withSpring(1.2, SETTLE) : withSpring(1, SETTLE) },

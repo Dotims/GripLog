@@ -18,7 +18,6 @@ function forecastLine(goal: LiftGoal): string {
   return "No upward trend in the last 12 weeks yet. Keep showing up.";
 }
 
-/** The lift goal as a ring: best recent estimated 1RM against the target, with a forecast. */
 export function LiftGoalCard({
   goal,
   unit,
@@ -62,7 +61,6 @@ export function LiftGoalCard({
   );
 }
 
-/** The empty state: one tap to pick a lift to chase. */
 export function NoLiftGoalCard({ onPress }: { onPress: () => void }) {
   return (
     <Card style={styles.card} onPress={onPress} accessibilityLabel="Set a lift goal">

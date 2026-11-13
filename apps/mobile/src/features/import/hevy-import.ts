@@ -38,11 +38,7 @@ export type HevyImportResult = {
 
 const workoutKey = (startedAt: string, title: string) => `${startedAt}|${title}`;
 
-/**
- * Works out what an import would do without writing anything, so the user can
- * review it first. Workouts imported before are skipped, which makes running
- * the same file twice harmless.
- */
+/** Dry run for the review step; workouts imported before are skipped. */
 export function planHevyImport(db: Db, imported: readonly ImportedWorkout[]): HevyImportPlan {
   const existing = new Set(
     db
@@ -52,8 +48,7 @@ export function planHevyImport(db: Db, imported: readonly ImportedWorkout[]): He
       .all()
       .map((w) => workoutKey(w.startedAt, w.title)),
   );
-  // Sets with impossible values (a 2 505 kg curl is a typo) are dropped, and
-  // exercises or workouts left empty go with them.
+  // Out-of-range sets are dropped (a 2 505 kg curl), and so are exercises and workouts left empty.
   let skippedSets = 0;
   const fresh = imported
     .filter((w) => !existing.has(workoutKey(w.startedAt, w.title)))
@@ -116,7 +111,7 @@ export function planHevyImport(db: Db, imported: readonly ImportedWorkout[]): He
   };
 }
 
-/** Writes the whole import in one transaction: a failure on workout 140 leaves nothing behind. */
+/** One transaction: a failure on any workout leaves nothing behind. */
 export function runHevyImport(db: Db, plan: HevyImportPlan): HevyImportResult {
   const timestamp = nowIso();
   return db.transaction((tx) => {

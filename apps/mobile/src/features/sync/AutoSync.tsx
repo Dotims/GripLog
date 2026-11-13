@@ -11,11 +11,6 @@ import { runSync } from "./sync-state";
 /** Waits this long after the last local write, so a burst of edits uploads once. */
 const DEBOUNCE_MS = 3000;
 
-/**
- * Syncs in the background while signed in: on start, when the app comes to the
- * foreground, when the network comes back, and shortly after local changes.
- * Renders nothing.
- */
 export function AutoSync() {
   const db = useDatabase();
   const { user } = useSession();

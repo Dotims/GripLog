@@ -11,12 +11,7 @@ function groupBy<T, K>(keys: readonly K[], rows: T[], keyOf: (row: T) => K): T[]
   return keys.map((key) => groups.get(key) ?? []);
 }
 
-/**
- * One DataLoader per request. Resolving 20 feed cards would otherwise run one
- * query per card for its author, its exercises, their sets and its likes (the
- * N+1 problem). Loaders collect the ids asked for in one tick and fetch them
- * with a single `WHERE id IN (...)` each.
- */
+/** DataLoaders per request: each batches the ids of one tick into a single IN query. */
 export function createLoaders(db: Database, viewerId: string) {
   return {
     user: new DataLoader(async (ids: readonly string[]) => {

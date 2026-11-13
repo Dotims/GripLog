@@ -44,7 +44,6 @@ function DayDot({ index, trained, today }: { index: number; trained: boolean; to
   );
 }
 
-/** The streak flame gives a little hop when the card appears, so the number feels alive. */
 function StreakBadge({ streak }: { streak: number }) {
   const hop = useSharedValue(1);
   useEffect(() => {
@@ -82,7 +81,6 @@ function StreakBadge({ streak }: { streak: number }) {
   );
 }
 
-/** This week against the weekly goal: day dots, the streak and the next freeze. */
 export function WeekCard({ goal, onPress }: { goal: WeeklyGoal; onPress?: () => void }) {
   const today = (new Date().getDay() + 6) % 7;
   const met = goal.thisWeek >= goal.goal;

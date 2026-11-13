@@ -32,7 +32,6 @@ type RoutineExerciseCardProps = {
   isLast: boolean;
 };
 
-/** One exercise of the routine being edited: its targets per set, rest and superset. */
 export function RoutineExerciseCard({
   exerciseId,
   unit,
@@ -153,7 +152,7 @@ export function RoutineExerciseCard({
         </Animated.View>
       ))}
 
-      {/* Plain Pressable, label spanning the button: sized to its text, Android drew it as "Add". */}
+      {/* Plain Pressable with a stretched label: Android cut it to "Add". */}
       <Pressable
         onPress={() => actions.addSet(exerciseId)}
         style={({ pressed }) => [styles.addSet, pressed && styles.addSetPressed]}
@@ -239,7 +238,6 @@ export function RoutineExerciseCard({
   );
 }
 
-/** A routine target: reps take a range, time reads as a clock, the rest are plain numbers. */
 function TargetField({
   column,
   set,

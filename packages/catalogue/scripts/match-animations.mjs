@@ -1,6 +1,4 @@
-// Links catalogue exercises to ExerciseDB animations by name and equipment.
-// Writes data/animations.json: { catalogueId: exerciseDbId }. Only ids are stored;
-// the app loads the GIF from the ExerciseDB CDN, nothing is redistributed here.
+// Links catalogue exercises to ExerciseDB animations by name and equipment; writes ids only.
 // Usage: npm run animations -w @griplog/catalogue [-- path/to/exercisedb.json]
 import { readFile, writeFile } from "node:fs/promises";
 
@@ -9,7 +7,6 @@ const CATALOGUE = new URL("../data/exercises.json", import.meta.url);
 const OUTPUT = new URL("../data/animations.json", import.meta.url);
 const OVERRIDES = new URL("../data/animation-overrides.json", import.meta.url);
 
-/** Below this the names share too little to trust the match. */
 const MIN_SCORE = 0.7;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

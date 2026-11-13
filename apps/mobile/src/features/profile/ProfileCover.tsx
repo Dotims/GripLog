@@ -19,15 +19,10 @@ type ProfileCoverProps = {
   /** Workout start times, for the training map when there are no photos. */
   startedAt: readonly string[];
   onOpenWorkout: (workoutId: string) => void;
-  /** Buttons laid over the top right corner. */
   actions?: ReactNode;
   topInset: number;
 };
 
-/**
- * The profile banner is made from your training, never picked: the photos you
- * added to your latest workouts, or a map of the days you trained.
- */
 export function ProfileCover({
   height,
   photos,
@@ -103,7 +98,6 @@ function TrainingMap({
   height: number;
 }) {
   const { width } = useWindowDimensions();
-  // Seven rows fill the banner; the last one fades into the page.
   const cell = Math.floor((height - top - GAP * 6) / 7);
   const weeks = Math.ceil(width / (cell + GAP)) + 1;
   const today = new Date();

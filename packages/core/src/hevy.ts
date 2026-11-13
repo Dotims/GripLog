@@ -85,11 +85,7 @@ function toImportedSet(row: Record<string, string>): ImportedSet {
   };
 }
 
-/**
- * Turns Hevy's "one row per set" export into workouts. A new exercise block
- * starts when the title changes or set_index goes back, because Hevy allows
- * the same exercise twice in one workout.
- */
+/** A new exercise block starts when the title changes or set_index goes back (exercises can repeat). */
 export function parseHevyCsv(text: string): ImportedWorkout[] {
   const records = parseCsvRecords(text);
   if (records.length === 0) return [];

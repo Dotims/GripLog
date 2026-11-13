@@ -7,8 +7,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    // The API is served from the same origin in development, so the session
-    // cookie just works and no CORS preflight is needed.
+    // Same origin in development, so the session cookie works without CORS.
     proxy: {
       "/api": api,
       "/graphql": api,

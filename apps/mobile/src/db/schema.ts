@@ -201,11 +201,7 @@ export const profile = sqliteTable("profile", {
   updatedAt: text("updated_at").notNull(),
 });
 
-/**
- * Transactional outbox: every local write enqueues the aggregate it touched in
- * the same transaction, so a change can never be saved without being queued
- * for upload. One row per aggregate; a newer edit replaces the change id.
- */
+/** Transactional outbox: one row per aggregate, written in the same transaction as the change. */
 export const syncOutbox = sqliteTable(
   "sync_outbox",
   {

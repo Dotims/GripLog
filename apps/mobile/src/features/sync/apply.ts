@@ -31,14 +31,7 @@ function ensureExercise(tx: Db, id: string, updatedAt: string): void {
     .run();
 }
 
-/**
- * Applies one page from the server and stores the new cursor in the same
- * transaction. If the app dies halfway, neither the data nor the cursor moved,
- * so the next pull fetches the same page again instead of losing it.
- *
- * Aggregates with a local edit still waiting in the outbox are skipped: the
- * local version is newer and will reach the server on the next push.
- */
+/** Applies a page and its cursor in one transaction; skips aggregates with a pending local edit. */
 export function applyPulledPage(db: Db, page: SyncPullResponse): { applied: number } {
   return db.transaction((tx) => {
     let applied = 0;

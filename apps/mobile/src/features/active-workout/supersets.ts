@@ -1,14 +1,6 @@
-/**
- * Supersets: neighbouring exercises done back to back, one set of each per
- * round, resting only after the last one. Exercises carry a small group
- * number; these helpers keep the groups valid when exercises move or go.
- */
 type Grouped = { id: string; supersetId: number | null };
 
-/**
- * A superset only holds neighbours. Splits groups that a move broke apart,
- * unlinks exercises left on their own and renumbers groups from 0.
- */
+/** Keeps groups to neighbours: splits broken groups, unlinks loners, renumbers from 0. */
 export function normalizeSupersets<T extends Grouped>(exercises: readonly T[]): T[] {
   const result = exercises.map((e) => ({ ...e }));
   let next = 0;
@@ -69,7 +61,6 @@ export function supersetLetters(exercises: readonly Grouped[]): Map<number, stri
   return letters;
 }
 
-/** Where an exercise sits in its superset, for drawing the connecting rail. */
 export function supersetPosition(
   exercises: readonly Grouped[],
   id: string,

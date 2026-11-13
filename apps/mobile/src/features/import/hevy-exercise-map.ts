@@ -1,8 +1,4 @@
-/**
- * Hevy exercise titles mapped to ids in the bundled catalogue. Titles without
- * an entry become custom exercises during import, so the map only needs to
- * cover the common ones.
- */
+// Hevy titles to catalogue ids; titles without an entry become custom exercises.
 export const HEVY_EXERCISE_MAP: Readonly<Record<string, string>> = {
   // Chest
   "Bench Press (Barbell)": "Barbell_Bench_Press_-_Medium_Grip",

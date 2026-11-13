@@ -50,11 +50,6 @@ async function recentWorkouts(client: GripLogClient, count: number): Promise<Wor
   return workouts;
 }
 
-/**
- * The AI coach as an MCP server. An assistant such as Claude calls these tools
- * to read your history; every number in the answers comes from GripLog's own
- * tested functions, and the model only explains and plans around them.
- */
 export function createCoachServer(client: GripLogClient): McpServer {
   const server = new McpServer({ name: "griplog-coach", version: "0.1.0" });
 

@@ -45,8 +45,7 @@ export default function ActiveWorkoutScreen() {
   const { unit } = usePreferences();
   const insets = useSafeAreaInsets();
 
-  // Narrow selectors: this screen re-renders when exercises are added or
-  // reordered, not when a weight is typed into a set row.
+  // Narrow selectors: typing a weight does not re-render this screen.
   const exerciseIds = useActiveWorkout(
     useShallow((s) => s.workout?.exercises.map((e) => e.id) ?? []),
   );

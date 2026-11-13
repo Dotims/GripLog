@@ -20,10 +20,7 @@ function format(value: number | null): string {
   return value === null ? "" : String(value);
 }
 
-/**
- * Keeps its own text so half-typed numbers like "82." survive, and reports a
- * parsed number (or null when empty) on every change.
- */
+/** Keeps its own text so "82." survives; reports a number, or null when empty. */
 export function NumberInput({
   value,
   onChange,
@@ -75,7 +72,6 @@ export function NumberInput({
   );
 }
 
-/** Shared by the number, duration and rep range fields so a set row reads as one line. */
 export const fieldStyles = StyleSheet.create({
   input: {
     minWidth: 56,

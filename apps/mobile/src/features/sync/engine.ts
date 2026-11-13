@@ -14,10 +14,9 @@ import { applyPulledPage, readCursor } from "./apply";
 import { acknowledgeChanges, blockChange, markChangeFailed, pendingChanges } from "./outbox";
 import { buildChange } from "./payloads";
 
-/** Small pages keep each local transaction short, so the UI never freezes on a big first sync. */
+/** Small pages keep each local transaction short. */
 export const PULL_PAGE_SIZE = 50;
 
-/** The two REST calls sync needs. Injected, so tests run without a server. */
 export type SyncTransport = {
   push: (changes: SyncChange[]) => Promise<SyncPushResponse>;
   pull: (cursor: number) => Promise<SyncPullResponse>;
@@ -25,7 +24,6 @@ export type SyncTransport = {
 
 export type SyncResult = { pushed: number; pulled: number };
 
-/** Validates with the same schema the server uses, so a bad row is caught before it is sent. */
 function validate(db: Db, change: SyncChange): boolean {
   const result = syncChangeSchema.safeParse(change);
   if (result.success) return true;
@@ -34,7 +32,7 @@ function validate(db: Db, change: SyncChange): boolean {
   return false;
 }
 
-/** Sends one batch. A 400 for the batch is retried change by change to find the bad one. */
+/** A 400 for the batch is retried change by change to find the bad one. */
 async function sendBatch(
   db: Db,
   transport: SyncTransport,
@@ -58,7 +56,6 @@ async function sendBatch(
   }
 }
 
-/** Sends the outbox in batches until nothing sendable is left. */
 export async function pushPending(db: Db, transport: SyncTransport): Promise<number> {
   let pushed = 0;
   for (;;) {
@@ -90,7 +87,6 @@ export async function pushPending(db: Db, transport: SyncTransport): Promise<num
   }
 }
 
-/** Pulls pages until the server says there is nothing more. */
 export async function pullRemote(db: Db, transport: SyncTransport): Promise<number> {
   let pulled = 0;
   for (;;) {
@@ -101,7 +97,7 @@ export async function pullRemote(db: Db, transport: SyncTransport): Promise<numb
   }
 }
 
-/** Push first, so the server sees local edits before we download its view. */
+/** Push first, so the server has the local edits before the pull. */
 export async function syncOnce(db: Db, transport: SyncTransport): Promise<SyncResult> {
   const pushed = await pushPending(db, transport);
   const pulled = await pullRemote(db, transport);
@@ -118,7 +114,7 @@ export class SyncHttpError extends Error {
   }
 }
 
-/** Transport over fetch. Responses are validated, so a broken server cannot corrupt local data. */
+/** Responses are validated, so a broken server cannot corrupt local data. */
 export function httpTransport(
   baseUrl: string,
   headers: () => Promise<Record<string, string>>,

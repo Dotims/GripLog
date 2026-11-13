@@ -31,10 +31,6 @@ type ExerciseImageProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-/**
- * One visual language for every exercise: the 3D animation when there is one,
- * otherwise a quiet tile with an icon. Never photos, so lists never mix styles.
- */
 export function ExerciseImage({
   exerciseId,
   name,
@@ -42,7 +38,6 @@ export function ExerciseImage({
   animated = false,
   style,
 }: ExerciseImageProps) {
-  // A GIF that fails to load (offline, never cached) falls back to the tile.
   const [failed, setFailed] = useState(false);
   const [side, setSide] = useState(0);
   const gif = exerciseId && !failed ? animationUrl(exerciseId) : undefined;
@@ -92,7 +87,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderCurve: "continuous",
   },
-  // The animations are drawn on white, so the frame matches instead of showing a seam.
+  // The GIFs have a white background.
   animation: {
     backgroundColor: Colors.media,
   },

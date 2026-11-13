@@ -122,7 +122,6 @@ WorkoutRef.implement({
   }),
 });
 
-/** Visible workouts, newest first, one keyset page at a time. */
 async function workoutPage(
   db: Database,
   filter: SQL,

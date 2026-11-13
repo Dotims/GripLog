@@ -2,7 +2,7 @@ import { addWeeks, startOfWeek } from "./stats";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Met weeks it takes to earn one forgiven week, the way a streak freeze is earned. */
+/** Met weeks per earned freeze. */
 export const WEEKS_PER_FREEZE = 4;
 
 export type WeekStatus = "met" | "frozen" | "missed" | "current";
@@ -15,7 +15,7 @@ export type WeeklyGoal = {
   thisWeek: number;
   /** Monday to Sunday of the current week: did you train that day. */
   days: boolean[];
-  /** Weeks in a row that met the goal; a frozen week keeps the run alive without adding to it. */
+  /** Weeks in a row on goal; a frozen week keeps the streak without adding to it. */
   streak: number;
   /** Met weeks banked towards the next freeze, 0 to WEEKS_PER_FREEZE. */
   freezeProgress: number;
@@ -23,12 +23,7 @@ export type WeeklyGoal = {
   weeks: GoalWeek[];
 };
 
-/**
- * Weekly goal and streak. Walking forward from the first workout, every
- * WEEKS_PER_FREEZE met weeks earn one freeze, and the next missed week spends
- * it instead of breaking the streak. The current week never breaks a streak:
- * it only counts once it meets the goal.
- */
+/** Every WEEKS_PER_FREEZE met weeks earn a freeze; the current week never breaks the streak. */
 export function weeklyGoal(
   startedAt: readonly string[],
   goal: number,
@@ -96,15 +91,10 @@ export type GoalForecast = {
   expectedAt: Date | null;
 };
 
-/** How far back the trend looks: long enough to smooth a bad day, short enough to stay current. */
 export const FORECAST_WINDOW_DAYS = 84;
 const MAX_FORECAST_DAYS = 730;
 
-/**
- * Progress towards a lift target from estimated one-rep maxes. The forecast is
- * a least-squares line through the best estimate of each session in the last
- * twelve weeks, extended until it meets the target.
- */
+/** Least-squares trend through each session's best 1RM in the window, extended to the target. */
 export function forecastGoal(
   points: readonly StrengthPoint[],
   targetKg: number,
@@ -142,8 +132,7 @@ export function forecastGoal(
   const slope = den === 0 ? 0 : num / den;
   if (slope <= 0) return { ...base, expectedAt: null };
 
-  // The trend only moves while you train: count from the last session, never from
-  // a gap of weeks off, and never promise a date in the past.
+  // Weeks off are not progress: start from the trend at the last session.
   const lastX = Math.max(...xs);
   const atLast = meanY + slope * (lastX - meanX);
   const days = Math.max(1, (targetKg - Math.max(atLast, currentKg)) / slope);

@@ -8,8 +8,6 @@ type StatProps = {
   label: string;
   value: string;
   unit?: string;
-  /** Kept for compatibility: every surface is dark now. */
-  inverted?: boolean;
 };
 
 export function Stat({ label, value, unit }: StatProps) {

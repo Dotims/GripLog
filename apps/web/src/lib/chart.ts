@@ -1,9 +1,6 @@
 export type ChartPoint = { x: number; y: number };
 
-/**
- * Maps values onto an SVG box. The y axis is flipped (SVG grows downwards) and
- * padded by 10 % so the line never touches the edges. A flat series is centred.
- */
+/** Maps values onto the SVG box: y flipped, 10 % padding, a flat series centred. */
 export function scalePoints(
   values: readonly number[],
   width: number,

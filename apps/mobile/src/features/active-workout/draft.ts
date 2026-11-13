@@ -7,7 +7,6 @@ import type { WorkoutInput } from "@/features/workouts/repository";
 
 import { emptySet, type ActiveWorkout, type DraftExercise, type DraftSet } from "./store";
 
-/** A new exercise starts with one set; more are a tap away. */
 export const DEFAULT_SET_COUNT = 1;
 
 export type TemplateSet = Pick<DraftSet, "type" | "weightKg" | "reps"> &
@@ -60,7 +59,6 @@ export function newDraftExercise(
   };
 }
 
-/** Routine targets (or an old workout's sets) become the starting values of each set. */
 export function draftFromTemplate(
   info: ExerciseInfo,
   template: TemplateExercise,
@@ -121,7 +119,6 @@ export function toWorkoutInput(workout: ActiveWorkout, endedAt: string): Workout
   };
 }
 
-/** Turns a finished or running workout into a routine with the same sets as targets. */
 export function toRoutineInput(
   name: string,
   exercises: {

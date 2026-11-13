@@ -56,10 +56,7 @@ export function weeklyBuckets(
   return buckets;
 }
 
-/**
- * Consecutive weeks with at least one workout. The current week may still be
- * empty without breaking the streak, the way Hevy counts it.
- */
+/** Weeks in a row with a workout; an empty current week does not break it, as in Hevy. */
 export function weekStreak(startedAt: readonly string[], now: Date = new Date()): number {
   const trained = new Set(startedAt.map((iso) => startOfWeek(new Date(iso)).getTime()));
   let cursor = startOfWeek(now);

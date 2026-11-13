@@ -46,8 +46,7 @@ export default function ImportScreen() {
   const pick = async () => {
     const result = await DocumentPicker.getDocumentAsync({
       type: ["text/csv", "text/comma-separated-values", "text/plain", "application/vnd.ms-excel"],
-      // On Android read the content:// URI directly: the picker's cache copy lands in
-      // a folder Expo Go is not allowed to read.
+      // Android: read the content:// URI directly; Expo Go cannot read the picker's cache copy.
       copyToCacheDirectory: Platform.OS !== "android",
     });
     const asset = result.canceled ? null : result.assets[0];
@@ -63,7 +62,7 @@ export default function ImportScreen() {
 
   const run = (plan: HevyImportPlan) => {
     setStep({ kind: "importing" });
-    // Give the spinner a frame to appear before the synchronous transaction blocks the JS thread.
+    // Let the spinner paint before the synchronous transaction blocks the JS thread.
     setTimeout(() => {
       try {
         setStep({ kind: "done", result: runHevyImport(db, plan) });

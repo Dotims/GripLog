@@ -30,7 +30,6 @@ function player(name: SoundName): AudioPlayer {
   return existing;
 }
 
-/** Short UI sounds: they mix with your music and stay quiet when the phone is on silent. */
 export function playSound(name: SoundName): void {
   if (!enabled) return;
   try {

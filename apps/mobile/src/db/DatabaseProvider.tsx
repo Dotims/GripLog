@@ -7,15 +7,10 @@ import { Colors, Spacing } from "@/constants/theme";
 import { prepareDatabase } from "./prepare";
 import type { Db } from "./types";
 
-/**
- * The database handle lives in Context: it is global, created once and never
- * replaced, so consumers never re-render because of it. Screens get it with
- * useDatabase() instead of importing the singleton, which keeps them testable.
- */
 const DatabaseContext = createContext<Db | null>(null);
 
 function ReadyDatabase({ children }: { children: ReactNode }) {
-  // Suspends until migrations and seeding finish; the splash screen covers the wait.
+  // Suspends until migrations and seeding finish, behind the splash screen.
   const db = use(prepareDatabase());
   return <DatabaseContext value={db}>{children}</DatabaseContext>;
 }

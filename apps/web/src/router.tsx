@@ -29,7 +29,7 @@ const loginRoute = createRoute({
   component: LoginPage,
 });
 
-/** Every page below needs a session; without one the router sends you to /login before rendering anything. */
+/** Pages below need a session; without one the router redirects to /login first. */
 const appRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "app",

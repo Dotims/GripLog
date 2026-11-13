@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-/** Counts from 0 to the target with an ease-out, for the numbers on the summary screen. */
+/** Counts from 0 to the target with an ease-out. */
 export function useCountUp(target: number, durationMs = 900): number {
   const [value, setValue] = useState(0);
 

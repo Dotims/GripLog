@@ -7,7 +7,7 @@ export const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:300
 const NETWORK_FAILURE =
   /network request failed|fetch failed|failed to connect|connectexception|unable to resolve host|timed? ?out/i;
 
-/** Turns low-level failures, like a raw Java exception on Android, into words a person can act on. */
+/** Readable messages for low-level failures such as raw Java exceptions on Android. */
 export function readableError(error: unknown, fallback = "Something went wrong"): string {
   const message = error instanceof Error ? error.message : typeof error === "string" ? error : "";
   if (!message) return fallback;

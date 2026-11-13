@@ -14,7 +14,6 @@ export function filterExercises(
   });
 }
 
-/** Most used first, then alphabetical. */
 export function sortByUsage(
   exercises: readonly ExerciseListItem[],
   usage: ReadonlyMap<string, number>,
@@ -24,11 +23,7 @@ export function sortByUsage(
   );
 }
 
-/**
- * The library lists exercises that have an animation, so every row looks alike.
- * Your own exercises, the ones you have logged and the common lifts stay even
- * without one.
- */
+/** Exercises with an animation, plus your own, the ones you logged and the common lifts. */
 export function libraryExercises(
   exercises: readonly ExerciseListItem[],
   usage: ReadonlyMap<string, number>,

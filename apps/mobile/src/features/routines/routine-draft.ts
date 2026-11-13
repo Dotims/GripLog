@@ -56,10 +56,6 @@ const blankSet = (type: SetType = "normal"): RoutineDraftSet => ({
   distanceMeters: null,
 });
 
-/**
- * The routine being edited. A separate store from the running workout: it
- * only lives while the editor is open and is thrown away on cancel.
- */
 export const useRoutineDraft = create<RoutineDraftState>()((set) => {
   const update = (fn: (draft: RoutineDraft) => RoutineDraft) =>
     set((state) => (state.draft ? { draft: fn(state.draft) } : state));
@@ -101,7 +97,7 @@ export const useRoutineDraft = create<RoutineDraftState>()((set) => {
     setRestSeconds: (id, seconds) => mapExercise(id, (e) => ({ ...e, restSeconds: seconds })),
     addSet: (exerciseId) =>
       mapExercise(exerciseId, (e) => {
-        // A new set repeats the last one's targets, which is what you usually want.
+        // A new set copies the last one's targets.
         const last = e.sets.at(-1);
         return { ...e, sets: [...e.sets, last ? { ...last, id: newId() } : blankSet()] };
       }),

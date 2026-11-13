@@ -11,10 +11,7 @@ export type { CatalogueExercise } from "@griplog/catalogue";
 
 const CATALOGUE_VERSION_KEY = "catalogue_version";
 
-/**
- * Loads the bundled catalogue into SQLite. Runs once per catalogue version, as
- * one transaction, so a crash halfway leaves the old catalogue intact.
- */
+/** Seeds the bundled catalogue once per version, in one transaction. */
 export function seedCatalogue(db: Db, catalogue: readonly CatalogueExercise[], version: string) {
   const current = db.select().from(keyValue).where(eq(keyValue.key, CATALOGUE_VERSION_KEY)).get();
   if (current?.value === version) return false;
@@ -87,7 +84,6 @@ export function exerciseQuery(db: Db, id: string) {
   return db.select().from(exercises).where(eq(exercises.id, id)).limit(1);
 }
 
-/** How many times each exercise was logged, for sorting the picker by habit. */
 export function exerciseUsageQuery(db: Db) {
   return db
     .select({ exerciseId: workoutExercises.exerciseId, uses: sql<number>`count(*)` })
@@ -97,7 +93,7 @@ export function exerciseUsageQuery(db: Db) {
     .groupBy(workoutExercises.exerciseId);
 }
 
-/** Every set of one exercise, newest workout first. Feeds history, charts and progression. */
+/** Every set of one exercise, newest workout first. */
 export function exerciseHistoryQuery(db: Db, exerciseId: string) {
   return db
     .select({
@@ -144,7 +140,6 @@ export function previousSets(db: Db, exerciseId: string): PreviousSet[] {
 
 export type ExerciseInfo = { exerciseId: string; name: string; trackingType: TrackingType };
 
-/** Names and tracking types for a list of ids, in one query. */
 export function exerciseInfoByIds(db: Db, ids: readonly string[]): Map<string, ExerciseInfo> {
   if (ids.length === 0) return new Map();
   const rows = db

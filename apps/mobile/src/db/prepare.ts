@@ -10,7 +10,7 @@ import type { Db } from "./types";
 
 let preparing: Promise<Db> | null = null;
 
-/** Opens, migrates and seeds the database. Runs once per launch; later calls share the promise. */
+/** Once per launch; later calls share the promise. */
 export function prepareDatabase(): Promise<Db> {
   preparing ??= (async () => {
     const db = await openAppDatabase();

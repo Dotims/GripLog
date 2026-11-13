@@ -33,20 +33,11 @@ export function createLiveStore<T>(load: () => T, tables: readonly Table[]): Liv
   };
 }
 
-/**
- * Reads data synchronously and re-reads it whenever one of `tables` changes.
- *
- * Why not drizzle's useLiveQuery: it watches only the query's root table, re-runs
- * once per changed row (an import of 2 654 sets means 2 654 re-runs), and starts
- * with an empty result. Here the first render already has data, and a whole
- * transaction collapses into one re-read. useSyncExternalStore is the same
- * primitive Zustand uses, so React never renders two different snapshots in one pass.
- */
+/** Not drizzle's useLiveQuery: that one starts empty and re-runs once per changed row. */
 export function useLiveQuery<T>(load: () => T, tables: readonly Table[], key = ""): T {
   const [entry, setEntry] = useState(() => ({ key, store: createLiveStore(load, tables) }));
   let store = entry.store;
-  // `key` names the query (for example the id it reads). A new key means a new store,
-  // swapped in during render, which React allows for state derived from props.
+  // A new key means a new store, swapped in during render.
   if (entry.key !== key) {
     store = createLiveStore(load, tables);
     setEntry({ key, store });

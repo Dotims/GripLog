@@ -14,11 +14,6 @@ type Session = {
   signOut: () => Promise<void>;
 };
 
-/**
- * Who is signed in. Context fits: read across the app, changes on sign in and
- * sign out only. The app works fully without an account; signing in only
- * turns on sync and the social feed.
- */
 const SessionContext = createContext<Session | null>(null);
 
 export function SessionProvider({ children }: { children: ReactNode }) {

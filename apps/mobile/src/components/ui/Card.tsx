@@ -22,7 +22,6 @@ const TONES = {
   gold: Colors.goldSoft,
 } as const;
 
-/** A rounded surface. Depth comes from the surface colour, not borders or shadows. */
 export function Card({
   children,
   onPress,

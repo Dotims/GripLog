@@ -31,7 +31,6 @@ export type PersonResult = {
   workoutCount: number;
 };
 
-// The query names exactly the fields a feed card renders, and nothing else.
 const FEED_QUERY = /* GraphQL */ `
   query Feed($after: String) {
     feed(first: 10, after: $after) {
@@ -99,10 +98,6 @@ export function useFeed() {
   });
 }
 
-/**
- * Likes feel instant: the cache is updated before the server answers
- * (optimistic update) and rolled back if the request fails.
- */
 export function useToggleLike() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -153,7 +148,7 @@ export function useSearchPeople(query: string) {
   });
 }
 
-/** People to follow, the most active first; follows stay in the list until you leave. */
+/** People to follow, most active first; followed people stay listed until you leave. */
 export function useSuggestedPeople() {
   const { user } = useSession();
   return useQuery({
@@ -178,7 +173,6 @@ function markFollowed(data: PeopleData | undefined, id: string, followedByMe: bo
   };
 }
 
-/** Follow flips at once in every list of people and rolls back if the server says no. */
 export function useToggleFollow() {
   const queryClient = useQueryClient();
   return useMutation({

@@ -1,4 +1,4 @@
-/** Above this many reps any 1RM estimate is noise, so we refuse to guess. */
+/** No 1RM estimate above this many reps. */
 export const MAX_REPS_FOR_ESTIMATE = 20;
 
 export function epley(weightKg: number, reps: number): number {
@@ -10,10 +10,7 @@ export function brzycki(weightKg: number, reps: number): number {
   return (weightKg * 36) / (37 - reps);
 }
 
-/**
- * Estimated one-rep max. Brzycki is the better fit up to 10 reps,
- * Epley above that because Brzycki blows up as reps approach 37.
- */
+/** Brzycki up to 10 reps, Epley above: Brzycki diverges as reps approach 37. */
 export function estimateOneRepMax(weightKg: number | null, reps: number | null): number | null {
   if (!weightKg || !reps || weightKg <= 0 || reps <= 0) return null;
   if (reps > MAX_REPS_FOR_ESTIMATE) return null;

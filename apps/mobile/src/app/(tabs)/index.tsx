@@ -54,7 +54,6 @@ export default function FeedScreen() {
   const [tab, setTab] = useState<Tab>("you");
   const profile = useProfile();
 
-  // The same header sits on top of both lists.
   const header = (
     <View style={styles.header}>
       <ScreenHeader
@@ -82,7 +81,6 @@ export default function FeedScreen() {
   );
 }
 
-/** Your own workouts, read from the phone's database. */
 function MyFeed({ header }: { header: ReactElement }) {
   const router = useRouter();
   const { unit } = usePreferences();

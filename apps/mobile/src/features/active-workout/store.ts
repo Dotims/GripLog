@@ -26,7 +26,6 @@ export type DraftExercise = {
   trackingType: TrackingType;
   notes: string | null;
   restSeconds: number;
-  /** Neighbours with the same number are done as a superset. */
   supersetId?: number | null;
   /** Sets from the last time this exercise was done, shown as hints. */
   previous: PreviousSet[];
@@ -114,11 +113,7 @@ function mapSet(
   }));
 }
 
-/**
- * Completing an empty set takes the previous values, like tapping the hint in
- * Hevy. A routine's rep range bounds them: last time's reps are kept inside it,
- * and with no history the set gets the bottom of the range.
- */
+/** An empty set completes with last time's values, kept inside the routine's rep range. */
 function fillFromPrevious(set: DraftSet, previous: PreviousSet | undefined): DraftSet {
   const range = set.repsRange;
   const previousReps =
@@ -138,7 +133,6 @@ const withGroups = (exercises: DraftExercise[]) =>
   exercises.map((e) => ({ ...e, supersetId: e.supersetId ?? null }));
 
 export const activeWorkoutSlice: StateCreator<ActiveWorkoutState> = (set, get) => {
-  /** Applies an update only while a workout is running. */
   const update = (fn: (workout: ActiveWorkout) => ActiveWorkout) =>
     set((state) => (state.workout ? { workout: fn(state.workout) } : state));
 
@@ -201,7 +195,7 @@ export const activeWorkoutSlice: StateCreator<ActiveWorkoutState> = (set, get) =
     addSet: (exerciseId) =>
       update((w) =>
         mapExercise(w, exerciseId, (e) => {
-          // New sets start from the values of the last one, which is what you usually repeat.
+          // A new set copies the last one.
           const last = e.sets.at(-1);
           const next = emptySet();
           if (last) {

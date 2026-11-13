@@ -23,7 +23,6 @@ import { usePreferences } from "@/features/profile/PreferencesProvider";
 
 const CHOICES = 10;
 
-/** A round number a little above the current best, so the suggested target is reachable. */
 function suggestTarget(bestKg: number): number {
   if (bestKg <= 0) return 60;
   return Math.ceil((bestKg * 1.08) / 5) * 5;
@@ -111,7 +110,6 @@ function LiftGoalEditor({
   const [target, setTarget] = useState<number | null>(null);
   const history = useExerciseHistory(exerciseId ?? "");
 
-  // The loaded lifts you do most, the ones worth a goal.
   const choices = (exercises ?? [])
     .filter((e) => e.trackingType === "weight_reps" && (usage?.get(e.id) ?? 0) > 0)
     .sort((a, b) => (usage?.get(b.id) ?? 0) - (usage?.get(a.id) ?? 0))

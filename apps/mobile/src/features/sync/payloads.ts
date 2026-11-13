@@ -77,10 +77,7 @@ function profilePayload(db: Db): SyncProfile | null {
   };
 }
 
-/**
- * Reads the current state of a queued aggregate. Building the payload at send
- * time, not at queue time, means five quick edits upload as one change.
- */
+/** Built at send time, so quick edits upload as one change. */
 export function buildChange(db: Db, pending: PendingChange): SyncChange | null {
   const { changeId, entity, entityId } = pending;
   switch (entity) {

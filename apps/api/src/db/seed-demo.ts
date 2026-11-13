@@ -1,10 +1,5 @@
-/**
- * Seeds a few demo athletes with recent workouts, so the social feed has
- * something to show on a fresh local server. Goes through the real auth and
- * sync endpoints and uses stable ids, so running it again only refreshes dates.
- *
- *   npm run db:seed-demo -w @griplog/api [-- --follower you@example.com]
- */
+// Demo athletes with recent workouts, written through the real auth and sync endpoints. Safe to re-run.
+// Usage: npm run db:seed-demo -w @griplog/api [-- --follower you@example.com]
 import { catalogueName } from "@griplog/catalogue";
 import type { SetType, SyncChange, SyncWorkout } from "@griplog/core";
 import { and, eq } from "drizzle-orm";

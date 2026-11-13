@@ -3,7 +3,6 @@ import { useState } from "react";
 
 import { NumberInput } from "./NumberInput";
 
-/** A parent that owns the value, the way the workout store does in the app. */
 function Controlled({
   initial,
   onChange,

@@ -152,7 +152,7 @@ export function ExerciseBlock({ exerciseId, unit, isFirst, isLast }: ExerciseBlo
         </Animated.View>
       ))}
 
-      {/* Plain Pressable, label spanning the button: sized to its text, Android drew it as "Add". */}
+      {/* Plain Pressable with a stretched label: Android cut it to "Add". */}
       <Pressable
         onPress={() => actions.addSet(exerciseId)}
         style={({ pressed }) => [styles.addSet, pressed && styles.addSetPressed]}

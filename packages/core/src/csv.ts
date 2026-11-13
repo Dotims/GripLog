@@ -1,7 +1,4 @@
-/**
- * RFC 4180 CSV parser: quoted fields, escaped quotes ("") and line breaks
- * inside quotes. Returns rows of raw strings, header row included.
- */
+/** RFC 4180 CSV: quoted fields, "" escapes and line breaks inside quotes. Header row included. */
 export function parseCsv(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];

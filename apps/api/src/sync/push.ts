@@ -25,11 +25,7 @@ const nextVersion = sql`nextval('sync_version_seq')`;
 const date = (iso: string) => new Date(iso);
 const dateOrNull = (iso: string | null) => (iso === null ? null : new Date(iso));
 
-/**
- * Last write wins: an incoming aggregate older than what the server holds is
- * dropped. Returns false when the row belongs to someone else, so a guessed
- * id can never overwrite another user's data.
- */
+/** Last write wins. False when the row belongs to another user. */
 function canWrite(
   existing: { userId: string; updatedAt: Date } | undefined,
   userId: string,
@@ -192,14 +188,7 @@ function applyChange(tx: Transaction, userId: string, change: SyncChange): Promi
   }
 }
 
-/**
- * Applies a batch of changes in one transaction.
- *
- * - Idempotent: every change id is recorded, so a retried request is a no-op.
- * - Atomic: if any change fails, none of the batch is kept and the phone retries it.
- * - Serialised per user with an advisory lock, so two devices pushing at once
- *   cannot interleave and version numbers follow commit order.
- */
+/** One transaction per batch, idempotent by change id, serialised per user by an advisory lock. */
 export async function applyPush(
   db: Database,
   userId: string,

@@ -22,7 +22,6 @@ type GoalRingProps = {
   children?: ReactNode;
 };
 
-/** A ring that fills to the progress when it appears, with whatever goes in the middle. */
 export function GoalRing({
   progress,
   size,

@@ -45,7 +45,6 @@ function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // A mutation gives loading and error state for free, without hand-rolled flags.
   const submit = useMutation({
     mutationFn: async () => {
       const error =
@@ -105,7 +104,6 @@ function SignedIn() {
 
   const syncNow = useMutation({
     mutationFn: () => runSync(db),
-    // New data from the server makes the social feed stale.
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["feed"] }),
   });
 

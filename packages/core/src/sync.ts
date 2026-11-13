@@ -2,12 +2,7 @@ import { z } from "zod";
 
 import { SET_LIMITS, SET_TYPES, TRACKING_TYPES } from "./sets";
 
-/**
- * The contract between the phone and the API. Sync works on whole aggregates
- * (a workout with its exercises and sets), never on single rows, so the server
- * can store each change in one transaction. Deletes are tombstones: an upsert
- * with deletedAt set. Conflicts resolve last-write-wins on updatedAt.
- */
+// Contract between the phone and the API: whole aggregates, tombstone deletes, last write wins.
 
 const id = z.uuid();
 const timestamp = z.iso.datetime({ offset: true });

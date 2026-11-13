@@ -1,6 +1,5 @@
 const endpoint = `${import.meta.env.VITE_API_URL ?? ""}/graphql`;
 
-/** POSTs a query with the session cookie and returns `data`, throwing on GraphQL errors. */
 export async function graphql<TData>(
   query: string,
   variables?: Record<string, unknown>,

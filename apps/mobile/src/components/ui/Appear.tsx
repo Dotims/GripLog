@@ -2,10 +2,9 @@ import type { ReactNode } from "react";
 import type { StyleProp, ViewStyle } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
-/** Rows past the first screen mount while scrolling and should not make you wait. */
+/** Rows past this index mount without the entering animation. */
 const ANIMATED_ROWS = 10;
 
-/** A list row that rises into place, each one a beat after the one above. */
 export function Appear({
   index,
   children,

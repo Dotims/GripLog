@@ -12,7 +12,6 @@ import { draftFromTemplate, type TemplateExercise } from "./draft";
 import type { DraftExercise } from "./store";
 import { useActiveWorkout } from "./use-active-workout";
 
-/** Entry points for starting a workout: empty, from a routine, or repeating an old one. */
 export function useStartWorkout() {
   const db = useDatabase();
   const router = useRouter();

@@ -9,7 +9,6 @@ import { Colors, Radii, Spacing } from "@/constants/theme";
 import { ElapsedTime } from "./ElapsedTime";
 import { useActiveWorkout } from "./use-active-workout";
 
-/** Floating strip above the tab bar while a workout runs. */
 export function ActiveWorkoutBar() {
   const router = useRouter();
   // Selecting two fields keeps this bar from re-rendering on every set edit.

@@ -31,12 +31,7 @@ type RowInputProps = Omit<TextInputProps, "style"> & {
   style?: StyleProp<TextStyle>;
 };
 
-/**
- * A text field inside a swipeable row. On Android the native field keeps the
- * touch to itself, so the row could not be swiped from it. Until it is focused
- * the field ignores touches; a tap on its frame unlocks it, then focuses it once
- * it takes touches again (Android will not focus a field that cannot).
- */
+/** Android: ignores touches until tapped, so a swipe can start on the field. */
 export function RowInput({ style, onFocus, onBlur, ...props }: RowInputProps) {
   const ref = useRef<TextInput>(null);
   const [focused, setFocused] = useState(false);

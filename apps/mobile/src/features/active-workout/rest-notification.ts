@@ -8,10 +8,7 @@ const REST_NOTIFICATION_ID = "rest-timer";
 
 type NotificationsModule = typeof import("expo-notifications");
 
-/**
- * expo-notifications is loaded lazily: Expo Go on Android ships without its
- * native module, and importing it there at startup crashes the app.
- */
+// Lazy: Expo Go on Android has no native module, and importing it at startup crashes.
 function notificationsSupported(): boolean {
   if (Platform.OS === "web") return false;
   const inExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
@@ -30,11 +27,7 @@ async function schedule(Notifications: NotificationsModule, rest: RestTimer | nu
   });
 }
 
-/**
- * Mirrors the store's rest timer as a local notification, so the phone buzzes
- * even when it is locked between sets. Kept outside the store: the store stays
- * pure and testable, this is the side effect that follows it.
- */
+/** Mirrors the rest timer as a local notification, so a locked phone still buzzes. */
 export function startRestNotifications(): () => void {
   if (!notificationsSupported()) return () => {};
   let unsubscribe: (() => void) | null = null;

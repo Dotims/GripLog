@@ -23,7 +23,6 @@ const TILE = 96;
 /** The options sheet is a modal; iOS will not present the picker until it is gone. */
 const SHEET_CLOSE_MS = 350;
 
-/** A row of a workout's photos with a tile to add another. Photos stay on this phone. */
 export function WorkoutPhotos({ workoutId }: { workoutId: string }) {
   const db = useDatabase();
   const photos = useLiveQuery(

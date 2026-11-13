@@ -6,11 +6,7 @@ import { AppText } from "./AppText";
 
 export const KEYBOARD_TOOLBAR_ID = "griplog-number-toolbar";
 
-/**
- * iOS number pads have no return key, so the system floats its own Done pill
- * over the rows above the keyboard. Inputs that point at this bar get a
- * full-width toolbar instead. Render it once on each screen with number inputs.
- */
+/** iOS number pads have no return key; render once per screen with number inputs. */
 export function KeyboardToolbar() {
   if (Platform.OS !== "ios") return null;
 

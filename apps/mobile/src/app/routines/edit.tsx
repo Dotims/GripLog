@@ -27,7 +27,7 @@ export default function RoutineEditorScreen() {
   const db = useDatabase();
   const { top } = useScreenInsets();
   const { unit, defaultRestSeconds } = usePreferences();
-  // The list of exercises only; each card subscribes to its own targets.
+  // Ids only; each card subscribes to its own targets.
   const exerciseIds = useRoutineDraft(
     useShallow((state) => state.draft?.exercises.map((e) => e.id) ?? []),
   );
@@ -40,7 +40,6 @@ export default function RoutineEditorScreen() {
     router.back();
   };
 
-  // Leaving with unsaved work asks first, from the back button and from Android's back key.
   const leave = () => {
     const draft = useRoutineDraft.getState().draft;
     const touched = draft && (draft.name.trim() !== "" || draft.exercises.length > 0);

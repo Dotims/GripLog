@@ -54,10 +54,6 @@ const CARD_FIELDS = `
   user { id name isMe }
 `;
 
-/**
- * Query definitions live in one place as `queryOptions`, so the route loader
- * (prefetch) and the component (read) share the exact same key and fetcher.
- */
 export const feedQuery = infiniteQueryOptions({
   queryKey: ["feed"],
   queryFn: ({ pageParam }) =>

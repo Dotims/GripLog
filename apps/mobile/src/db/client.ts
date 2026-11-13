@@ -8,10 +8,7 @@ export const DATABASE_NAME = "griplog.db";
 
 export type AppDatabase = ExpoSQLiteDatabase<typeof schema>;
 
-/**
- * After a page reload the browser may not have released the previous tab's
- * lock on the database file yet. Native platforms never hit this.
- */
+/** After a web reload the previous tab may still hold the database lock. */
 async function openWithRetry(attempts = Platform.OS === "web" ? 10 : 1): Promise<SQLiteDatabase> {
   for (let attempt = 1; ; attempt++) {
     try {
@@ -24,11 +21,7 @@ async function openWithRetry(attempts = Platform.OS === "web" ? 10 : 1): Promise
   }
 }
 
-/**
- * Opens the app's single connection. The open itself is async because on the
- * web SQLite runs in a worker that has to load WebAssembly first; once open,
- * the same connection serves the synchronous calls Drizzle makes everywhere else.
- */
+/** Async: on the web SQLite loads as WebAssembly in a worker. */
 export async function openAppDatabase(): Promise<AppDatabase> {
   const sqlite = await openWithRetry();
   sqlite.execSync("PRAGMA foreign_keys = ON;");

@@ -56,11 +56,7 @@ export type WorkedExercise = {
 /** 2 for the muscles that carried the session, 1 for the ones that helped. */
 export type WorkedMuscle = { slug: MuscleSlug; intensity: 1 | 2 };
 
-/**
- * Which muscles a session trained. Each set counts fully for its exercise's
- * primary muscles and half for the secondary ones; regions with at least half
- * the top score are the main ones.
- */
+/** Primary muscles score 1 per set, secondary 0.5; main means at least half the top score. */
 export function musclesWorked(exercises: readonly WorkedExercise[]): WorkedMuscle[] {
   const score = new Map<MuscleSlug, number>();
   const add = (muscles: readonly string[], weight: number) => {
@@ -81,7 +77,7 @@ export function musclesWorked(exercises: readonly WorkedExercise[]): WorkedMuscl
     .map(([slug, value]) => ({ slug, intensity: value >= top / 2 ? 2 : 1 }));
 }
 
-/** The view that shows most of the main work: a back day looks better from behind. */
+/** The view that shows most of the main work. */
 export function bestSide(muscles: readonly WorkedMuscle[]): "front" | "back" {
   let front = 0;
   let back = 0;

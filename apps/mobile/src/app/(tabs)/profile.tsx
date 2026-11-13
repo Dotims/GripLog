@@ -255,7 +255,6 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  // The cover runs edge to edge and under the status bar.
   root: {
     flex: 1,
   },

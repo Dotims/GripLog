@@ -23,7 +23,6 @@ type OptionsSheetProps = {
 
 const CLOSE_MS = 200;
 
-/** A bottom sheet of actions that looks the same on iOS, Android and the web. */
 export function OptionsSheet({ visible, title, options, onClose }: OptionsSheetProps) {
   const insets = useSafeAreaInsets();
   // The modal stays up a moment after closing, so the sheet can slide away.

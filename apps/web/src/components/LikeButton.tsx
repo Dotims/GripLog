@@ -5,7 +5,6 @@ import type { FeedWorkout } from "../lib/queries";
 
 type FeedPage = { feed: { items: FeedWorkout[]; nextCursor: string | null } };
 
-/** Optimistic like: the count changes at once and rolls back if the server says no. */
 export function LikeButton({
   workout,
 }: {

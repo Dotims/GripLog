@@ -1,11 +1,6 @@
 import { clientError } from "./errors";
 
-/**
- * Keyset pagination: the cursor is the (startedAt, id) of the last item seen,
- * and the next page asks for rows strictly "older" than it. Unlike OFFSET,
- * new workouts arriving at the top never shift or duplicate items between pages,
- * and the database jumps straight to the cursor through an index.
- */
+/** Keyset pagination on (startedAt, id): stable when new rows arrive, served by an index. */
 export type Cursor = { startedAt: Date; id: string };
 
 export function encodeCursor(cursor: Cursor): string {

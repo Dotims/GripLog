@@ -79,7 +79,6 @@ export function SetRow({
     done.set(withTiming(completed ? 1 : 0, { duration: 240 }));
   }, [completed, done]);
 
-  // The row washes green and the check pops when a set is ticked.
   const rowStyle = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(done.value, [0, 1], [Colors.surface, Colors.successRow]),
   }));

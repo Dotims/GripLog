@@ -16,12 +16,7 @@ import {
 const iso = (date: Date) => date.toISOString();
 const isoOrNull = (date: Date | null) => (date === null ? null : date.toISOString());
 
-/**
- * Each entity type is paged separately. If one list was cut at `limit`, the
- * cursor may only advance to the last version of the shortest cut list:
- * anything above it in the other lists comes again on the next page, which is
- * harmless because applying an aggregate twice gives the same result.
- */
+// Each list is paged on its own; the cursor stops at the shortest cut list (repeats are harmless).
 export function nextCursor(
   lists: { versions: number[]; truncated: boolean }[],
   current: number,
