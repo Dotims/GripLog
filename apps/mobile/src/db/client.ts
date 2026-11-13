@@ -4,7 +4,7 @@ import { Platform } from "react-native";
 
 import * as schema from "./schema";
 
-export const DATABASE_NAME = "griplog.db";
+const DATABASE_NAME = "griplog.db";
 
 export type AppDatabase = ExpoSQLiteDatabase<typeof schema>;
 

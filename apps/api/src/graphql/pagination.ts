@@ -23,7 +23,7 @@ export function decodeCursor(value: string): Cursor {
   }
 }
 
-export const MAX_PAGE_SIZE = 50;
+const MAX_PAGE_SIZE = 50;
 
 export function pageSize(first: number | null | undefined): number {
   return Math.min(Math.max(first ?? 20, 1), MAX_PAGE_SIZE);

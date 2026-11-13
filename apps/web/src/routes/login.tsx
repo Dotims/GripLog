@@ -37,6 +37,7 @@ export function LoginPage() {
             <span className="stat-label">Name</span>
             <input
               className="input"
+              autoComplete="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -48,6 +49,7 @@ export function LoginPage() {
           <input
             className="input"
             type="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -58,6 +60,7 @@ export function LoginPage() {
           <input
             className="input"
             type="password"
+            autoComplete={mode === "signIn" ? "current-password" : "new-password"}
             minLength={8}
             value={password}
             onChange={(e) => setPassword(e.target.value)}

@@ -15,7 +15,7 @@ import { acknowledgeChanges, blockChange, markChangeFailed, pendingChanges } fro
 import { buildChange } from "./payloads";
 
 /** Small pages keep each local transaction short. */
-export const PULL_PAGE_SIZE = 50;
+const PULL_PAGE_SIZE = 50;
 
 export type SyncTransport = {
   push: (changes: SyncChange[]) => Promise<SyncPushResponse>;

@@ -8,7 +8,7 @@ type LiveStore<T> = {
 };
 
 /** Wraps a synchronous query as an external store that re-reads when its tables change. */
-export function createLiveStore<T>(load: () => T, tables: readonly Table[]): LiveStore<T> {
+function createLiveStore<T>(load: () => T, tables: readonly Table[]): LiveStore<T> {
   let snapshot = load();
   const watched = new Set(tables.map((table) => getTableName(table)));
 

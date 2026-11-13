@@ -2,7 +2,7 @@ import { authHeaders } from "@/features/account/auth-client";
 
 import { API_URL } from "./api";
 
-export class GraphQLRequestError extends Error {
+class GraphQLRequestError extends Error {
   override name = "GraphQLRequestError";
 }
 

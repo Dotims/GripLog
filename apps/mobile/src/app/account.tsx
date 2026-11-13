@@ -66,7 +66,13 @@ function SignInForm() {
       </Card>
       <SegmentedControl options={MODES} value={mode} onChange={setMode} />
       {mode === "signUp" ? (
-        <TextField label="Name" value={name} onChangeText={setName} autoCapitalize="words" />
+        <TextField
+          label="Name"
+          value={name}
+          onChangeText={setName}
+          autoCapitalize="words"
+          autoComplete="name"
+        />
       ) : null}
       <TextField
         label="Email"
@@ -81,7 +87,7 @@ function SignInForm() {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-        autoComplete="password"
+        autoComplete={mode === "signUp" ? "new-password" : "password"}
       />
       {submit.error ? <AppText color={Colors.error}>{readableError(submit.error)}</AppText> : null}
       <Button
