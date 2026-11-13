@@ -11,6 +11,12 @@ describe("parseHevyDate", () => {
     expect(parseHevyDate("14 Oct 2026, 18:05")).toBe(new Date(2026, 9, 14, 18, 5).toISOString());
   });
 
+  it("reads the Polish month names of a web export", () => {
+    expect(parseHevyDate("10 lis 2026, 21:37")).toBe(new Date(2026, 10, 10, 21, 37).toISOString());
+    expect(parseHevyDate("3 paź 2026, 07:05")).toBe(new Date(2026, 9, 3, 7, 5).toISOString());
+    expect(parseHevyDate("1 Mar 2026, 10:00")).toBe(parseHevyDate("1 mar 2026, 10:00"));
+  });
+
   it("rejects anything else", () => {
     expect(() => parseHevyDate("2026-10-14 18:05")).toThrow(HevyImportError);
   });

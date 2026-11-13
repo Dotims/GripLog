@@ -39,25 +39,28 @@ const REQUIRED_COLUMNS = [
   "set_type",
 ];
 
-const MONTHS: Record<string, number> = {
-  Jan: 0,
-  Feb: 1,
-  Mar: 2,
-  Apr: 3,
-  May: 4,
-  Jun: 5,
-  Jul: 6,
-  Aug: 7,
-  Sep: 8,
-  Oct: 9,
-  Nov: 10,
-  Dec: 11,
-};
+// English, and Polish as the web export writes it for a Polish account.
+const MONTHS: Record<string, number> = Object.fromEntries(
+  [
+    ["jan", "sty"],
+    ["feb", "lut"],
+    ["mar"],
+    ["apr", "kwi"],
+    ["may", "maj"],
+    ["jun", "cze"],
+    ["jul", "lip"],
+    ["aug", "sie"],
+    ["sep", "wrz"],
+    ["oct", "paź"],
+    ["nov", "lis"],
+    ["dec", "gru"],
+  ].flatMap((names, month) => names.map((name) => [name, month])),
+);
 
-/** Hevy writes local time as "27 Sep 2026, 20:22". Returns an ISO string. */
+/** Hevy writes local time as "27 Sep 2026, 20:22" or "27 wrz 2026, 20:22". Returns an ISO string. */
 export function parseHevyDate(value: string): string {
-  const match = /^(\d{1,2}) ([A-Z][a-z]{2}) (\d{4}), (\d{1,2}):(\d{2})$/.exec(value.trim());
-  const month = match ? MONTHS[match[2] ?? ""] : undefined;
+  const match = /^(\d{1,2}) ([^\s\d.,]{3})\.? (\d{4}), (\d{1,2}):(\d{2})$/.exec(value.trim());
+  const month = match ? MONTHS[(match[2] ?? "").toLowerCase()] : undefined;
   if (!match || month === undefined) throw new HevyImportError(`Unrecognised date "${value}"`);
   const [, day, , year, hours, minutes] = match;
   return new Date(Number(year), month, Number(day), Number(hours), Number(minutes)).toISOString();
