@@ -1,4 +1,4 @@
-import { HevyImportError, parseHevyCsv } from "@griplog/core";
+import { formatNumber, HevyImportError, parseHevyCsv } from "@griplog/core";
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
 import { useRouter } from "expo-router";
@@ -133,9 +133,9 @@ export default function ImportScreen() {
             {step.fileName}
           </AppText>
           <Card style={styles.stats}>
-            <Stat label="Workouts" value={String(step.plan.workouts.length)} />
-            <Stat label="Sets" value={String(step.plan.setCount)} />
-            <Stat label="Already in" value={String(step.plan.duplicates)} />
+            <Stat label="Workouts" value={formatNumber(step.plan.workouts.length, 0)} />
+            <Stat label="Sets" value={formatNumber(step.plan.setCount, 0)} />
+            <Stat label="Already in" value={formatNumber(step.plan.duplicates, 0)} />
           </Card>
           {step.plan.skippedSets > 0 ? (
             <AppText color={Colors.muted}>
@@ -159,7 +159,7 @@ export default function ImportScreen() {
           </Card>
 
           <Button
-            label={`Import ${step.plan.workouts.length} workouts`}
+            label={`Import ${formatNumber(step.plan.workouts.length, 0)} workouts`}
             size="lg"
             disabled={step.plan.workouts.length === 0}
             onPress={() => run(step.plan)}
@@ -183,7 +183,8 @@ export default function ImportScreen() {
             <CheckCircle2 color={Colors.success} size={32} strokeWidth={2} />
             <AppText variant="title">Imported</AppText>
             <AppText>
-              {step.result.workouts} workouts and {step.result.sets} sets
+              {formatNumber(step.result.workouts, 0)} workouts and{" "}
+              {formatNumber(step.result.sets, 0)} sets
               {step.result.createdExercises > 0
                 ? `, plus ${step.result.createdExercises} custom exercises for names the catalogue does not have.`
                 : "."}

@@ -18,7 +18,7 @@ Offline-first workout tracker for iOS and Android, with a sync API, a social fee
 
 I log my own gym sessions in GripLog; it started as a replacement for Hevy. The app keeps everything in SQLite on the phone and works with no signal. An account adds sync through a Hono and Postgres API, a feed of friends' workouts over GraphQL and a web dashboard with progress charts. There is also an MCP server, so an assistant such as Claude can answer questions about your training using numbers from the same tested code the app runs.
 
-The recording and the screenshots show my real history: 144 workouts and about 2 650 sets imported from a Hevy export, captured in Expo Go on an Android emulator.
+The recording and the screenshots show my real history: 163 workouts and about 3 250 sets imported from a Hevy export, captured in Expo Go on an Android emulator.
 
 <p align="center">
   <img src="docs/media/screens.png" alt="Profile with the training map cover and lift goal ring, exercise detail with a next-session suggestion, an active workout with a superset and the rest timer, and a past workout with its muscle map" />
