@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { catalogue } from "@griplog/catalogue";
 import { parseHevyCsv } from "@griplog/core";
+import { eq } from "drizzle-orm";
 
 import { exercises, personalRecords, sets, syncOutbox, workouts } from "@/db/schema";
 import type { Db } from "@/db/types";
@@ -16,6 +17,9 @@ const csv = readFileSync(
   path.join(__dirname, "../../../../../packages/core/src/__fixtures__/hevy-export.csv"),
   "utf8",
 );
+
+const NAMESPACE = "3f1f8a2e-5b7c-4d0e-9a6b-2c8d4e1f7a90";
+const OTHER_NAMESPACE = "9b2c6d4e-1a3f-4e5d-8c7b-6a5f4e3d2c1b";
 
 let db: Db;
 
@@ -84,5 +88,54 @@ describe("Hevy import", () => {
     const shifted = custom.replaceAll("2024", "2025");
     const plan = planHevyImport(db, parseHevyCsv(shifted));
     expect(plan.matches.find((m) => m.title === "Archer Push Up")?.exerciseId).toBe(created[0]!.id);
+  });
+
+  it("gives a workout the same id on every phone of one account", async () => {
+    const other = await createTestDb();
+    seedCatalogue(other, catalogue, "test");
+    const custom = csv.replaceAll("Push Up", "Archer Push Up");
+    for (const device of [db, other])
+      runHevyImport(device, planHevyImport(device, parseHevyCsv(custom), NAMESPACE));
+
+    const ids = (device: Db) =>
+      [
+        ...device.select({ id: workouts.id }).from(workouts).all(),
+        ...device
+          .select({ id: exercises.id })
+          .from(exercises)
+          .where(eq(exercises.isCustom, true))
+          .all(),
+      ]
+        .map((row) => row.id)
+        .sort();
+    expect(ids(other)).toEqual(ids(db));
+  });
+
+  it("gives other accounts, and signed-out imports, different workout ids", () => {
+    const parsed = parseHevyCsv(csv);
+    const ids = (namespace: string | null) =>
+      planHevyImport(db, parsed, namespace).workouts.map((w) => w.id);
+
+    expect(ids(OTHER_NAMESPACE)).not.toEqual(ids(NAMESPACE));
+    expect(ids(null)).not.toEqual(ids(null));
+  });
+
+  it("skips workouts renamed since the last import", () => {
+    runHevyImport(db, planHevyImport(db, parseHevyCsv(csv), NAMESPACE));
+    db.update(workouts).set({ title: "Renamed" }).run();
+    expect(planHevyImport(db, parseHevyCsv(csv), NAMESPACE)).toMatchObject({
+      duplicates: 2,
+      workouts: [],
+    });
+  });
+
+  it("reuses a custom exercise renamed since the last import", () => {
+    const custom = csv.replaceAll("Push Up", "Archer Push Up");
+    runHevyImport(db, planHevyImport(db, parseHevyCsv(custom)));
+    db.update(exercises).set({ name: "Archer push-up" }).where(eq(exercises.isCustom, true)).run();
+
+    const shifted = custom.replaceAll("2024", "2025");
+    runHevyImport(db, planHevyImport(db, parseHevyCsv(shifted)));
+    expect(db.select().from(exercises).where(eq(exercises.isCustom, true)).all()).toHaveLength(1);
   });
 });

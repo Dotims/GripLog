@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 
+import { syncNamespaceResponseSchema } from "@griplog/core";
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 
@@ -34,6 +35,20 @@ describe("sync", () => {
   it("rejects requests without a session", async () => {
     const response = await app.request("/sync/pull");
     expect(response.status).toBe(401);
+  });
+
+  it("gives every account its own stable import namespace", async () => {
+    const first = await signUp("namespace-a@example.com");
+    const second = await signUp("namespace-b@example.com");
+    const namespace = async (headers: Record<string, string>) =>
+      syncNamespaceResponseSchema.parse(
+        await (await app.request("/sync/namespace", { headers })).json(),
+      ).namespace;
+
+    const mine = await namespace(first.headers);
+    expect(await namespace(first.headers)).toBe(mine);
+    expect(await namespace(second.headers)).not.toBe(mine);
+    expect((await app.request("/sync/namespace")).status).toBe(401);
   });
 
   it("round-trips a workout through push and pull", async () => {

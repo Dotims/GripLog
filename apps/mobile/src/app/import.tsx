@@ -19,12 +19,14 @@ import {
 } from "@/components/ui";
 import { Colors, Spacing } from "@/constants/theme";
 import { useDatabase } from "@/db/DatabaseProvider";
+import { useSession } from "@/features/account/SessionProvider";
 import {
   planHevyImport,
   runHevyImport,
   type HevyImportPlan,
   type HevyImportResult,
 } from "@/features/import/hevy-import";
+import { importNamespace } from "@/features/import/namespace";
 
 type Step =
   | { kind: "pick" }
@@ -41,6 +43,7 @@ async function readPickedFile(asset: DocumentPicker.DocumentPickerAsset): Promis
 export default function ImportScreen() {
   const router = useRouter();
   const db = useDatabase();
+  const { user } = useSession();
   const [step, setStep] = useState<Step>({ kind: "pick" });
 
   const pick = async () => {
@@ -54,7 +57,12 @@ export default function ImportScreen() {
     try {
       const workouts = parseHevyCsv(await readPickedFile(asset));
       if (workouts.length === 0) throw new HevyImportError("The file has no workouts in it.");
-      setStep({ kind: "review", plan: planHevyImport(db, workouts), fileName: asset.name });
+      const namespace = await importNamespace(db, user?.id ?? null);
+      setStep({
+        kind: "review",
+        plan: planHevyImport(db, workouts, namespace),
+        fileName: asset.name,
+      });
     } catch (error) {
       setStep({ kind: "error", message: error instanceof Error ? error.message : String(error) });
     }

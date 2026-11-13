@@ -128,6 +128,9 @@ export const syncPullResponseSchema = z.object({
   profile: syncProfileSchema.nullable(),
 });
 
+/** Per-account namespace for ids the phone derives itself, such as imported workouts. */
+export const syncNamespaceResponseSchema = z.object({ namespace: id });
+
 export type SyncSet = z.infer<typeof syncSetSchema>;
 export type SyncWorkout = z.infer<typeof syncWorkoutSchema>;
 export type SyncRoutine = z.infer<typeof syncRoutineSchema>;

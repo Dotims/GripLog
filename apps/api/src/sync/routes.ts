@@ -6,6 +6,7 @@ import { z } from "zod";
 import { requireUser } from "../http/require-user";
 import type { AppEnv } from "../http/types";
 import { pullChanges } from "./pull";
+import { importNamespace } from "./namespace";
 import { applyPush } from "./push";
 
 const pullQuery = z.object({
@@ -13,13 +14,15 @@ const pullQuery = z.object({
   limit: z.coerce.number().int().min(1).max(500).default(200),
 });
 
-export const syncRoutes = new Hono<AppEnv>()
-  .use(requireUser)
-  .post("/push", zValidator("json", syncPushRequestSchema), async (c) => {
-    const { changes } = c.req.valid("json");
-    return c.json(await applyPush(c.var.db, c.var.user!.id, changes));
-  })
-  .get("/pull", zValidator("query", pullQuery), async (c) => {
-    const { cursor, limit } = c.req.valid("query");
-    return c.json(await pullChanges(c.var.db, c.var.user!.id, cursor, limit));
-  });
+export const syncRoutes = (secret: string) =>
+  new Hono<AppEnv>()
+    .use(requireUser)
+    .post("/push", zValidator("json", syncPushRequestSchema), async (c) => {
+      const { changes } = c.req.valid("json");
+      return c.json(await applyPush(c.var.db, c.var.user!.id, changes));
+    })
+    .get("/pull", zValidator("query", pullQuery), async (c) => {
+      const { cursor, limit } = c.req.valid("query");
+      return c.json(await pullChanges(c.var.db, c.var.user!.id, cursor, limit));
+    })
+    .get("/namespace", (c) => c.json({ namespace: importNamespace(secret, c.var.user!.id) }));

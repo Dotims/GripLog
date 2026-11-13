@@ -101,6 +101,7 @@ The training rules (1RM estimates, progression, records, goals), the Hevy parser
 - Conflicts resolve by last write wins on `updatedAt`. A guessed id cannot overwrite another user's row, and a test checks it.
 - The client validates each payload with the server's zod schema. A change the server will never accept is parked with a reason so the rest of the queue keeps moving (my Hevy export has a 2 505 kg curl). When the server rejects a batch, the client retries it one change at a time to find the bad one.
 - Pulls are paged per entity type, with a cursor that can hold back but never skips a row.
+- Imported workouts get UUIDv5 ids from their start time and title, in a namespace the server derives per account with an HMAC. The same Hevy file imported on two phones merges on sync instead of doubling, and no other account can predict those ids.
 - New contract fields (superset numbers, rep ranges, timed targets) have defaults in the schema, so an older app version still pushes valid changes.
 
 ### REST and GraphQL

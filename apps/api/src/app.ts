@@ -38,7 +38,7 @@ export function createApp({ db, auth, env, log = false }: Dependencies) {
   });
 
   app.get("/health", (c) => c.json({ ok: true }));
-  app.route("/sync", syncRoutes);
+  app.route("/sync", syncRoutes(env.BETTER_AUTH_SECRET));
   app.on(["GET", "POST"], "/graphql", requireUser, (c) => {
     const viewer = c.var.user!;
     // Loaders are created per request so their cache never leaks between users.
