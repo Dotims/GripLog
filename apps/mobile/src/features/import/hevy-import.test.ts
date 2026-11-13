@@ -8,6 +8,7 @@ import { eq } from "drizzle-orm";
 import { exercises, personalRecords, sets, syncOutbox, workouts } from "@/db/schema";
 import type { Db } from "@/db/types";
 import { seedCatalogue } from "@/features/exercises/repository";
+import { writeWorkoutRows } from "@/features/workouts/repository";
 import { createTestDb } from "@/test/test-db";
 
 import { HEVY_EXERCISE_MAP } from "./hevy-exercise-map";
@@ -137,5 +138,39 @@ describe("Hevy import", () => {
     const shifted = custom.replaceAll("2024", "2025");
     runHevyImport(db, planHevyImport(db, parseHevyCsv(shifted)));
     expect(db.select().from(exercises).where(eq(exercises.isCustom, true)).all()).toHaveLength(1);
+  });
+
+  it("leaves a workout alone that a sync brought in after the review", () => {
+    const plan = planHevyImport(db, parseHevyCsv(csv), NAMESPACE);
+    const first = plan.workouts[0]!;
+    writeWorkoutRows(
+      db,
+      {
+        ...first,
+        title: "Renamed on the other phone",
+        notes: null,
+        routineId: null,
+        source: "hevy",
+        exercises: [],
+      },
+      "2030-01-01T00:00:00.000Z",
+    );
+
+    expect(runHevyImport(db, plan)).toMatchObject({ workouts: 1 });
+    const kept = db.select().from(workouts).where(eq(workouts.id, first.id)).get();
+    expect(kept?.title).toBe("Renamed on the other phone");
+  });
+
+  it("still imports when a sync brought in its custom exercise after the review", async () => {
+    const custom = parseHevyCsv(csv.replaceAll("Push Up", "Archer Push Up"));
+    const plan = planHevyImport(db, custom, NAMESPACE);
+    const other = await createTestDb();
+    seedCatalogue(other, catalogue, "test");
+    runHevyImport(other, planHevyImport(other, custom, NAMESPACE));
+    db.insert(exercises)
+      .values(other.select().from(exercises).where(eq(exercises.isCustom, true)).get()!)
+      .run();
+
+    expect(runHevyImport(db, plan)).toMatchObject({ workouts: 2, createdExercises: 0 });
   });
 });

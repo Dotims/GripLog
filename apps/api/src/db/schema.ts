@@ -235,6 +235,14 @@ export const appliedChanges = pgTable("applied_changes", {
   appliedAt: timestamp("applied_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/** Random per account: the phone derives the ids of imported workouts in it. */
+export const importNamespaces = pgTable("import_namespaces", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  namespace: uuid("namespace").notNull().defaultRandom(),
+});
+
 // Social (read through GraphQL)
 
 export const follows = pgTable(

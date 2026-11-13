@@ -36,6 +36,7 @@ function transport(overrides: Partial<SyncTransport> = {}): SyncTransport & { se
       return { applied: changes.map((c) => c.changeId), skipped: [] };
     },
     pull: async () => emptyPage,
+    namespace: async () => "3f1f8a2e-5b7c-4d0e-9a6b-2c8d4e1f7a90",
     ...overrides,
   };
 }

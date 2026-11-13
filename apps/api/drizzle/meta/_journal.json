@@ -15,6 +15,13 @@
       "when": 1792574217896,
       "tag": "0001_supersets_and_targets",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794566682450,
+      "tag": "0002_import_namespaces",
+      "breakpoints": true
     }
   ]
 }

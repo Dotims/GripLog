@@ -20,7 +20,7 @@ export const useSyncState = create<SyncState>()(() => ({
   lastError: null,
 }));
 
-const transport = httpTransport(API_URL, authHeaders);
+export const transport = httpTransport(API_URL, authHeaders);
 let running: Promise<SyncResult> | null = null;
 
 /** Single flight: a sync that is already running is joined, not started twice. */

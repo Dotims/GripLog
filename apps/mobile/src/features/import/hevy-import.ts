@@ -38,6 +38,8 @@ export type HevyImportResult = {
 };
 
 const workoutKey = (startedAt: string, title: string) => `${startedAt}|${title}`;
+const setCount = (list: HevyImportPlan["workouts"]) =>
+  list.reduce((sum, w) => sum + w.exercises.reduce((s, e) => s + e.sets.length, 0), 0);
 
 // The server keys custom exercises per account, so a public namespace is safe for them.
 const EXERCISE_NAMESPACE = "e53d8803-b8fa-4dd1-8a20-4baf2c980b55";
@@ -59,9 +61,15 @@ export function planHevyImport(
   // Keys catch imports from before stable ids; ids catch workouts renamed since.
   const keys = new Set(previous.map((w) => workoutKey(w.startedAt, w.title)));
   const ids = new Set(previous.map((w) => w.id));
-  const unseen = imported
-    .map((w) => ({ ...w, id: workoutId(w) }))
-    .filter((w) => !keys.has(workoutKey(w.startedAt, w.title)) && !ids.has(w.id));
+  const unseen: (ImportedWorkout & { id: string })[] = [];
+  for (const workout of imported) {
+    const key = workoutKey(workout.startedAt, workout.title);
+    const id = workoutId(workout);
+    if (keys.has(key) || ids.has(id)) continue;
+    keys.add(key);
+    ids.add(id);
+    unseen.push({ ...workout, id });
+  }
 
   // Out-of-range sets are dropped (a 2 505 kg curl), and so are exercises and workouts left empty.
   let skippedSets = 0;
@@ -122,7 +130,7 @@ export function planHevyImport(
     workouts: fresh,
     duplicates: imported.length - unseen.length,
     skippedSets,
-    setCount: fresh.reduce((sum, w) => sum + w.exercises.reduce((s, e) => s + e.sets.length, 0), 0),
+    setCount: setCount(fresh),
     matches,
   };
 }
@@ -131,14 +139,30 @@ export function planHevyImport(
 export function runHevyImport(db: Db, plan: HevyImportPlan): HevyImportResult {
   const timestamp = nowIso();
   return db.transaction((tx) => {
+    // A sync after the review may already have brought in some of these rows.
+    const present = (table: typeof workouts | typeof exercises, ids: string[]) =>
+      new Set(
+        ids.length === 0
+          ? []
+          : tx
+              .select({ id: table.id })
+              .from(table)
+              .where(inArray(table.id, ids))
+              .all()
+              .map((row) => row.id),
+      );
+
     const idByTitle = new Map<string, string>();
+    const toCreate = plan.matches.filter((m) => !m.exerciseId);
+    const existingExercises = present(
+      exercises,
+      toCreate.map((m) => hevyExerciseId(m.title)),
+    );
     let createdExercises = 0;
     for (const match of plan.matches) {
-      if (match.exerciseId) {
-        idByTitle.set(match.title, match.exerciseId);
-        continue;
-      }
-      const id = hevyExerciseId(match.title);
+      const id = match.exerciseId ?? hevyExerciseId(match.title);
+      idByTitle.set(match.title, id);
+      if (match.exerciseId || existingExercises.has(id)) continue;
       tx.insert(exercises)
         .values({
           id,
@@ -150,11 +174,15 @@ export function runHevyImport(db: Db, plan: HevyImportPlan): HevyImportResult {
         })
         .run();
       enqueueChange(tx, "exercise", id);
-      idByTitle.set(match.title, id);
       createdExercises++;
     }
 
-    for (const workout of plan.workouts) {
+    const existingWorkouts = present(
+      workouts,
+      plan.workouts.map((w) => w.id),
+    );
+    const fresh = plan.workouts.filter((w) => !existingWorkouts.has(w.id));
+    for (const workout of fresh) {
       writeWorkoutRows(
         tx,
         {
@@ -179,6 +207,6 @@ export function runHevyImport(db: Db, plan: HevyImportPlan): HevyImportResult {
     }
 
     rebuildRecords(tx, [...idByTitle.values()]);
-    return { workouts: plan.workouts.length, sets: plan.setCount, createdExercises };
+    return { workouts: fresh.length, sets: setCount(fresh), createdExercises };
   });
 }

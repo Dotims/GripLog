@@ -1,6 +1,7 @@
 import {
   SYNC_PUSH_LIMIT,
   syncChangeSchema,
+  syncNamespaceResponseSchema,
   syncPullResponseSchema,
   syncPushResponseSchema,
   type SyncChange,
@@ -20,6 +21,7 @@ const PULL_PAGE_SIZE = 50;
 export type SyncTransport = {
   push: (changes: SyncChange[]) => Promise<SyncPushResponse>;
   pull: (cursor: number) => Promise<SyncPullResponse>;
+  namespace: () => Promise<string>;
 };
 
 export type SyncResult = { pushed: number; pulled: number };
@@ -32,7 +34,7 @@ function validate(db: Db, change: SyncChange): boolean {
   return false;
 }
 
-/** A 400 or 413 for the batch is retried change by change to find the bad one. */
+/** A 400 or 413 for the batch is split in halves until the bad change is alone. */
 async function sendBatch(
   db: Db,
   transport: SyncTransport,
@@ -48,13 +50,13 @@ async function sendBatch(
       blockChange(db, changes[0]!.changeId, reason);
       return { applied: [], skipped: [] };
     }
-    const merged: SyncPushResponse = { applied: [], skipped: [] };
-    for (const change of changes) {
-      const one = await sendBatch(db, transport, [change]);
-      merged.applied.push(...one.applied);
-      merged.skipped.push(...one.skipped);
-    }
-    return merged;
+    const half = Math.ceil(changes.length / 2);
+    const first = await sendBatch(db, transport, changes.slice(0, half));
+    const second = await sendBatch(db, transport, changes.slice(half));
+    return {
+      applied: [...first.applied, ...second.applied],
+      skipped: [...first.skipped, ...second.skipped],
+    };
   }
 }
 
@@ -141,5 +143,7 @@ export function httpTransport(
       syncPullResponseSchema.parse(
         await request(`/sync/pull?cursor=${cursor}&limit=${PULL_PAGE_SIZE}`),
       ),
+    namespace: async () =>
+      syncNamespaceResponseSchema.parse(await request("/sync/namespace")).namespace,
   };
 }

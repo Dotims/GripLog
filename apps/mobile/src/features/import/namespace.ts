@@ -1,16 +1,18 @@
-import { syncNamespaceResponseSchema } from "@griplog/core";
 import { eq } from "drizzle-orm";
 
 import { keyValue } from "@/db/schema";
 import type { Db } from "@/db/types";
-import { authHeaders } from "@/features/account/auth-client";
-import { API_URL } from "@/lib/api";
+import { transport } from "@/features/sync/sync-state";
 
 const storageKey = (userId: string) => `import_namespace:${userId}`;
 const TIMEOUT_MS = 4000;
 
 /** The account's namespace for import ids: cached after the first fetch, null when signed out or offline. */
-export async function importNamespace(db: Db, userId: string | null): Promise<string | null> {
+export async function importNamespace(
+  db: Db,
+  userId: string | null,
+  fetchNamespace: () => Promise<string> = transport.namespace,
+): Promise<string | null> {
   if (!userId) return null;
   const cached = db
     .select()
@@ -18,16 +20,14 @@ export async function importNamespace(db: Db, userId: string | null): Promise<st
     .where(eq(keyValue.key, storageKey(userId)))
     .get();
   if (cached) return cached.value;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    const response = await fetch(`${API_URL}/sync/namespace`, {
-      headers: await authHeaders(),
-      credentials: "include",
-      signal: controller.signal,
-    });
-    if (!response.ok) return null;
-    const { namespace } = syncNamespaceResponseSchema.parse(await response.json());
+    const namespace = await Promise.race([
+      fetchNamespace(),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error("timeout")), TIMEOUT_MS);
+      }),
+    ]);
     db.insert(keyValue)
       .values({ key: storageKey(userId), value: namespace })
       .onConflictDoNothing()

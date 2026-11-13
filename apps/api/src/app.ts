@@ -49,7 +49,7 @@ export function createApp({ db, auth, env, log = false }: Dependencies) {
       onError: (c) => c.json({ error: "Payload too large" }, 413),
     }),
   );
-  app.route("/sync", syncRoutes(env.BETTER_AUTH_SECRET));
+  app.route("/sync", syncRoutes);
   app.on(["GET", "POST"], "/graphql", requireUser, (c) => {
     const viewer = c.var.user!;
     // Loaders are created per request so their cache never leaks between users.

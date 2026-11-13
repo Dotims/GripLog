@@ -5,6 +5,7 @@ import { AppState } from "react-native";
 
 import { useDatabase } from "@/db/DatabaseProvider";
 import { useSession } from "@/features/account/SessionProvider";
+import { importNamespace } from "@/features/import/namespace";
 
 import { runSync } from "./sync-state";
 
@@ -25,6 +26,8 @@ export function AutoSync() {
     };
 
     sync();
+    // Cached now, so an offline import later still gets this account's stable ids.
+    void importNamespace(db, user.id);
     const appState = AppState.addEventListener("change", (state) => {
       if (state === "active") sync();
     });

@@ -3,7 +3,7 @@ import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
 import { useRouter } from "expo-router";
 import { CheckCircle2, FileUp, X } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
@@ -45,8 +45,15 @@ export default function ImportScreen() {
   const db = useDatabase();
   const { user } = useSession();
   const [step, setStep] = useState<Step>({ kind: "pick" });
+  const [reading, setReading] = useState(false);
+  const userId = user?.id ?? null;
+
+  useEffect(() => {
+    void importNamespace(db, userId);
+  }, [db, userId]);
 
   const pick = async () => {
+    if (reading) return;
     const result = await DocumentPicker.getDocumentAsync({
       type: ["text/csv", "text/comma-separated-values", "text/plain", "application/vnd.ms-excel"],
       // Android: read the content:// URI directly; Expo Go cannot read the picker's cache copy.
@@ -54,10 +61,11 @@ export default function ImportScreen() {
     });
     const asset = result.canceled ? null : result.assets[0];
     if (!asset) return;
+    setReading(true);
     try {
       const workouts = parseHevyCsv(await readPickedFile(asset));
       if (workouts.length === 0) throw new HevyImportError("The file has no workouts in it.");
-      const namespace = await importNamespace(db, user?.id ?? null);
+      const namespace = await importNamespace(db, userId);
       setStep({
         kind: "review",
         plan: planHevyImport(db, workouts, namespace),
@@ -65,6 +73,8 @@ export default function ImportScreen() {
       });
     } catch (error) {
       setStep({ kind: "error", message: error instanceof Error ? error.message : String(error) });
+    } finally {
+      setReading(false);
     }
   };
 
@@ -110,6 +120,7 @@ export default function ImportScreen() {
             label="Choose CSV file"
             icon={FileUp}
             size="lg"
+            loading={reading}
             onPress={pick}
             testID="choose-csv"
           />
