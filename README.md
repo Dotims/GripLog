@@ -4,7 +4,7 @@
 
 # GripLog
 
-**An offline-first workout tracker for iOS and Android, with a sync API, a social feed, a web dashboard and an AI coach that reads your real training data.**
+Offline-first workout tracker for iOS and Android, with a sync API, a social feed, a web dashboard and an MCP server for AI assistants.
 
 [![CI](https://github.com/Dotims/GripLog/actions/workflows/ci.yml/badge.svg)](https://github.com/Dotims/GripLog/actions/workflows/ci.yml)
 ![Expo SDK 57](https://img.shields.io/badge/Expo-SDK%2057-000020?logo=expo)
@@ -16,15 +16,9 @@
 
 </div>
 
----
+I log my own gym sessions in GripLog; it started as a replacement for Hevy. The app keeps everything in SQLite on the phone and works with no signal. An account adds sync through a Hono and Postgres API, a feed of friends' workouts over GraphQL and a web dashboard with progress charts. There is also an MCP server, so an assistant such as Claude can answer questions about your training using numbers from the same tested code the app runs.
 
-GripLog is the app I actually log my gym sessions in. It started as a Hevy replacement and grew into a full stack project: a React Native app that works with zero signal on the gym floor, a Postgres backed API that syncs it, a GraphQL feed for training with friends, a web dashboard for progress charts, and an MCP server that lets an assistant like Claude review your training using numbers computed by tested code instead of guesses.
-
-My own history (144 workouts and 2 600+ sets exported from Hevy) imports in about a second, and the recording and screenshots show that real data: the week against my goal, a profile cover drawn from my training days with a ring for my lift goal, a past workout with the muscles it trained, and a session logged from a routine through to its summary. Both were captured from the app running in Expo Go on an Android emulator.
-
-The interface is dark and quiet on purpose: you look at it between sets, often in a dim gym. Colour carries meaning only: red for actions and progress, green for completed sets, gold for personal records, and one colour per superset. Type is Onest in four weights with tabular figures, so timers and weights never jitter. Motion is Reanimated on the UI thread: spring press feedback, a sliding segmented control, sheets that rise and settle, a set that washes green when ticked, a rest line that drains continuously and a summary that counts its numbers up.
-
-Small rewards keep it pleasant to come back to, the way Duolingo does it: a weekly goal with a streak, a short chime when a workout is saved (a brighter fanfare for a personal record), a soft tick for each set and a bell when rest is over. The sounds are generated for the app, mix with your music and stay quiet when the phone is on silent.
+The recording and the screenshots show my real history: 144 workouts and about 2 650 sets imported from a Hevy export, captured in Expo Go on an Android emulator.
 
 <p align="center">
   <img src="docs/media/screens.png" alt="Profile with the training map cover and lift goal ring, exercise detail with a next-session suggestion, an active workout with a superset and the rest timer, and a past workout with its muscle map" />
@@ -32,32 +26,37 @@ Small rewards keep it pleasant to come back to, the way Duolingo does it: a week
 
 ## Features
 
-**In the gym (fully offline)**
+### Logging, offline
 
-- Log sets with weight, reps and RPE, as normal, warm-up, drop or failure sets. Exercises without a load take reps only, timed ones (plank, carries) take a stopwatch-style time, cardio takes distance and time. A short swipe on a set reveals delete; a long one deletes it straight away.
-- The "previous" column shows what you lifted last time; ticking an empty set fills it in.
-- Rest timer that survives the app being killed and buzzes the locked phone with a local notification.
-- 400+ exercises, each with an animated 3D demo of the movement with the working muscles highlighted, plus search, muscle filters, your own custom exercises and the lifts you have logged before. The library is sorted by how often you do each lift.
-- Routines, built on their own page, with targets per set: a fixed weight and reps, a rep range like 8-12, or a time. A range is the hint you aim for while logging. A new exercise starts with one set; more are a tap away.
-- Supersets: link neighbouring exercises in a routine or mid-workout; the rest timer waits until the last exercise of each round.
-- "Repeat this workout" and "save as routine".
-- Personal records (heaviest weight, estimated 1RM, best set volume, most reps) recomputed on every save, edit and delete.
-- A weekly goal (say three workouts) with a streak of weeks on goal. Every four weeks on goal earn a freeze that covers one missed week, for a cold or a holiday.
-- A lift goal, like a 100 kg bench: a ring shows your best recent estimated 1RM against the target, and a trend line over the last twelve weeks forecasts when you will get there.
-- A finish screen worth seeing: the week so far, a body map of the muscles you trained and a photo of the day.
-- Photos on workouts, from the camera or the library. They stay on the phone and build your profile cover; without photos the cover is a map of the days you trained.
-- Every workout shows the muscles it trained on a front and back body map, and your recent workouts use it as their thumbnail.
-- A next-session suggestion per lift: double progression, plus a deload after three sessions without progress.
-- One-tap import of a Hevy CSV export, with a review step and safe re-runs.
+- Sets with weight, reps and RPE, marked as normal, warm-up, drop or failure. Bodyweight exercises take reps only, timed ones (plank, carries) a time, cardio a distance and a time.
+- A "previous" column with last time's numbers; ticking an empty set copies them in.
+- A rest timer that survives the app being killed. On a locked phone a local notification says when rest is over.
+- A library of 400+ exercises with animated demos, muscle filters, search and custom exercises. The lifts you do most often come first.
+- Routines with a target per set: weight and reps, a rep range such as 8-12, or a time.
+- Supersets in routines and during a workout. The rest timer starts after the last exercise of each round.
+- Swipe a set to the left to delete it.
+- Repeat a past workout or save it as a routine.
+- Personal records (heaviest weight, estimated 1RM, best set volume, most reps), recomputed after every save, edit and delete.
+- A front and back body map of the muscles each workout trained, also used as its thumbnail.
+- Photos on workouts, from the camera or the library. They stay on the phone and fill the profile cover; without photos the cover shows the days you trained.
+- A suggestion for the next session of each lift: double progression, and a 10 % deload after three sessions without a new best estimated 1RM.
+- Import of a Hevy CSV export with a review step. Running it again skips the workouts that are already there.
+- Sounds, which can be turned off: a tick per set, a bell when rest is over and a chime when a workout is saved.
 
-**With an account**
+### Goals
 
-- Background sync across devices. The phone stays the source of truth while you train.
-- Find friends by name or from suggestions (the most active people you do not follow yet), follow them, see their workouts in the Friends feed and like them.
-- A web dashboard with the feed and progress charts for every exercise.
-- An MCP server, so Claude (or any MCP client) can answer "how is my bench going?" from your actual history.
+- A weekly goal, for example three workouts, and a streak of weeks that met it. Every four weeks on goal earn a freeze that covers one missed week.
+- A lift goal such as a 100 kg bench. A ring shows the best estimated 1RM of the last twelve weeks against the target, and a least-squares trend over the same weeks gives the expected date.
+- A summary after each workout with the week so far, the muscles trained and any new records.
 
-## Architecture
+### With an account
+
+- Background sync between devices. While you train, the phone stays the source of truth.
+- Find friends by name or in the suggestions, follow them and like their workouts in the Friends feed.
+- A web dashboard with the feed and a progress chart for every exercise.
+- An MCP server, so Claude or another MCP client can answer "how is my bench going?" from your history.
+
+## How it works
 
 ```mermaid
 flowchart LR
@@ -87,47 +86,43 @@ flowchart LR
   CORE -.-> MCP
 ```
 
-The training logic lives in one pure TypeScript package, `@griplog/core`, used by the app, the API, the web dashboard and the MCP server. A 1RM estimate or a progression rule is written and tested once, and every surface shows the same number.
+The training rules (1RM estimates, progression, records, goals), the Hevy parser and the sync contract live in `@griplog/core`, a plain TypeScript package. The app, the API, the web dashboard and the MCP server all import it, so they compute the same numbers.
 
-## Engineering notes
+### Transactions
 
-Things I deliberately built the hard way, because they are the interesting part.
+- Saving a workout is one SQLite transaction: the workout, its exercises and sets, the recomputed records and the outbox entry. A test breaks a foreign key halfway through and checks that nothing was written.
+- Every local write adds its aggregate to an outbox table in the same transaction, so a change cannot be saved without being queued for upload.
+- A pulled page and the sync cursor are committed together. After a crash in the middle of a sync, the app fetches the same page again.
+- On the server a push is one Postgres transaction under a per-user advisory lock. Version numbers follow commit order, so an incremental pull never misses a row.
 
-### Transactions, end to end
+### Sync
 
-- **Saving a workout is one SQLite transaction**: the workout row, its exercises and sets, the recomputed personal records and the sync outbox entry all land together or not at all. There is a test that breaks a foreign key halfway through and checks that nothing was written.
-- **Transactional outbox**: every local write queues its aggregate in the same transaction, so a change can never be saved without also being queued for upload.
-- **Pulled pages and the sync cursor commit together**, so a crash mid-sync re-fetches the same page instead of skipping it.
-- On the server, a push is one Postgres transaction under a **per-user advisory lock**, so version numbers follow commit order and incremental pulls never miss a row.
+- Every change carries an id that the server records. A retry of a change that already landed comes back as skipped, not as a second write.
+- Conflicts resolve by last write wins on `updatedAt`. A guessed id cannot overwrite another user's row, and a test checks it.
+- The client validates each payload with the server's zod schema. A change the server will never accept is parked with a reason so the rest of the queue keeps moving (my Hevy export has a 2 505 kg curl). When the server rejects a batch, the client retries it one change at a time to find the bad one.
+- Pulls are paged per entity type, with a cursor that can hold back but never skips a row.
+- New contract fields (superset numbers, rep ranges, timed targets) have defaults in the schema, so an older app version still pushes valid changes.
 
-### Sync that survives real networks
+### REST and GraphQL
 
-- **Idempotency keys**: each change has an id the server records. A phone that lost the response and retries gets "skipped", not a duplicate.
-- **Last write wins** on `updatedAt`, and a guessed id can never overwrite another user's data (tested).
-- **Poison messages are parked**: the client validates every payload with the same zod schema as the server. A bad change (my Hevy export contains a 2 505 kg curl) is set aside with a reason instead of blocking the queue, and a rejected batch is bisected to find the culprit.
-- Pulls page per entity type with a cursor that may hold back but never skips a row.
-- **The contract evolves without breaking old phones**: new fields (superset numbers, rep ranges, timed targets) have defaults in the zod schema, so an app version that does not know them still pushes valid changes.
+- Sync is REST: `POST /sync/push` and `GET /sync/pull`, with plain status codes and zod validation.
+- The feed and the dashboard use GraphQL, so a client gets the fields a card shows in one request. Per-request DataLoaders batch the authors, sets and likes, so the feed does not run a query per card, and pages use a keyset on `(startedAt, id)` instead of `OFFSET`.
 
-### REST and GraphQL, each where it wins
+### State
 
-- **REST for sync**: two fixed commands (`POST /sync/push`, `GET /sync/pull`) with plain status codes and validation.
-- **GraphQL for the social feed and dashboards**: clients ask for exactly the fields a card shows, in one round trip. Per-request **DataLoaders** batch authors, sets and likes to avoid N+1 queries, and the feed uses **keyset pagination** on `(startedAt, id)` instead of `OFFSET`.
-
-### State, by kind of data
-
-| State                                 | Tool                                | Why                                                                                                                 |
-| ------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| The running workout                   | **Zustand**, persisted to SQLite    | Changes on every keystroke; components subscribe to the slice they show, so typing a weight re-renders one set row. |
-| Database handle, session, preferences | **React Context**                   | Global, rarely changes, read everywhere.                                                                            |
-| Local tables                          | `useSyncExternalStore` live queries | First render already has data; one re-read per transaction, not per row.                                            |
-| Server data (feed, likes, search)     | **TanStack Query**                  | Caching, infinite pages, optimistic likes with rollback.                                                            |
+| State                                 | Tool                                | Why                                                                                                 |
+| ------------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------- |
+| The running workout                   | Zustand, persisted to SQLite        | Changes on every keystroke; each set row subscribes to its own slice, so typing re-renders one row. |
+| Database handle, session, preferences | React Context                       | Global, read everywhere, changes rarely.                                                            |
+| Local tables                          | `useSyncExternalStore` live queries | The first render already has data, and a transaction triggers one re-read instead of one per row.   |
+| Server data (feed, likes, search)     | TanStack Query                      | Caching, infinite pages, optimistic likes with rollback.                                            |
 
 ### Tests and CI
 
-- **Vitest** for the core rules, the Hevy importer and the API. API tests run against a **real Postgres** (a service container in CI) and cover idempotency, last-write-wins, ownership, rollback and pagination.
-- **Jest + React Native Testing Library** for repositories (real migrations on SQLite compiled to WebAssembly), the Zustand stores, the sync engine and components.
-- **Maestro** flows in `apps/mobile/e2e` for logging a workout and creating a routine.
-- **GitHub Actions** runs format, lint, typecheck and every test suite on each push and pull request.
+- Vitest covers the core rules, the Hevy importer, the API and the MCP server. The API tests run against a real Postgres (a service container in CI) and cover idempotency, last write wins, ownership, rollback and pagination.
+- Jest and React Native Testing Library cover the repositories (real migrations on sql.js), the Zustand stores, the sync engine and components.
+- Maestro flows in `apps/mobile/e2e` log a workout and create a routine.
+- GitHub Actions runs format, lint, typecheck and every test suite on each push and pull request.
 
 ## Tech stack
 
@@ -158,6 +153,8 @@ packages/
 
 You need Node 22+ and Docker.
 
+### API
+
 ```bash
 npm install
 docker compose up -d                      # Postgres on localhost:5440
@@ -166,16 +163,18 @@ npm run dev -w @griplog/api               # API on http://localhost:3000
 npm run db:seed-demo -w @griplog/api      # optional: three demo friends with recent workouts
 ```
 
-**Mobile.** Install Expo Go (SDK 57) on your phone, then:
+### Mobile
+
+Install Expo Go (SDK 57) on your phone, then:
 
 ```bash
 cp apps/mobile/.env.example apps/mobile/.env   # EXPO_PUBLIC_API_URL=http://<your LAN IP>:3000
 npm run mobile                                  # scan the QR code with the camera
 ```
 
-The app works without the API; an account only adds sync and the social feed. To bring your history over, export workouts from Hevy (Settings, Export & Import Data) and open **Import from Hevy**.
+The app works without the API; an account only adds sync and the social feed. To bring your history over, export your workouts from Hevy (Settings, Export & Import Data) and open Import from Hevy in the app.
 
-**Web dashboard.**
+### Web dashboard
 
 ```bash
 npm run dev -w @griplog/web     # http://localhost:5173, proxies /api and /graphql to the API
@@ -185,7 +184,9 @@ npm run dev -w @griplog/web     # http://localhost:5173, proxies /api and /graph
   <img src="docs/media/web-progress.png" alt="Web dashboard: estimated 1RM chart and next-session suggestion" />
 </p>
 
-**AI coach (MCP).** Create a token and register the server with your MCP client, for example Claude Code (run from the repository root):
+### MCP server
+
+Create a token and register the server with your MCP client, for example Claude Code (run from the repository root):
 
 ```bash
 npm run token -w @griplog/mcp -- you@example.com your-password
@@ -204,24 +205,16 @@ npm run typecheck
 npm test            # API tests expect the Postgres from docker compose
 ```
 
-## Roadmap
+## Not done yet
 
-- [x] Offline app: library, routines, workouts, records, history, profile, Hevy import
-- [x] Polish: animations, haptics, charts, rest notifications
-- [x] API, accounts and sync
-- [x] GraphQL social feed
-- [x] Web dashboard
-- [x] MCP coach
-- [x] Supersets, rep ranges and timed targets in routines
-- [x] Weekly goal with streak freezes, a lift goal with a forecast, workout photos, sounds
-- [ ] iOS Live Activity for the rest timer and EAS builds
-- [ ] Hosted API and web deploy
-- [ ] In-app coach chat on top of the MCP tools
+- EAS builds and an iOS Live Activity for the rest timer
+- A hosted API and web dashboard
+- Coach chat inside the app, on top of the MCP tools
 
 ## Credits
 
 - Exercise data and photos: [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain).
-- Exercise animations: [ExerciseDB](https://github.com/ExerciseDB/exercisedb-api), © [Gym visual](https://gymvisual.com/). They are streamed from the ExerciseDB CDN and not stored in this repository; `packages/catalogue/data/animations.json` holds only the matched ids, built by `npm run animations -w @griplog/catalogue`.
+- Exercise animations: [ExerciseDB](https://github.com/ExerciseDB/exercisedb-api), © [Gym visual](https://gymvisual.com/). The app streams them from the ExerciseDB CDN and the repository does not store them; `packages/catalogue/data/animations.json` holds only the matched ids, built by `npm run animations -w @griplog/catalogue`.
 - Font: [Onest](https://fonts.google.com/specimen/Onest) (SIL Open Font License).
 - Body map: [react-native-body-highlighter](https://github.com/HichamELBSI/react-native-body-highlighter) (MIT).
 
