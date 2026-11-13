@@ -32,7 +32,7 @@ function validate(db: Db, change: SyncChange): boolean {
   return false;
 }
 
-/** A 400 for the batch is retried change by change to find the bad one. */
+/** A 400 or 413 for the batch is retried change by change to find the bad one. */
 async function sendBatch(
   db: Db,
   transport: SyncTransport,
@@ -41,9 +41,11 @@ async function sendBatch(
   try {
     return await transport.push(changes);
   } catch (error) {
-    if (!(error instanceof SyncHttpError) || error.status !== 400) throw error;
+    if (!(error instanceof SyncHttpError) || (error.status !== 400 && error.status !== 413))
+      throw error;
     if (changes.length === 1) {
-      blockChange(db, changes[0]!.changeId, "Rejected by the server");
+      const reason = error.status === 413 ? "Too large for the server" : "Rejected by the server";
+      blockChange(db, changes[0]!.changeId, reason);
       return { applied: [], skipped: [] };
     }
     const merged: SyncPushResponse = { applied: [], skipped: [] };

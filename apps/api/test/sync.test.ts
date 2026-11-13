@@ -4,6 +4,7 @@ import { syncNamespaceResponseSchema } from "@griplog/core";
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 
+import { PUSH_BODY_LIMIT } from "../src/app";
 import { appliedChanges, workouts } from "../src/db/schema";
 import { nextCursor } from "../src/sync/pull";
 import { change, setupTestApp, workout } from "./helpers";
@@ -162,6 +163,16 @@ describe("sync", () => {
     expect(status).toBe(500);
     expect(await db.select().from(workouts)).toEqual([]);
     expect(await db.select().from(appliedChanges)).toEqual([]);
+  });
+
+  it("refuses push bodies over the size limit", async () => {
+    const { headers } = await signUp("huge@example.com");
+    const response = await app.request("/sync/push", {
+      method: "POST",
+      headers,
+      body: "x".repeat(PUSH_BODY_LIMIT + 1),
+    });
+    expect(response.status).toBe(413);
   });
 
   it("rejects malformed changes before touching the database", async () => {

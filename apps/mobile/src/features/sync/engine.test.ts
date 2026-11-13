@@ -172,6 +172,24 @@ describe("pushPending", () => {
     expect(blockedChanges(db)).toHaveLength(1);
   });
 
+  it("splits a batch the server finds too large", async () => {
+    for (const day of ["01", "02", "03"]) {
+      saveWorkout(
+        db,
+        workoutInput(`2026-10-${day}T10:00:00.000Z`, [{ exerciseId: "bench", sets: [[80, 8]] }]),
+      );
+    }
+    const fake = transport({
+      push: async (changes) => {
+        if (changes.length > 1) throw new SyncHttpError(413, "too large");
+        return { applied: changes.map((c) => c.changeId), skipped: [] };
+      },
+    });
+
+    expect(await pushPending(db, fake)).toBe(3);
+    expect(blockedChanges(db)).toEqual([]);
+  });
+
   it("unblocks a parked change once the workout is edited", async () => {
     const input = workoutInput("2026-10-01T10:00:00.000Z", [
       { exerciseId: "bench", sets: [[2505, 1]] },

@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
@@ -14,6 +15,9 @@ import { syncRoutes } from "./sync/routes";
 
 type Dependencies = { db: Database; auth: Auth; env: Env; log?: boolean };
 
+// A full batch of typical workouts is a few hundred kB; the phone splits anything larger.
+export const PUSH_BODY_LIMIT = 4 * 1024 * 1024;
+
 export function createApp({ db, auth, env, log = false }: Dependencies) {
   const app = new Hono<AppEnv>();
 
@@ -28,6 +32,7 @@ export function createApp({ db, auth, env, log = false }: Dependencies) {
     }),
   );
 
+  app.get("/health", (c) => c.json({ ok: true }));
   app.on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
   app.use("*", async (c, next) => {
@@ -37,7 +42,13 @@ export function createApp({ db, auth, env, log = false }: Dependencies) {
     await next();
   });
 
-  app.get("/health", (c) => c.json({ ok: true }));
+  app.use(
+    "/sync/push",
+    bodyLimit({
+      maxSize: PUSH_BODY_LIMIT,
+      onError: (c) => c.json({ error: "Payload too large" }, 413),
+    }),
+  );
   app.route("/sync", syncRoutes(env.BETTER_AUTH_SECRET));
   app.on(["GET", "POST"], "/graphql", requireUser, (c) => {
     const viewer = c.var.user!;
