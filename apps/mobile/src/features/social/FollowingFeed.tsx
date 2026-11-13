@@ -102,8 +102,8 @@ export function FollowingFeed({ header }: { header: ReactElement }) {
         !user ? (
           <EmptyState
             icon={Users}
-            title="Train together"
-            message="Sign in to follow friends and see their workouts here."
+            title="Sign in to see friends"
+            message="Follow friends and see their workouts here."
             action={<Button label="Sign in" icon={LogIn} onPress={() => router.push("/account")} />}
           />
         ) : feed.isPending ? (
@@ -113,7 +113,7 @@ export function FollowingFeed({ header }: { header: ReactElement }) {
         ) : (
           <EmptyState
             icon={Users}
-            title="Quiet here"
+            title="You don't follow anyone yet"
             message="Follow friends to see their workouts next to yours."
             action={
               <Button label="Find friends" icon={UserPlus} onPress={() => router.push("/people")} />

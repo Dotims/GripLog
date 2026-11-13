@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import type { StyleProp, ViewStyle } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 /** Rows past this index mount without the entering animation. */
-const ANIMATED_ROWS = 10;
+const ANIMATED_ROWS = 8;
 
 export function Appear({
   index,
@@ -16,7 +16,7 @@ export function Appear({
 }) {
   return (
     <Animated.View
-      entering={index < ANIMATED_ROWS ? FadeInDown.delay(index * 40).duration(320) : undefined}
+      entering={index < ANIMATED_ROWS ? FadeIn.delay(index * 30).duration(200) : undefined}
       style={style}
     >
       {children}

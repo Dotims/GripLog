@@ -83,7 +83,7 @@ export default function ImportScreen() {
       {step.kind === "pick" || step.kind === "error" ? (
         <>
           <Card style={styles.card}>
-            <AppText variant="heading">Bring your history over</AppText>
+            <AppText variant="heading">Import a Hevy export</AppText>
             <AppText color={Colors.muted}>
               In Hevy open Profile, Settings, Export &amp; Import Data, then Export Workouts. Pick
               the CSV file here. Workouts you imported before are skipped, so running it again is

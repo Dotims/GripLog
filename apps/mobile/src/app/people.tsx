@@ -76,8 +76,8 @@ export default function PeopleScreen() {
       <Screen scroll edges={[]}>
         <EmptyState
           icon={Users}
-          title="Train with friends"
-          message="Sign in to follow friends and see their workouts in your feed."
+          title="Sign in to find friends"
+          message="Follow friends and see their workouts in your feed."
           action={
             <Button label="Sign in" icon={LogIn} onPress={() => router.replace("/account")} />
           }

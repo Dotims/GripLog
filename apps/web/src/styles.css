@@ -390,7 +390,6 @@ a {
   place-items: center;
   min-height: 100vh;
   padding: 24px;
-  background: radial-gradient(circle at 50% 20%, rgba(255, 71, 87, 0.12), transparent 50%);
 }
 
 .login .card {

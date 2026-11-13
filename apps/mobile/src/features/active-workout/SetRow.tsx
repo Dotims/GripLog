@@ -109,7 +109,7 @@ export function SetRow({
       checkScale.set(
         withSequence(
           withTiming(0.82, { duration: 80 }),
-          withSpring(1, { damping: 9, stiffness: 320 }),
+          withSpring(1, { damping: 15, stiffness: 320 }),
         ),
       );
     }

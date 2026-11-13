@@ -4,14 +4,7 @@ import { Check, Trophy } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
-import Animated, {
-  FadeInDown,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withTiming,
-  ZoomIn,
-} from "react-native-reanimated";
+import Animated, { Easing, FadeInDown, Keyframe } from "react-native-reanimated";
 
 import { AppText, Button, Card, Screen, SectionLabel, Stat } from "@/components/ui";
 import { Colors, Spacing, tabular } from "@/constants/theme";
@@ -29,6 +22,11 @@ import { summariseWorkout } from "@/features/workouts/summary";
 import { WorkoutPhotos } from "@/features/workouts/WorkoutPhotos";
 import { playSound } from "@/lib/sounds";
 import { useCountUp } from "@/lib/use-count-up";
+
+const BADGE_IN = new Keyframe({
+  0: { opacity: 0, transform: [{ scale: 0.85 }] },
+  100: { opacity: 1, transform: [{ scale: 1 }], easing: Easing.out(Easing.cubic) },
+}).duration(220);
 
 export default function WorkoutSummaryScreen() {
   const router = useRouter();
@@ -51,15 +49,6 @@ export default function WorkoutSummaryScreen() {
     playSound(records > 0 ? "record" : "complete");
   }, [loaded, records]);
 
-  const ripple = useSharedValue(0);
-  useEffect(() => {
-    ripple.set(withDelay(250, withTiming(1, { duration: 900 })));
-  }, [ripple]);
-  const rippleStyle = useAnimatedStyle(() => ({
-    opacity: 0.5 * (1 - ripple.get()),
-    transform: [{ scale: 1 + ripple.get() * 0.7 }],
-  }));
-
   if (!workout || !summary) return null;
   const names = new Map(workout.exercises.map((e) => [e.exerciseId, e.exercise.name]));
   const muscles = musclesWorked(
@@ -74,13 +63,8 @@ export default function WorkoutSummaryScreen() {
 
   return (
     <Screen scroll edges={["top", "bottom"]} contentContainerStyle={styles.content}>
-      <Animated.View entering={ZoomIn.springify().damping(14)} style={styles.badgeWrapper}>
-        <Animated.View style={[styles.ripple, rippleStyle]} />
-        <View style={styles.badgeHalo}>
-          <View style={styles.badge}>
-            <Check color={Colors.accentInk} size={40} strokeWidth={3} />
-          </View>
-        </View>
+      <Animated.View entering={BADGE_IN} style={styles.badge}>
+        <Check color={Colors.accentInk} size={32} strokeWidth={3} />
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(120)} style={styles.heading}>
@@ -130,7 +114,7 @@ export default function WorkoutSummaryScreen() {
         </View>
       ) : (
         <AppText color={Colors.muted} align="center">
-          No new records this time. Consistency is what moves them.
+          No new records this time.
         </AppText>
       )}
 
@@ -148,7 +132,7 @@ export default function WorkoutSummaryScreen() {
       {trainedGoalLift && liftGoal ? <LiftGoalCard goal={liftGoal} unit={unit} /> : null}
 
       <View style={styles.photos}>
-        <SectionLabel>Remember today</SectionLabel>
+        <SectionLabel>Photos</SectionLabel>
         <WorkoutPhotos workoutId={workout.id} />
       </View>
 
@@ -174,25 +158,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
   },
-  badgeWrapper: {
-    alignItems: "center",
-  },
-  ripple: {
-    position: "absolute",
-    width: 112,
-    height: 112,
-    borderRadius: 999,
-    borderWidth: 2,
-    borderColor: Colors.accent,
-  },
-  badgeHalo: {
-    padding: 14,
-    borderRadius: 999,
-    backgroundColor: Colors.accentSoft,
-  },
   badge: {
-    width: 84,
-    height: 84,
+    alignSelf: "center",
+    width: 64,
+    height: 64,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 999,
@@ -221,7 +190,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 999,
-    backgroundColor: "rgba(245, 196, 81, 0.16)",
+    backgroundColor: Colors.goldSoft,
   },
   flex: {
     flex: 1,

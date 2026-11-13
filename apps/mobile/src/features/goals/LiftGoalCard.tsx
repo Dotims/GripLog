@@ -12,10 +12,10 @@ import type { useLiftGoal } from "./hooks";
 type LiftGoal = NonNullable<ReturnType<typeof useLiftGoal>>;
 
 function forecastLine(goal: LiftGoal): string {
-  if (goal.reached) return "Goal reached. Time to set the next one.";
+  if (goal.reached) return "Goal reached.";
   if (goal.expectedAt) return `On track ${formatForecast(goal.expectedAt)}`;
   if (goal.currentKg === 0) return "Log this lift to start tracking it.";
-  return "No upward trend in the last 12 weeks yet. Keep showing up.";
+  return "No upward trend in the last 12 weeks.";
 }
 
 export function LiftGoalCard({
@@ -68,10 +68,9 @@ export function NoLiftGoalCard({ onPress }: { onPress: () => void }) {
         <Target color={Colors.accent} size={26} strokeWidth={2} />
       </View>
       <View style={styles.text}>
-        <AppText variant="heading">Chase a number</AppText>
+        <AppText variant="heading">Set a lift goal</AppText>
         <AppText variant="label" color={Colors.muted}>
-          Pick a lift and a target, like a 100 kg bench. GripLog tracks your estimated max and tells
-          you when you will get there.
+          Pick a lift and a target, like a 100 kg bench, to see your progress and a forecast date.
         </AppText>
       </View>
     </Card>

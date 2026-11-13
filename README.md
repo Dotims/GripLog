@@ -172,7 +172,7 @@ cp apps/mobile/.env.example apps/mobile/.env   # EXPO_PUBLIC_API_URL=http://<you
 npm run mobile                                  # scan the QR code with the camera
 ```
 
-The app works without the API; an account only adds sync and the social feed. To bring your history over, export your workouts from Hevy (Settings, Export & Import Data) and open Import from Hevy in the app.
+The app works without the API; an account only adds sync and the social feed. To bring your history over, export your workouts from Hevy (Profile, Settings, Export & Import Data, Export Workouts) and open Import from Hevy in the app.
 
 ### Web dashboard
 

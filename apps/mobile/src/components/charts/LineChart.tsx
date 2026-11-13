@@ -46,7 +46,7 @@ export function LineChart({ points, height = 170, formatValue }: LineChartProps)
       </View>
       <View style={{ height }} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
         {width > 0 && last ? (
-          <Animated.View entering={FadeIn.duration(500)}>
+          <Animated.View entering={FadeIn.duration(250)}>
             <Svg width={width} height={height}>
               <Defs>
                 <LinearGradient id="area" x1="0" y1="0" x2="0" y2="1">

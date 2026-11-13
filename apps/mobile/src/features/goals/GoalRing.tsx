@@ -38,7 +38,7 @@ export function GoalRing({
       withDelay(
         150,
         withTiming(Math.min(1, Math.max(0, progress)), {
-          duration: 900,
+          duration: 600,
           easing: Easing.out(Easing.cubic),
         }),
       ),

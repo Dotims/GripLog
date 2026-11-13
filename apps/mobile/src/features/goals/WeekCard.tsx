@@ -1,17 +1,6 @@
 import { WEEKS_PER_FREEZE, type WeeklyGoal } from "@griplog/core";
 import { Check, Flame, Snowflake } from "lucide-react-native";
-import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withRepeat,
-  withSequence,
-  withSpring,
-  withTiming,
-  ZoomIn,
-} from "react-native-reanimated";
 
 import { AppText, Card } from "@/components/ui";
 import { Colors, Spacing, SupersetColors } from "@/constants/theme";
@@ -27,14 +16,9 @@ function DayDot({ index, trained, today }: { index: number; trained: boolean; to
         {DAYS[index]}
       </AppText>
       {trained ? (
-        <Animated.View
-          entering={ZoomIn.delay(80 + index * 40)
-            .springify()
-            .damping(12)}
-          style={[styles.dot, styles.trained]}
-        >
+        <View style={[styles.dot, styles.trained]}>
           <Check color={Colors.accentInk} size={16} strokeWidth={3} />
-        </Animated.View>
+        </View>
       ) : (
         <View
           style={[styles.dot, index === today ? styles.today : past ? styles.past : styles.future]}
@@ -45,32 +29,16 @@ function DayDot({ index, trained, today }: { index: number; trained: boolean; to
 }
 
 function StreakBadge({ streak }: { streak: number }) {
-  const hop = useSharedValue(1);
-  useEffect(() => {
-    if (streak === 0) return;
-    hop.set(
-      withDelay(
-        400,
-        withRepeat(
-          withSequence(withTiming(1.22, { duration: 160 }), withSpring(1, { damping: 6 })),
-          2,
-        ),
-      ),
-    );
-  }, [hop, streak]);
-  const flameStyle = useAnimatedStyle(() => ({ transform: [{ scale: hop.get() }] }));
   const lit = streak > 0;
 
   return (
     <View style={[styles.streak, lit && styles.streakLit]}>
-      <Animated.View style={flameStyle}>
-        <Flame
-          color={lit ? Colors.accent : Colors.faint}
-          fill={lit ? Colors.accent : "transparent"}
-          size={18}
-          strokeWidth={2}
-        />
-      </Animated.View>
+      <Flame
+        color={lit ? Colors.accent : Colors.faint}
+        fill={lit ? Colors.accent : "transparent"}
+        size={18}
+        strokeWidth={2}
+      />
       <AppText variant="bold" color={lit ? Colors.text : Colors.muted}>
         {streak}
       </AppText>
@@ -113,7 +81,7 @@ export function WeekCard({ goal, onPress }: { goal: WeeklyGoal; onPress?: () => 
       <View style={styles.footer}>
         <AppText variant="label" color={met ? Colors.success : Colors.muted} style={styles.flex}>
           {met
-            ? "Goal met. The streak is safe this week."
+            ? "Goal met for this week."
             : `${left} more ${left === 1 ? "workout" : "workouts"} to keep the streak`}
         </AppText>
         <View style={styles.freeze}>
