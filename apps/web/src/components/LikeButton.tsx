@@ -1,9 +1,13 @@
 import { useMutation, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 
 import { graphql } from "../lib/graphql";
+import {
+  toggleLikeInFeed,
+  toggleLikeInWorkout,
+  type FeedPage,
+  type WorkoutData,
+} from "../lib/likes";
 import type { FeedWorkout } from "../lib/queries";
-
-type FeedPage = { feed: { items: FeedWorkout[]; nextCursor: string | null } };
 
 export function LikeButton({
   workout,
@@ -20,32 +24,24 @@ export function LikeButton({
         { id: workout.id },
       ),
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ["feed"] });
-      const previous = queryClient.getQueryData<InfiniteData<FeedPage>>(["feed"]);
-      queryClient.setQueryData<InfiniteData<FeedPage>>(["feed"], (data) =>
-        data
-          ? {
-              ...data,
-              pages: data.pages.map((page) => ({
-                feed: {
-                  ...page.feed,
-                  items: page.feed.items.map((w) =>
-                    w.id === workout.id
-                      ? {
-                          ...w,
-                          likedByMe: !w.likedByMe,
-                          likeCount: w.likeCount + (w.likedByMe ? -1 : 1),
-                        }
-                      : w,
-                  ),
-                },
-              })),
-            }
-          : data,
-      );
-      return { previous };
+      const feedKey = ["feed"];
+      const workoutKey = ["workout", workout.id];
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: feedKey }),
+        queryClient.cancelQueries({ queryKey: workoutKey }),
+      ]);
+      const previous = {
+        feed: queryClient.getQueryData<InfiniteData<FeedPage>>(feedKey),
+        workout: queryClient.getQueryData<WorkoutData>(workoutKey),
+      };
+      queryClient.setQueryData(feedKey, toggleLikeInFeed(previous.feed, workout.id));
+      queryClient.setQueryData(workoutKey, toggleLikeInWorkout(previous.workout, workout.id));
+      return previous;
     },
-    onError: (_error, _vars, context) => queryClient.setQueryData(["feed"], context?.previous),
+    onError: (_error, _vars, previous) => {
+      queryClient.setQueryData(["feed"], previous?.feed);
+      queryClient.setQueryData(["workout", workout.id], previous?.workout);
+    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["workout", workout.id] });
@@ -59,7 +55,7 @@ export function LikeButton({
       aria-pressed={workout.likedByMe}
       onClick={() => toggle.mutate()}
     >
-      {workout.likedByMe ? "♥" : "♡"} {workout.likeCount}{" "}
+      <span aria-hidden="true">{workout.likedByMe ? "♥" : "♡"}</span> {workout.likeCount}{" "}
       {workout.likeCount === 1 ? "like" : "likes"}
     </button>
   );
